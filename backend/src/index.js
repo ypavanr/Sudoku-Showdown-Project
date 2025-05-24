@@ -15,6 +15,10 @@ app.use(cors({
 db.connect().then(()=>{
   console.log("connected to database")
 })
+app.post("/test", (req, res) => {
+  return res.status(200).json({ message: "Test route working" });
+});
+
 app.use("/auth",authRouter)
 app.listen(3000,()=>{
     console.log("server listening on port 3000")

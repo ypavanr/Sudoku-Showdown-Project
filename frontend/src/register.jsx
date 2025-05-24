@@ -26,7 +26,7 @@ const handleSubmit = async (e) => {
         if (response.status === 201) {
             console.log(response.data);
             alert( response.data.message);
-             navigate('/');
+             navigate('/login');
         } else {
             alert('Registration failed: ' + response.data.message);
         }
@@ -43,9 +43,9 @@ return(
                 <Form.Group controlId="name">
                     <Form.Label>email:</Form.Label>
                     <Form.Control
-                        type="text"
+                        type="email"
                         name="email"
-                        value={formData.name}
+                        value={formData.email}
                         onChange={handleChange}
                         placeholder="Enter your email"
                         required
@@ -54,9 +54,9 @@ return(
                 <Form.Group controlId="username">
                     <Form.Label>username:</Form.Label>
                     <Form.Control
-                        type="email"
+                        type="text"
                         name="username"
-                        value={formData.email}
+                        value={formData.username}
                         onChange={handleChange}
                         placeholder="Enter your username"
                         required
