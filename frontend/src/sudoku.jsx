@@ -1,54 +1,96 @@
-import React, { useState } from 'react';
-import './Sudoku.css';
+import React, { useState, useEffect } from "react";
+import "./Sudoku.css";
 
-const isValidSudoku = (board) => {
-  const isValidBlock = (block) => {
-    const nums = block.filter(n => n !== '');
+const puzzles = [
+  [
+    [5, 3, "", "", 7, "", "", "", ""],
+    [6, "", "", 1, 9, 5, "", "", ""],
+    ["", 9, 8, "", "", "", "", 6, ""],
+    [8, "", "", "", 6, "", "", "", 3],
+    [4, "", "", 8, "", 3, "", "", 1],
+    [7, "", "", "", 2, "", "", "", 6],
+    ["", 6, "", "", "", "", 2, 8, ""],
+    ["", "", "", 4, 1, 9, "", "", 5],
+    ["", "", "", "", 8, "", "", 7, 9]
+  ],
+  [
+    ["", "", 3, "", 2, "", 6, "", ""],
+    [9, "", "", 3, "", 5, "", "", 1],
+    ["", "", 1, 8, "", 6, 4, "", ""],
+    ["", "", 8, 1, "", 2, 9, "", ""],
+    [7, "", "", "", "", "", "", "", 8],
+    ["", "", 6, 7, "", 8, 2, "", ""],
+    ["", "", 2, 6, "", 9, 5, "", ""],
+    [8, "", "", 2, "", 3, "", "", 9],
+    ["", "", 5, "", 1, "", 3, "", ""]
+  ],
+  [
+    ["", "", "", 2, 6, "", 7, "", 1],
+    [6, 8, "", "", 7, "", "", 9, ""],
+    [1, 9, "", "", "", 4, 5, "", ""],
+    [8, 2, "", 1, "", "", "", 4, ""],
+    ["", "", 4, 6, "", 2, 9, "", ""],
+    ["", 5, "", "", "", 3, "", 2, 8],
+    ["", "", 9, 3, "", "", "", 7, 4],
+    ["", 4, "", "", 5, "", "", 3, 6],
+    [7, "", 3, "", 1, 8, "", "", ""]
+  ]
+];
+
+// Check if a solution is valid
+const isValidSudoku = (grid) => {
+  const checkSet = (arr) => {
+    const nums = arr.filter(val => val !== "");
     return new Set(nums).size === nums.length;
   };
 
   for (let i = 0; i < 9; i++) {
-    const row = board[i];
-    const col = board.map(row => row[i]);
-    if (!isValidBlock(row) || !isValidBlock(col)) return false;
-  }
+    const row = [], col = [], block = [];
 
-  for (let i = 0; i < 9; i += 3) {
-    for (let j = 0; j < 9; j += 3) {
-      const block = [];
-      for (let r = i; r < i + 3; r++) {
-        for (let c = j; c < j + 3; c++) {
-          block.push(board[r][c]);
-        }
-      }
-      if (!isValidBlock(block)) return false;
+    for (let j = 0; j < 9; j++) {
+      row.push(grid[i][j]);
+      col.push(grid[j][i]);
+
+      const rowIndex = 3 * Math.floor(i / 3) + Math.floor(j / 3);
+      const colIndex = 3 * (i % 3) + (j % 3);
+      block.push(grid[rowIndex][colIndex]);
+    }
+
+    if (!checkSet(row) || !checkSet(col) || !checkSet(block)) {
+      return false;
     }
   }
-
   return true;
 };
 
-const SudokuBoard = () => {
-  const initialBoard = Array(9).fill(null).map(() => Array(9).fill(''));
-  const [board, setBoard] = useState(initialBoard);
-  const [message, setMessage] = useState('');
+export default function SudokuBoard() {
+  const [puzzle, setPuzzle] = useState([]);
+  const [userGrid, setUserGrid] = useState([]);
+
+  useEffect(() => {
+    const selectedPuzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
+    setPuzzle(selectedPuzzle);
+    setUserGrid(selectedPuzzle.map(row => [...row]));
+  }, []);
 
   const handleChange = (row, col, value) => {
-    if (/^[1-9]?$/.test(value)) {
-      const newBoard = board.map((r, i) =>
-        r.map((c, j) => (i === row && j === col ? value : c))
-      );
-      setBoard(newBoard);
-    }
+    const newGrid = userGrid.map((r, i) =>
+      r.map((cell, j) => (i === row && j === col ? value.replace(/[^1-9]/, "") : cell))
+    );
+    setUserGrid(newGrid);
   };
 
   const handleSubmit = () => {
-    if (board.some(row => row.includes(''))) {
-      setMessage('Please fill all cells');
-    } else if (isValidSudoku(board)) {
-      setMessage('✅ Valid Sudoku Solution!');
+    const isComplete = userGrid.every(row => row.every(cell => cell !== ""));
+    if (!isComplete) {
+      alert("Please fill all cells before submitting.");
+      return;
+    }
+
+    if (isValidSudoku(userGrid)) {
+      alert("Congratulations! Sudoku is solved correctly.");
     } else {
-      setMessage('❌ Invalid Solution. Check rows, columns, and blocks.');
+      alert("Oops! There’s a mistake in your solution.");
     }
   };
 
@@ -56,22 +98,21 @@ const SudokuBoard = () => {
     <div className="sudoku-container">
       <h2>Sudoku Puzzle</h2>
       <div className="sudoku-grid">
-        {board.map((row, i) =>
+        {userGrid.map((row, i) =>
           row.map((cell, j) => (
             <input
               key={`${i}-${j}`}
+              className="sudoku-cell"
               value={cell}
               onChange={(e) => handleChange(i, j, e.target.value)}
-              className="sudoku-cell"
-              maxLength="1"
+              disabled={puzzle[i][j] !== ""}
             />
           ))
         )}
       </div>
-      <button className="submit-button" onClick={handleSubmit}>Submit</button>
-      <p className="result-message">{message}</p>
+      <button className="submit-button" onClick={handleSubmit}>
+        Submit
+      </button>
     </div>
   );
-};
-
-export default SudokuBoard;
+}
