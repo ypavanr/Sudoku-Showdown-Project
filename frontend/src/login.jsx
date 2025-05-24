@@ -29,7 +29,6 @@ const Login = () => {
       if (response.status === 200) {
         const { token } = response.data;
         console.log('Login successful:', response.data);
-        alert('Login successful!');
         navigate('/room');
       } else {
         alert('Login failed: ' + response.data.message);
