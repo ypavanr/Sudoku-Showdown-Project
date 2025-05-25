@@ -2,18 +2,66 @@ import React from "react";
 import './Room.css';
 import { useNavigate } from "react-router-dom";
 
+const SudokuBlock = ({ top, left, numbers, delay }) => {
+  const cells = Array(9).fill("");
+  const positions = [];
+
+  while (positions.length < numbers.length) {
+    const pos = Math.floor(Math.random() * 9);
+    if (!positions.includes(pos)) {
+      positions.push(pos);
+    }
+  }
+
+  positions.forEach((pos, i) => {
+    cells[pos] = numbers[i];
+  });
+
+  return (
+    <div className="sudoku-block" style={{ top, left, animationDelay: delay }}>
+      {cells.map((num, i) => (
+        <span key={i} className="sudoku-number">{num || ""}</span>
+      ))}
+    </div>
+  );
+};
+
+const blocksData = [
+  { top: "5%", left: "5%", numbers: [5, 3, 7], delay: "0s" },
+  { top: "12%", left: "40%", numbers: [1, 9, 5], delay: "2.5s" },
+  { top: "15%", left: "75%", numbers: [8, 6], delay: "4s" },
+
+  { top: "30%", left: "10%", numbers: [4, 8, 3], delay: "1s" },
+  { top: "35%", left: "55%", numbers: [2, 7, 6], delay: "3.5s" },
+  { top: "40%", left: "80%", numbers: [3, 1, 9], delay: "0.5s" },
+
+  { top: "60%", left: "5%", numbers: [6, 1, 9], delay: "2s" },
+  { top: "65%", left: "45%", numbers: [8, 7, 9], delay: "4.5s" },
+  { top: "70%", left: "70%", numbers: [2, 5, 4], delay: "1.5s" },
+
+  { top: "85%", left: "15%", numbers: [1, 6, 8], delay: "3s" },
+  { top: "90%", left: "60%", numbers: [7, 3, 2], delay: "0s" },
+];
+
 const Room = () => {
   const navigate = useNavigate();
 
   const handleNavigate = () => {
     navigate("/sudoku");
   };
+
   return (
-    <div className="room-container">
-      <h2>Welcome to Sudoku Showdown</h2>
-      <div className="room-buttons">
-        <button className="room-btn create" onClick={handleNavigate}>Create Room</button>
-        <button className="room-btn join" onClick={handleNavigate}>Join Room</button>
+    <div className="room-wrapper">
+      {blocksData.map(({ top, left, numbers, delay }, i) => (
+        <SudokuBlock key={i} top={top} left={left} numbers={numbers} delay={delay} />
+      ))}
+      <div className="room-card">
+        <h1 className="room-title">Sudoku Showdown</h1>
+        <p className="room-subtitle">Challenge yourself or compete with friends!</p>
+        <div className="room-buttons">
+          <button className="room-btn create" onClick={handleNavigate}>Create Room</button>
+          <button className="room-btn join" onClick={handleNavigate}>Join Room</button>
+        </div>
       </div>
     </div>
   );
