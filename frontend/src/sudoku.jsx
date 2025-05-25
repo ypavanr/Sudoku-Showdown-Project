@@ -46,7 +46,6 @@ const isValidSudoku = (grid) => {
 
   for (let i = 0; i < 9; i++) {
     const row = [], col = [], block = [];
-
     for (let j = 0; j < 9; j++) {
       row.push(grid[i][j]);
       col.push(grid[j][i]);
@@ -63,22 +62,44 @@ const isValidSudoku = (grid) => {
   return true;
 };
 
+
 export default function SudokuBoard() {
+  const [cellStatus, setCellStatus] = useState([]);
   const [puzzle, setPuzzle] = useState([]);
   const [userGrid, setUserGrid] = useState([]);
+ useEffect(() => {
+  const selectedPuzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
+  const stringifiedPuzzle = selectedPuzzle.map(row =>
+    row.map(cell => (cell === "" ? "" : String(cell)))
+  );
+  setPuzzle(stringifiedPuzzle);
+  setUserGrid(stringifiedPuzzle.map(row => [...row]));
+  setCellStatus(stringifiedPuzzle.map(row => row.map(() => "")));
+}, []);
 
-  useEffect(() => {
-    const selectedPuzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
-    setPuzzle(selectedPuzzle);
-    setUserGrid(selectedPuzzle.map(row => [...row]));
-  }, []);
 
-  const handleChange = (row, col, value) => {
-    const newGrid = userGrid.map((r, i) =>
-      r.map((cell, j) => (i === row && j === col ? value.replace(/[^1-9]/, "") : cell))
-    );
-    setUserGrid(newGrid);
-  };
+
+ const handleChange = (row, col, value) => {
+  const newValue = value.replace(/[^1-9]/, ""); // Allow only digits 1–9
+
+  const newGrid = userGrid.map((r, i) =>
+    r.map((cell, j) => (i === row && j === col ? newValue : cell))
+  );
+
+  const newStatus = newGrid.map((r, i) =>
+    r.map((cell, j) =>
+      puzzle[i][j] === "" ? validateCell(newGrid, i, j, cell) : ""
+    )
+  );
+
+  setUserGrid(newGrid);
+  setCellStatus(newStatus);
+};
+
+
+  // Recalculate validation for the entire grid
+ 
+
 
   const handleSubmit = () => {
     const isComplete = userGrid.every(row => row.every(cell => cell !== ""));
@@ -93,6 +114,31 @@ export default function SudokuBoard() {
       alert("Oops! There’s a mistake in your solution.");
     }
   };
+const validateCell = (grid, row, col, value) => {
+  if (value === "") return "";
+
+  // Check row
+  for (let j = 0; j < 9; j++) {
+    if (j !== col && grid[row][j] === value) return "invalid";
+  }
+
+  // Check column
+  for (let i = 0; i < 9; i++) {
+    if (i !== row && grid[i][col] === value) return "invalid";
+  }
+
+  // Check block
+  const startRow = 3 * Math.floor(row / 3);
+  const startCol = 3 * Math.floor(col / 3);
+  for (let i = startRow; i < startRow + 3; i++) {
+    for (let j = startCol; j < startCol + 3; j++) {
+      if ((i !== row || j !== col) && grid[i][j] === value) return "invalid";
+    }
+  }
+
+  return "valid";
+};
+
 
   return (
     <div className="sudoku-container">
@@ -101,12 +147,21 @@ export default function SudokuBoard() {
         {userGrid.map((row, i) =>
           row.map((cell, j) => (
             <input
-              key={`${i}-${j}`}
-              className="sudoku-cell"
-              value={cell}
-              onChange={(e) => handleChange(i, j, e.target.value)}
-              disabled={puzzle[i][j] !== ""}
-            />
+  key={`${i}-${j}`}
+  className={`sudoku-cell ${
+    puzzle[i][j] !== ""
+      ? ""
+      : cellStatus[i][j] === "valid"
+      ? "cell-valid"
+      : cellStatus[i][j] === "invalid"
+      ? "cell-invalid"
+      : ""
+  }`}
+  value={cell}
+  onChange={(e) => handleChange(i, j, e.target.value)}
+  disabled={puzzle[i][j] !== ""}
+/>
+
           ))
         )}
       </div>

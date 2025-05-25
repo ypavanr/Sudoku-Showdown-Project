@@ -40,3 +40,10 @@
 .submit-button:hover {
   background-color: #45a049;
 }
+.cell-valid:not(:disabled) {
+  background-color: #c8f7c5;
+}
+
+.cell-invalid:not(:disabled) {
+  background-color: #f7c5c5;
+}
