@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "./Sudoku.css";
-import Background from './Background';
 
 const puzzles = [
   [
@@ -130,8 +129,6 @@ const validateCell = (grid, row, col, value) => {
 
 
   return (
-    <>
-    <Background />
     <div className="sudoku-container">
       <h2>Sudoku Puzzle</h2>
       <div className="sudoku-grid">
@@ -159,6 +156,6 @@ const validateCell = (grid, row, col, value) => {
       <button className="submit-button" onClick={handleSubmit}>
         Submit
       </button>
-    </div></>
+    </div>
   );
 }

@@ -1,0 +1,50 @@
+.homepage-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.homepage-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: #ffffff;
+  padding-top: 20vh;
+}
+
+.homepage-content h1 {
+  font-size: 3.5rem;
+  margin-bottom: 10px;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.tagline {
+  font-size: 1.3rem;
+  margin-bottom: 30px;
+  color: #ccccff;
+}
+
+.home-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.home-buttons button {
+  background-color: #6fafff;
+  color: #ffffff;
+  padding: 12px 30px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(111, 176, 255, 0.3);
+  transition: background 0.3s ease;
+}
+
+.home-buttons button:hover {
+  background-color: #5b9be0;
+}

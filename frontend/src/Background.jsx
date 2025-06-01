@@ -39,7 +39,7 @@ const blocksData = [
   { top: "90%", left: "60%", numbers: [7, 3, 2], delay: "0s" },
 ];
 
-const FloatingSudokuBackground = () => (
+const Background = () => (
   <div className="floating-sudoku-container">
     {blocksData.map((block, index) => (
       <SudokuBlock key={index} {...block} />
@@ -47,4 +47,4 @@ const FloatingSudokuBackground = () => (
   </div>
 );
 
-export default FloatingSudokuBackground;
+export default Background;

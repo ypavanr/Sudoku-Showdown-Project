@@ -5,6 +5,8 @@
   margin-top: 30px;
   font-family: Arial, sans-serif;
 }
+body{background-color: #0d0d1a;}
+h2{color: white;}
 
 .sudoku-grid {
   display: grid;

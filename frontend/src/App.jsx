@@ -3,15 +3,13 @@ import Login from "./login";
 import Register from "./register";
 import Room from "./room";
 import SudokuBoard from "./sudoku";
-import Background from './Background';
 import Chat from "./socket_test";
-
+import Home from "./Home"
 function App() {
   return (
-    <>
-    <Background />
     <Router>
       <Routes>
+        <Route path="/" element={<Home/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/room" element={<Room />} />
@@ -19,7 +17,6 @@ function App() {
         <Route path="/chat" element={<Chat />} />
       </Routes>
     </Router>
-    </>
   );
 }
 
