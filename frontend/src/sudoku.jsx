@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Sudoku.css";
+import Background from './Background';
 
 const puzzles = [
   [
@@ -37,7 +38,6 @@ const puzzles = [
   ]
 ];
 
-// Check if a solution is valid
 const isValidSudoku = (grid) => {
   const checkSet = (arr) => {
     const nums = arr.filter(val => val !== "");
@@ -62,7 +62,6 @@ const isValidSudoku = (grid) => {
   return true;
 };
 
-
 export default function SudokuBoard() {
   const [cellStatus, setCellStatus] = useState([]);
   const [puzzle, setPuzzle] = useState([]);
@@ -77,10 +76,8 @@ export default function SudokuBoard() {
   setCellStatus(stringifiedPuzzle.map(row => row.map(() => "")));
 }, []);
 
-
-
  const handleChange = (row, col, value) => {
-  const newValue = value.replace(/[^1-9]/, ""); // Allow only digits 1–9
+  const newValue = value.replace(/[^1-9]/, ""); 
 
   const newGrid = userGrid.map((r, i) =>
     r.map((cell, j) => (i === row && j === col ? newValue : cell))
@@ -95,11 +92,6 @@ export default function SudokuBoard() {
   setUserGrid(newGrid);
   setCellStatus(newStatus);
 };
-
-
-  // Recalculate validation for the entire grid
- 
-
 
   const handleSubmit = () => {
     const isComplete = userGrid.every(row => row.every(cell => cell !== ""));
@@ -117,17 +109,14 @@ export default function SudokuBoard() {
 const validateCell = (grid, row, col, value) => {
   if (value === "") return "";
 
-  // Check row
   for (let j = 0; j < 9; j++) {
     if (j !== col && grid[row][j] === value) return "invalid";
   }
 
-  // Check column
   for (let i = 0; i < 9; i++) {
     if (i !== row && grid[i][col] === value) return "invalid";
   }
 
-  // Check block
   const startRow = 3 * Math.floor(row / 3);
   const startCol = 3 * Math.floor(col / 3);
   for (let i = startRow; i < startRow + 3; i++) {
@@ -141,6 +130,8 @@ const validateCell = (grid, row, col, value) => {
 
 
   return (
+    <>
+    <Background />
     <div className="sudoku-container">
       <h2>Sudoku Puzzle</h2>
       <div className="sudoku-grid">
@@ -168,6 +159,6 @@ const validateCell = (grid, row, col, value) => {
       <button className="submit-button" onClick={handleSubmit}>
         Submit
       </button>
-    </div>
+    </div></>
   );
 }

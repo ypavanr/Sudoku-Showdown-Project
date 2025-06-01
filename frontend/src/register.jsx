@@ -3,6 +3,8 @@ import { Form, Button } from 'react-bootstrap';
 import './Register.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Background from './Background';
+
 export default function Register() {
     const navigate = useNavigate();
 const [formData,setFormData]=useState({
@@ -36,15 +38,17 @@ const handleSubmit = async (e) => {
     }
 };
 return(
+    <>
+    <Background />
       <div className="registerwhole">
         <div className="register-container">
             <p>REGISTER PAGE</p>
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="name">
-                    <Form.Label>email:</Form.Label>
+                    <Form.Label>Email:</Form.Label>
                     <Form.Control
                         type="email"
-                        name="email"
+                        name="Email"
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="Enter your email"
@@ -52,10 +56,10 @@ return(
                     />
                 </Form.Group>
                 <Form.Group controlId="username">
-                    <Form.Label>username:</Form.Label>
+                    <Form.Label>Username:</Form.Label>
                     <Form.Control
                         type="text"
-                        name="username"
+                        name="Username"
                         value={formData.username}
                         onChange={handleChange}
                         placeholder="Enter your username"
@@ -66,7 +70,7 @@ return(
                     <Form.Label>Password:</Form.Label>
                     <Form.Control
                         type="password"
-                        name="password"
+                        name="Password"
                         value={formData.password}
                         onChange={handleChange}
                         placeholder="Enter your password"
@@ -79,5 +83,6 @@ return(
             </Form>
         </div>
       </div>
+    </>
 )
 }

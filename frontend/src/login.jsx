@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Login.css';
 import 'boxicons/css/boxicons.min.css';
+import Background from './Background';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -40,6 +41,8 @@ const Login = () => {
   };
 
   return (
+    <>
+    <Background />
     <div className="login-whole">
       <div className="wrapper">
         <form onSubmit={handleSubmit}>
@@ -79,6 +82,7 @@ const Login = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 

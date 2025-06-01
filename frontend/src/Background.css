@@ -1,0 +1,61 @@
+.floating-sudoku-container {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background-color: #0d0d1a;
+}
+
+.sudoku-block {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  animation: floatAround 12s ease-in-out infinite;
+}
+
+.sudoku-number {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.08);
+  text-align: center;
+  line-height: 1.5;
+  animation: numberGlow 6s ease-in-out infinite;
+}
+
+.sudoku-block:nth-child(odd) .sudoku-number {
+  color: rgba(139, 133, 255, 0.1);
+}
+.sudoku-block:nth-child(even) .sudoku-number {
+  color: rgba(111, 176, 255, 0.1);
+}
+
+@keyframes floatAround {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(10px, -8px) rotate(1deg);
+  }
+  50% {
+    transform: translate(-8px, 10px) rotate(-1deg);
+  }
+  75% {
+    transform: translate(8px, 5px) rotate(0.5deg);
+  }
+}
+
+@keyframes numberGlow {
+  0%, 100% {
+    text-shadow: none;
+  }
+  50% {
+    text-shadow: 0 0 6px rgba(139, 133, 255, 0.5);
+  }
+}

@@ -1,6 +1,3 @@
-/* Background */
-
-
 .registerwhole {
     height: 100vh;
     width: 100vw;
@@ -14,8 +11,6 @@
     padding: 0;
 }
 
-
-
 .register-container {
     width: 420px;
     background: transparent;
@@ -28,7 +23,6 @@
     box-sizing: border-box;
 }
 
-
 .register-container p {
     font-size: 36px;
     text-align: center;
@@ -36,14 +30,12 @@
     color: #fff;
 }
 
-
 .register-container .form-label {
     display: block;
     margin-bottom: 5px;
     font-weight: 500;
     color: #fff;
 }
-
 
 .register-container .form-control {
     width: 100%;
