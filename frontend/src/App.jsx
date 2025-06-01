@@ -4,6 +4,7 @@ import Register from "./register";
 import Room from "./room";
 import SudokuBoard from "./sudoku";
 import Background from './Background';
+import Chat from "./socket_test";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/room" element={<Room />} />
         <Route path="/sudoku" element={<SudokuBoard />} />
+        <Route path="/chat" element={<Chat />} />
       </Routes>
     </Router>
     </>
