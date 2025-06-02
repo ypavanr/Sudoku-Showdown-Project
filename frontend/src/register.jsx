@@ -48,7 +48,7 @@ return(
                     <Form.Label>Email:</Form.Label>
                     <Form.Control
                         type="email"
-                        name="Email"
+                        name="email"
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="Enter your email"
@@ -59,7 +59,7 @@ return(
                     <Form.Label>Username:</Form.Label>
                     <Form.Control
                         type="text"
-                        name="Username"
+                        name="username"
                         value={formData.username}
                         onChange={handleChange}
                         placeholder="Enter your username"
@@ -70,7 +70,7 @@ return(
                     <Form.Label>Password:</Form.Label>
                     <Form.Control
                         type="password"
-                        name="Password"
+                        name="password"
                         value={formData.password}
                         onChange={handleChange}
                         placeholder="Enter your password"

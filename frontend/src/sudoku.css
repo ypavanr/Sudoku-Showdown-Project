@@ -1,0 +1,95 @@
+body {
+  background-color: black;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.sudoku-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.start-game {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: whitesmoke;
+  color: black;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.start-game:hover {
+  background-color: #666;
+}
+
+.sudoku-grid {
+  background-color: white;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #333;
+}
+
+.sudoku-row {
+  display: flex;
+}
+
+.sudoku-input {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  border: 1px solid #999;
+  outline: none;
+  background-color: white;
+  transition: background-color 0.3s ease;
+}
+
+.sudoku-input.border-right {
+  border-right: 3px solid black;
+}
+
+.sudoku-input.border-bottom {
+  border-bottom: 3px solid black;
+}
+
+.sudoku-input.correct {
+  background-color: #a0e7a0;
+}
+
+.sudoku-input.wrong {
+  background-color: #e79a9a;
+}
+
+.rules-fixed {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #222;
+  color: white;
+  border-radius: 10px;
+  max-width: 380px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.rules-fixed h3 {
+  margin-top: 0;
+  font-size: 18px;
+  border-bottom: 1px solid #555;
+  padding-bottom: 5px;
+}
+
+.rules-fixed ul {
+  padding-left: 20px;
+  margin: 10px 0 0 0;
+}
+
+.rules-fixed li {
+  margin-bottom: 6px;
+}
