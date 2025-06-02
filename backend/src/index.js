@@ -6,6 +6,7 @@ import env from "dotenv";
 import { authRouter } from "./routes/authRoutes.js";
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import setupSocket from "./socket.js";
 const app=express()
 env.config()
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -25,15 +26,7 @@ db.connect().then(()=>{
 app.post("/test", (req, res) => {
   return res.status(200).json({ message: "Test route working" });
 });
-io.on('connection', (socket) => {
-    console.log("user connected,"+socket.id);
-    
-  socket.on('new message', (msg) => {
-    console.log('message: ' + msg);
-  });
-  socket.on('disconnect', () => {
-    console.log('user disconnected');});
-});
+setupSocket(io);
 app.use("/auth",authRouter)
 server.listen(3000,()=>{
     console.log("server listening on port 3000")

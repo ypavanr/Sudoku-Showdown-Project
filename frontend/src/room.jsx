@@ -1,6 +1,9 @@
-import React from "react";
+
+import React, { useEffect, useState } from "react";
 import './Room.css';
 import { useNavigate } from "react-router-dom";
+import socket from "./socket";
+import { nanoid } from 'nanoid';
 
 const SudokuBlock = ({ top, left, numbers, delay }) => {
   const cells = Array(9).fill("");
@@ -45,12 +48,49 @@ const blocksData = [
 
 const Room = () => {
   const navigate = useNavigate();
+  const [showInput, setShowInput] = useState(false);
+  const [roomId, setRoomId] = useState('');
 
-  const handleNavigate = () => {
-    navigate("/sudoku");
+  const handleCreateRoom = () => {
+    const newRoomId = nanoid(6);
+    socket.emit('create-room', newRoomId);
   };
 
-  return (
+  const handleJoinClick=()=>{
+    setShowInput(true);
+  };
+
+  const handleInputChange=(e)=>{
+    setRoomId(e.target.value);
+  };
+
+  const handleSubmit =(e)=>{
+    e.preventDefault();
+    console.log('Joining room with ID:', roomId);
+    socket.emit('join-room', roomId);
+    navigate(`/room/${roomId}`);
+    setShowInput(false);
+  setRoomId('');
+  };
+
+useEffect(()=>{
+  const handleRoomCreated=(roomId)=>{
+    console.log('Room created with ID:', roomId);
+    navigate(`/room/${roomId}`);
+  };
+
+  const handleUserJoined=(message)=>{
+    console.log('User joined:'+message);
+  };
+  socket.on('room-created',handleRoomCreated);
+  socket.on('user-joined',handleUserJoined);
+
+  return ()=>{
+    socket.off('room-created',handleRoomCreated);
+    socket.off('user-joined', handleUserJoined);
+  };
+},[navigate]);
+  return(
     <div className="room-wrapper">
       {blocksData.map(({ top, left, numbers, delay }, i) => (
         <SudokuBlock key={i} top={top} left={left} numbers={numbers} delay={delay} />
@@ -59,8 +99,20 @@ const Room = () => {
         <h1 className="room-title">Sudoku Showdown</h1>
         <p className="room-subtitle">Challenge yourself or compete with friends!</p>
         <div className="room-buttons">
-          <button className="room-btn create" onClick={handleNavigate}>Create Room</button>
-          <button className="room-btn join" onClick={handleNavigate}>Join Room</button>
+          <button className="room-btn create" onClick={handleCreateRoom}>Create Room</button>
+          <button className="room-btn join" onClick={handleJoinClick}>Join Room</button>
+
+          {showInput && (
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                placeholder="Enter Room ID"
+                value={roomId}
+                onChange={handleInputChange}
+              />
+              <button type="submit">Submit</button>
+            </form>
+          )}
         </div>
       </div>
     </div>
