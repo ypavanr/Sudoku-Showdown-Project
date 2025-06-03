@@ -54,6 +54,11 @@ export default function setupSocket(io){
       io.in(roomId).emit('validate-result',{row, col,number,isCorrect});
     });
 
+    socket.on("clear-cell",({roomId,row,col})=>{ 
+      const room=roomData.get(roomId);
+      if(!room) return;
+      io.in(roomId).emit("clear-cell",{row,col});});
+
     socket.on('disconnect',()=>{
     console.log('User disconnected:',socket.id);});
   });

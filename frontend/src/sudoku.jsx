@@ -20,33 +20,42 @@ export default function Sudoku() {
     });
 
     socket.on("validate-result", ({ row, col, number, isCorrect }) => {
+      setPuzzle((prev) => {
+        const newPuzzle=prev.map((r)=>[...r]);
+        newPuzzle[row][col]=number;
+        return newPuzzle;
+      });
       setInputStatus((prev) => ({
         ...prev,
         [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
       }));
     });
 
+    socket.on("clear-cell",({row,col}) => {
+      setPuzzle((prev) => {
+      const newPuzzle=prev.map((r) => [...r]);
+      newPuzzle[row][col]=0;
+      return newPuzzle;
+    });
+      setInputStatus((prev) => {
+      const copy={...prev};
+      delete copy[`${row}-${col}`];
+      return copy;
+    });
+  });
     return () => {
       socket.off("puzzle");
       socket.off("validate-result");
+      socket.off("clear-cell");
     };
   }, []);
 
   const handleInputChange = (e, row, col) => {
     const val = e.target.value;
-    if (val === "") {
-      setPuzzle((prev) => {
-        const newPuzzle = prev.map((r) => [...r]);
-        newPuzzle[row][col] = 0;
-        return newPuzzle;
-      });
-      setInputStatus((prev) => {
-        const copy = { ...prev };
-        delete copy[`${row}-${col}`];
-        return copy;
-      });
-      return;
+    if (val === "") {socket.emit("clear-cell",{roomId,row,col});
+    return;
     }
+
     const num = parseInt(val);
     if (num >= 1 && num <= 9) {
       socket.emit("validate-move", {roomId,row,col,number: num,socketId: socket.id,});
