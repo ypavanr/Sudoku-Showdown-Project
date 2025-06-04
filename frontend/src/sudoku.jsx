@@ -1,23 +1,52 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import "./Sudoku.css";
 import socket from "./socket";
 import { useParams } from "react-router-dom";
 
 export default function Sudoku() {
-  const { roomId } = useParams();
+  const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
+    const [isRunning, setIsRunning] = useState(false);
   const [inputStatus, setInputStatus] = useState({});
-
+  const [showStartButton, setStartButton]=useState(true);
+  const [submissionMessage, setSubmitMessage]=useState('');
+  const [secondsElapsed, setSecondsElapsed]=useState(0);
+  const intervalRef=useRef(null);
   const handleStartGame = () => {
     socket.emit("start-game", roomId);
+    
+  };
+  const formatTime=(totalSeconds)=>{
+    const minutes= String(Math.floor(totalSeconds/60)).padStart(2, '0');
+    const seconds= String(totalSeconds % 60).padStart(2, '0');
+    return `${minutes}:${seconds}`;
+  };
+ const startTimer = () => {
+    if (!isRunning) {
+      intervalRef.current = setInterval(() => {
+        setSecondsElapsed((prev) => prev + 1);
+      }, 1000);
+      setIsRunning(true);
+    }
+  };
+
+  const stopTimer = () => {
+    clearInterval(intervalRef.current);
+    setIsRunning(false);
   };
 
   useEffect(() => {
+    
     socket.on("puzzle", (puzzle) => {
       setPuzzle(puzzle);
+      startTimer();
       setInputStatus({});
       console.log("Puzzle received:", puzzle);
+      setStartButton(false);
     });
+    socket.on("error",(message)=>{
+      alert(message);
+    })
 
     socket.on("validate-result", ({ row, col, number, isCorrect }) => {
       setPuzzle((prev) => {
@@ -43,13 +72,24 @@ export default function Sudoku() {
       return copy;
     });
   });
+  socket.on("game-complete",(message)=>{
+    setSubmitMessage(message);
+    stopTimer();
+  });
+  socket.on("game-incomplete",(message)=>{
+    setSubmitMessage(message);
+  })
     return () => {
+       clearInterval(intervalRef.current);
       socket.off("puzzle");
       socket.off("validate-result");
       socket.off("clear-cell");
+      socket.off("game-complete");
+    socket.off("game-incomplete");
+    socket.off("error");
     };
   }, []);
-
+   
   const handleInputChange = (e, row, col) => {
     const val = e.target.value;
     if (val === "") {socket.emit("clear-cell",{roomId,row,col});
@@ -58,7 +98,7 @@ export default function Sudoku() {
 
     const num = parseInt(val);
     if (num >= 1 && num <= 9) {
-      socket.emit("validate-move", {roomId,row,col,number: num,socketId: socket.id,});
+      socket.emit("validate-move", {roomId,puzzle,row,col,number: num,socketId: socket.id,});
       setPuzzle((prev) => {
         const newPuzzle = prev.map((r) => [...r]);
         newPuzzle[row][col] = num;
@@ -66,12 +106,15 @@ export default function Sudoku() {
       });
     }
   };
-
+  const handleSubmission=()=>{
+    socket.emit("validate-submission",{roomId,puzzle});
+  }
   return (
     <div className="sudoku-container">
-      <button className="start-game" onClick={handleStartGame}>
+      <p>game mode: cooperative</p>
+     {showStartButton&&(<button className="start-game" onClick={handleStartGame}  >
         Start Game
-      </button>
+      </button>)} 
       <div className="sudoku-grid">
         {puzzle.length > 0 &&
           puzzle.map((row, rIdx) => (
@@ -98,7 +141,10 @@ export default function Sudoku() {
               })}
             </div>
           ))}
-      </div>
+      </div><br></br>
+       {!showStartButton&&(<button className="start-game" onClick={handleSubmission}>
+        Submit
+      </button>)} 
       <div className="rules-fixed">
         <h3>Sudoku Rules</h3>
         <ul>
@@ -110,6 +156,8 @@ export default function Sudoku() {
           <li>Correct entries turn green, incorrect ones turn red.</li>
         </ul>
       </div>
+      {submissionMessage&&<div className="game-message">{submissionMessage}</div>}
+       <h1>Timer: {formatTime(secondsElapsed)}</h1> 
     </div>
   );
-}
+} 

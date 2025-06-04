@@ -50,10 +50,12 @@ const Room = () => {
   const navigate = useNavigate();
   const [showInput, setShowInput] = useState(false);
   const [roomId, setRoomId] = useState('');
+  const [showMode,setShowMode]=useState(false);
+  const [selectedMode, setSelectedMode] = useState('competitive');
 
   const handleCreateRoom = () => {
-    const newRoomId = nanoid(6);
-    socket.emit('create-room', newRoomId);
+    setShowMode(true);
+    
   };
 
   const handleJoinClick=()=>{
@@ -68,15 +70,28 @@ const Room = () => {
     e.preventDefault();
     console.log('Joining room with ID:', roomId);
     socket.emit('join-room', roomId);
-    navigate(`/room/${roomId}`);
+    socket.once('mode',(mode)=>{
+      navigate(`/room/${mode}/${roomId}`);
+    });
+    
     setShowInput(false);
   setRoomId('');
+  };  
+  
+const handleSubmitMode = (event) => {
+    event.preventDefault();
+    const newRoomId = nanoid(6);
+    const mode = selectedMode;
+    if (!mode) {
+  alert('Please select a mode');
+  return;
+}
+    socket.emit('create-room', { roomId: newRoomId, mode } );
   };
-
 useEffect(()=>{
-  const handleRoomCreated=(roomId)=>{
+  const handleRoomCreated=({roomId,mode})=>{
     console.log('Room created with ID:', roomId);
-    navigate(`/room/${roomId}`);
+    navigate(`/room/${mode}/${roomId}`);
   };
 
   const handleUserJoined=(message)=>{
@@ -100,6 +115,7 @@ useEffect(()=>{
         <p className="room-subtitle">Challenge yourself or compete with friends!</p>
         <div className="room-buttons">
           <button className="room-btn create" onClick={handleCreateRoom}>Create Room</button>
+
           <button className="room-btn join" onClick={handleJoinClick}>Join Room</button>
 
           {showInput && (
@@ -110,11 +126,19 @@ useEffect(()=>{
                 value={roomId}
                 onChange={handleInputChange}
               />
-              <button type="submit">Submit</button>
+              <button type="submit" disabled={!selectedMode}>Submit</button>
             </form>
           )}
         </div>
       </div>
+     {showMode&&(<form onSubmit={handleSubmitMode}>
+      <label htmlFor="dropdown">Choose mode:</label>
+      <select id="dropdown" value={selectedMode} onChange={(e)=>setSelectedMode(e.target.value)}>
+        <option value="competitive">competitive</option>
+        <option value="cooperative">cooperative</option>
+      </select>
+      <button type="submit">Submit</button>
+    </form>)} 
     </div>
   );
 };

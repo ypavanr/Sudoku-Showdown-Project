@@ -13,8 +13,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/room" element={<Room />} />
-        <Route path="/room/:roomId" element={<Sudoku />} />
-        <Route path="/chat" element={<Chat />} />
+        <Route path="/room/cooperative/:roomId" element={<Sudoku />} />
+        <Route path="/room/competitive/:roomId" element={<Chat />} />
       </Routes>
     </Router>
   );

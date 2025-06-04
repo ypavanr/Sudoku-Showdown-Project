@@ -72,6 +72,14 @@ function generatePuzzle(board){
     return board;
 }
 
+function isSamePuzzle(p1, p2) {
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      if (p1[i][j] !== p2[i][j]) return false;
+    }
+  }
+  return true;
+}
 
 let board=createPuzzle();
 board=getRandomBoard(board);
@@ -81,4 +89,4 @@ let unsolvedPuzzle=generatePuzzle(board);
 let sudoku=[solvedPuzzle,unsolvedPuzzle];
 Util.print2DArray(sudoku[0]);
 Util.print2DArray(sudoku[1]);
-export {isValidPlace,solve,createPuzzle,getRandomBoard,generatePuzzle}
+export {isSamePuzzle,isValidPlace,solve,createPuzzle,getRandomBoard,generatePuzzle}
