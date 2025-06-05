@@ -89,11 +89,14 @@ const handleSubmitMode = (event) => {
     socket.emit('create-room', { roomId: newRoomId, mode } );
   };
 useEffect(()=>{
+  
   const handleRoomCreated=({roomId,mode})=>{
     console.log('Room created with ID:', roomId);
     navigate(`/room/${mode}/${roomId}`);
   };
-
+   socket.on("error",(message)=>{
+      alert(message);
+    })
   const handleUserJoined=(message)=>{
     console.log('User joined:'+message);
   };
@@ -101,6 +104,7 @@ useEffect(()=>{
   socket.on('user-joined',handleUserJoined);
 
   return ()=>{
+    socket.off("error");
     socket.off('room-created',handleRoomCreated);
     socket.off('user-joined', handleUserJoined);
   };

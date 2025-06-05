@@ -87,6 +87,4 @@ solve(board);
 let solvedPuzzle = JSON.parse(JSON.stringify(board));
 let unsolvedPuzzle=generatePuzzle(board);
 let sudoku=[solvedPuzzle,unsolvedPuzzle];
-Util.print2DArray(sudoku[0]);
-Util.print2DArray(sudoku[1]);
 export {isSamePuzzle,isValidPlace,solve,createPuzzle,getRandomBoard,generatePuzzle}
