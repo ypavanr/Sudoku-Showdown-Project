@@ -4,6 +4,7 @@ import './Room.css';
 import { useNavigate } from "react-router-dom";
 import socket from "./socket";
 import { nanoid } from 'nanoid';
+import Username from "./username";
 
 const SudokuBlock = ({ top, left, numbers, delay }) => {
   const cells = Array(9).fill("");
@@ -110,6 +111,7 @@ useEffect(()=>{
   };
 },[navigate]);
   return(
+    <div><Username/>
     <div className="room-wrapper">
       {blocksData.map(({ top, left, numbers, delay }, i) => (
         <SudokuBlock key={i} top={top} left={left} numbers={numbers} delay={delay} />
@@ -146,6 +148,7 @@ useEffect(()=>{
             </form>
           )}
     
+    </div>
     </div>
     </div>
   );

@@ -1,7 +1,7 @@
 body {
   background-color: black;
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .sudoku-container {
@@ -10,14 +10,18 @@ body {
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
+  color:white;
 }
+
+p{font-size: 20px;   
+  font-weight: 400;}
 
 .start-game {
   padding: 10px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  background-color: whitesmoke;
-  color: black;
+  font-size: 18px;
+  font-weight: 400;
+  background-color: #28a745;;
+  color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -25,7 +29,7 @@ body {
 }
 
 .start-game:hover {
-  background-color: #666;
+  background-color: #218838;
 }
 
 .sudoku-grid {
@@ -67,14 +71,33 @@ body {
   background-color: #e79a9a;
 }
 
+
+.game-message {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #3b82f6;
+}
+
+.left-panel{
+  position: absolute;
+  top: 50px;
+  left: 100px;
+  max-width: 300px;
+  color:white;
+  align-items: center;
+  text-align: center;
+}
+
 .rules-fixed {
   margin-top: 30px;
   padding: 15px;
   background-color: #222;
-  color: white;
   border-radius: 10px;
   max-width: 380px;
-  font-size: 14px;
+  font-size: 16px;   
+  font-weight: 400;
   text-align: left;
 }
 
@@ -93,10 +116,12 @@ body {
 .rules-fixed li {
   margin-bottom: 6px;
 }
-.game-message {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #3b82f6;
+
+h1{white-space: nowrap;}
+
+.Game {
+  font-size: 3.5rem;
+  margin-bottom: 10px;
+  color: #ffffff;
+  text-shadow: 0 0 10px #b19cd9;
 }

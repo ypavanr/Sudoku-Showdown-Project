@@ -2,6 +2,7 @@ import React, { useState, useEffect,useRef } from "react";
 import "./Sudoku.css";
 import socket from "./socket";
 import { useParams } from "react-router-dom";
+import Username from "./username";
 
 export default function Sudoku() {
   const {roomId } = useParams();
@@ -110,8 +111,11 @@ export default function Sudoku() {
     socket.emit("validate-submission",{roomId,puzzle});
   }
   return (
+    <div>
+      <Username/>
     <div className="sudoku-container">
-      <p>Game mode: Cooperative</p>
+      <h1 className="Game">Sudoku Showdown</h1>
+      <p>Game Mode : Cooperative</p>
      {showStartButton&&(<button className="start-game" onClick={handleStartGame}  >
         Start Game
       </button>)} 
@@ -145,7 +149,11 @@ export default function Sudoku() {
        {!showStartButton&&(<button className="start-game" onClick={handleSubmission}>
         Submit
       </button>)} 
-      <div className="rules-fixed">
+      </div>
+      <div className="left-panel">
+       {submissionMessage&&<div className="game-message">{submissionMessage}</div>}
+       <h1>Timer: {formatTime(secondsElapsed)}</h1> 
+       <div className="rules-fixed">
         <h3>Sudoku Rules</h3>
         <ul>
           <li>Enter numbers 1-9 in empty white cells only.</li>
@@ -155,9 +163,8 @@ export default function Sudoku() {
           </li>
           <li>Correct entries turn green, incorrect ones turn red.</li>
         </ul>
+       </div>
       </div>
-      {submissionMessage&&<div className="game-message">{submissionMessage}</div>}
-       <h1>Timer: {formatTime(secondsElapsed)}</h1> 
     </div>
   );
 } 

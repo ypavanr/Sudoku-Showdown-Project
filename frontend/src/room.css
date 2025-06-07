@@ -86,6 +86,8 @@
   text-align: center;
   user-select: none;
   color: #eee;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .room-title {
@@ -95,6 +97,7 @@
   letter-spacing: 2px;
   color: white;
   text-shadow: 0 0 6px #8b85ffaa;
+  white-space: normal;
 }
 
 .room-subtitle {
@@ -165,7 +168,6 @@
 .room-input,.mode-select {
   background-color: white;
   padding: 10px;
-  font-size: 16px;
   margin-bottom: 10px;
   width: 200px;
   border: 2px solid #888;

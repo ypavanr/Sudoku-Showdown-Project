@@ -1,0 +1,16 @@
+body{font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+
+.username-box {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  background-color: #6754f8;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 1rem;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(50, 50, 100, 0.8);
+  z-index: 20;
+  backdrop-filter: blur(5px);
+}

@@ -1,0 +1,54 @@
+.time-select{
+  background-color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  width: 75px;
+  border: 2px solid #888;
+  border-radius: 8px;
+  font-size: 15px;   
+  font-weight: 400;
+  color: black;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: black;
+  color: white;
+  padding: 30px 40px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 15px #b19cd9;
+  width: 80%;
+  max-width: 400px;
+}
+
+.modal-content h2 {
+  text-shadow: 0 0 5px #b19cd9;
+  margin-bottom: 15px;
+}
+
+.modal-content button {
+  margin-top: 20px;
+  background-color: #a64ac9;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.modal-content button:hover {
+  background-color: #933bc0;
+}

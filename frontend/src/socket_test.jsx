@@ -2,8 +2,11 @@ import React, { useState, useEffect,useRef } from "react";
 import "./Sudoku.css";
 import socket from "./socket";
 import { useParams } from "react-router-dom";
+import "./socket_test.css"
+import Username from "./username";
 
 export default function Chat() {
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [leaderboard, setLeaderboard] = useState([]); 
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
@@ -75,6 +78,7 @@ const durationRef = useRef(duration);
    socket.on("show-leaderboard", (leaderboard) => {
   console.log("Leaderboard:", leaderboard);
   setLeaderboard(leaderboard); 
+  setShowLeaderboard(true);
 });
 socket.on('new-points',(points)=>{
     setPoints(points);
@@ -175,16 +179,19 @@ socket.on('new-points',(points)=>{
 };
 
   return (
+    <div>
+      <Username/>
     <div className="sudoku-container">
-      <p>Game Mode: Competitive</p>
+      <h1 className="Game">Sudoku Showdown</h1>
+      <p>Game Mode : Competitive</p>
       {showStartButton&&(<form>
         <label>
-          Enter time to solve Sudoku (in minutes):
+          Enter time to solve Sudoku (in minutes) :&nbsp;&nbsp;&nbsp;
           <input
             type="number"
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
-
+            className="time-select"
             min="2"
             max="30"
             required
@@ -224,8 +231,13 @@ socket.on('new-points',(points)=>{
        {!showStartButton&&(<button className="start-game" onClick={handleSubmission}  disabled={submitButton}> 
         Submit
       </button>)} 
+      <div/>
+      <div className="left-panel">
+        {submissionMessage&&<div className="game-message">{submissionMessage}</div>}
+       <h1>Timer : {formatTime(timeLeft)}</h1>
+       <h2>Points : {points}</h2>
       <div className="rules-fixed">
-        <h3>Mode Rules</h3>
+        <h3>Competition Rules</h3>
         <ul>
         <li>For every correct entry its +10 Points</li>
         <li>For every wrong entry its -5 Points</li>
@@ -240,11 +252,8 @@ socket.on('new-points',(points)=>{
           <li>Correct entries turn green, incorrect ones turn red.</li>
         </ul>
       </div>
-      {submissionMessage&&<div className="game-message">{submissionMessage}</div>}
-       <h1>Timer: {formatTime(timeLeft)}</h1>
-       <h2>Points: {points}</h2>
        <div className="finished-list">
-  <h3>Players Finished:</h3>
+  <h3>✔️ Players Finished :</h3>
   <ul>
     {finishedPlayers.map((p, idx) => (
       <li key={idx}>{p.playerId}: {p.points} points</li>
@@ -253,18 +262,23 @@ socket.on('new-points',(points)=>{
 </div>
 
         <div>
-    {leaderboard.length > 0 && (
-      <div className="leaderboard">
-        <h2>Leaderboard</h2>
-        <ol>
-          {leaderboard.map(({ playerId, score }) => (
-            <li key={playerId}>
-              {playerId}: {score} points
-            </li>
-          ))}
-        </ol>
-      </div>
-    )}
+    {showLeaderboard && (
+  <div className="modal-overlay">
+    <div className="modal-content leaderboard-modal">
+      <h2>🏆 Leaderboard</h2>
+      <ol>
+        {leaderboard.map(({ playerId, score }, idx) => (
+          <li key={idx}>
+            {playerId} : {score} points
+          </li>
+        ))}
+      </ol>
+      <button onClick={() => setShowLeaderboard(false)}>Close</button>
+    </div>
+  </div>
+)}
+  </div>
+  </div>
   </div>
     </div>
   );
