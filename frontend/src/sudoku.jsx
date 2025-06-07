@@ -13,7 +13,7 @@ export default function Sudoku() {
   const [secondsElapsed, setSecondsElapsed]=useState(0);
   const intervalRef=useRef(null);
   const handleStartGame = () => {
-    socket.emit("start-game", roomId);
+    socket.emit("start-game", {roomId,});
     
   };
   const formatTime=(totalSeconds)=>{
@@ -37,7 +37,7 @@ export default function Sudoku() {
 
   useEffect(() => {
     
-    socket.on("puzzle", (puzzle) => {
+    socket.on("puzzle", ({puzzle,}) => {
       setPuzzle(puzzle);
       startTimer();
       setInputStatus({});

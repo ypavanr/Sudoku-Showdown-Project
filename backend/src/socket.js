@@ -24,10 +24,7 @@ export default function setupSocket(io){
 
     socket.on('join-room', (roomId) => {
         const room = roomData.get(roomId);
-        if (!room) {
-        socket.emit('error','Room not found');
-        return;
-      }
+
       socket.join(roomId);
        socketToRoom.set(socket.id, roomId);
       socket.emit('room-joined', roomId);
@@ -43,10 +40,7 @@ export default function setupSocket(io){
 
     socket.on('start-game', ({roomId,time}) => {
       const room=roomData.get(roomId);
-      if (!room) {
-        socket.emit('error','Room not found');
-        return;
-      }
+      
       if (room.host!==socket.id) {
         socket.emit('error','Only the host can start the game');
         return;

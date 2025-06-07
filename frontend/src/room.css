@@ -172,6 +172,7 @@
   border-radius: 8px;
   font-size: 18px;   
   font-weight: 500;
+  color: black;
 }
 
 .room-submit,.mode-submit {
