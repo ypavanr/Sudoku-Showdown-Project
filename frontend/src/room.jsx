@@ -120,29 +120,33 @@ useEffect(()=>{
         <div className="room-buttons">
           <button className="room-btn create" onClick={handleCreateRoom}>Create Room</button>
 
-          <button className="room-btn join" onClick={handleJoinClick}>Join Room</button>
+          <button className="room-btn join" onClick={handleJoinClick}>Join Room</button>  
+        </div>
+      </div>
+      <div className="form-wraper">
+           {showMode&&(<form onSubmit={handleSubmitMode} className="mode-form">
+            <label htmlFor="dropdown">Choose mode:</label>
+             <select id="dropdown" value={selectedMode} onChange={(e)=>setSelectedMode(e.target.value)} className="mode-select">
+             <option value="competitive">Competitive</option>
+             <option value="cooperative">Cooperative</option>
+             </select>
+            <button type="submit" className="mode-submit">Submit</button>
+    </form>)} 
 
           {showInput && (
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="room-form">
               <input
                 type="text"
                 placeholder="Enter Room ID"
                 value={roomId}
                 onChange={handleInputChange}
+                className="room-input"
               />
-              <button type="submit" disabled={!selectedMode}>Submit</button>
+              <button type="submit" disabled={!selectedMode} className="room-submit">Submit</button>
             </form>
           )}
-        </div>
-      </div>
-     {showMode&&(<form onSubmit={handleSubmitMode}>
-      <label htmlFor="dropdown">Choose mode:</label>
-      <select id="dropdown" value={selectedMode} onChange={(e)=>setSelectedMode(e.target.value)}>
-        <option value="competitive">competitive</option>
-        <option value="cooperative">cooperative</option>
-      </select>
-      <button type="submit">Submit</button>
-    </form>)} 
+    
+    </div>
     </div>
   );
 };

@@ -80,11 +80,11 @@ export default function Sudoku() {
     setSubmitMessage(message);
   })
     return () => {
-       clearInterval(intervalRef.current);
-      socket.off("puzzle");
-      socket.off("validate-result");
-      socket.off("clear-cell");
-      socket.off("game-complete");
+    clearInterval(intervalRef.current);
+    socket.off("puzzle");
+    socket.off("validate-result");
+    socket.off("clear-cell");
+    socket.off("game-complete");
     socket.off("game-incomplete");
     socket.off("error");
     };
@@ -111,7 +111,7 @@ export default function Sudoku() {
   }
   return (
     <div className="sudoku-container">
-      <p>game mode: cooperative</p>
+      <p>Game mode: Cooperative</p>
      {showStartButton&&(<button className="start-game" onClick={handleStartGame}  >
         Start Game
       </button>)} 

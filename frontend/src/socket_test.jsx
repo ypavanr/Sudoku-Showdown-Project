@@ -176,7 +176,7 @@ socket.on('new-points',(points)=>{
 
   return (
     <div className="sudoku-container">
-      <p>Game Mode: competitive</p>
+      <p>Game Mode: Competitive</p>
       {showStartButton&&(<form>
         <label>
           Enter time to solve Sudoku (in minutes):
@@ -225,6 +225,11 @@ socket.on('new-points',(points)=>{
         Submit
       </button>)} 
       <div className="rules-fixed">
+        <h3>Mode Rules</h3>
+        <ul>
+        <li>For every correct entry its +10 Points</li>
+        <li>For every wrong entry its -5 Points</li>
+        </ul>
         <h3>Sudoku Rules</h3>
         <ul>
           <li>Enter numbers 1-9 in empty white cells only.</li>
