@@ -1,4 +1,4 @@
-import { isSamePuzzle,isValidPlace, solve, createPuzzle, getRandomBoard, generatePuzzle } from "./sudoku/sudoku.js";
+import { generateSudokuPuzzle, solve, isSamePuzzle } from "./sudoku/sudoku.js";
 import { Util } from "./sudoku/sudokuUtil.js";
 
 export default function setupSocket(io){
@@ -9,11 +9,9 @@ export default function setupSocket(io){
     console.log('User connected:', socket.id);
 
     socket.on('create-room',({roomId,mode})=>{
-      let board=createPuzzle();
-      board=getRandomBoard(board);
-      solve(board);
-      let solvedPuzzle=JSON.parse(JSON.stringify(board));   
-      let unsolvedPuzzle=generatePuzzle(board);
+      const solvedPuzzle = generateSudokuPuzzle('medium');
+      let unsolvedPuzzle = JSON.parse(JSON.stringify(solvedPuzzle));
+      solve(solvedPuzzle);
       roomData.set(roomId,{unsolvedPuzzle,solvedPuzzle,host:socket.id, mode: mode,players: {[socket.id]:{score: 0, isFinished: false}}});
       socket.join(roomId);
        socketToRoom.set(socket.id, roomId);
@@ -24,7 +22,10 @@ export default function setupSocket(io){
 
     socket.on('join-room', (roomId) => {
         const room = roomData.get(roomId);
-
+    if(!room){
+        socket.emit('error',"room not found");
+        return;
+      }
       socket.join(roomId);
        socketToRoom.set(socket.id, roomId);
       socket.emit('room-joined', roomId);
@@ -37,12 +38,18 @@ export default function setupSocket(io){
       }
     
     });
+socket.on("duration-change", ({ roomId, duration }) => {
+  socket.to(roomId).emit("update-duration", duration);
+});
 
     socket.on('start-game', ({roomId,time}) => {
       const room=roomData.get(roomId);
-      
+      if(!room){
+        socket.emit('error',"room not found");
+        return;
+      }
       if (room.host!==socket.id) {
-        socket.emit('error','Only the host can start the game');
+        socket.emit('not-host');
         return;
       }
       const {unsolvedPuzzle, solvedPuzzle}=room;
@@ -51,6 +58,17 @@ export default function setupSocket(io){
       Util.print2DArray(solvedPuzzle);
     });
     
+    socket.on('check-host',(roomId)=>{
+      const room=roomData.get(roomId);
+      if(!room){
+        socket.emit('error',"room not found");
+        return;
+      }
+      if (room.host!==socket.id) {
+        socket.emit('not-host');
+        return;
+      }
+    })
      
 
 
@@ -91,18 +109,10 @@ export default function setupSocket(io){
   if (!room.players[socket.id]) return;
    
   if (isSamePuzzle(solved, puzzle)) {
-   if(points>0) {if(percentageTimeLeft>=75){
-        points=Math.round(points*1.5);
-    }
-    else if(50<=percentageTimeLeft&&percentageTimeLeft<75){
-        points=Math.round(points*1.25);
-    }
-     else if(25<=percentageTimeLeft&&percentageTimeLeft<50){
-        points=Math.round(points*1.15);
-    }
-    else if(percentageTimeLeft>=1&&percentageTimeLeft<25){
-        points=Math.round(points*1.05);
-    }}
+   if(points>0) {
+    let factor=(percentageTimeLeft/100)+1;
+    points=Math.round(factor*points);
+   }
 
     room.players[socket.id].completed = true;
     room.players[socket.id].score = points;

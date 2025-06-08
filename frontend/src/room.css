@@ -175,6 +175,7 @@
   font-size: 18px;   
   font-weight: 500;
   color: black;
+  z-index: 50;
 }
 
 .room-submit,.mode-submit {

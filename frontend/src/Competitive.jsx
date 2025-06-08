@@ -1,11 +1,12 @@
 import React, { useState, useEffect,useRef } from "react";
 import "./Sudoku.css";
+import { FaClock } from "react-icons/fa";
 import socket from "./socket";
 import { useParams } from "react-router-dom";
-import "./socket_test.css"
+import "./Competitive.css"
 import Username from "./username";
-
-export default function Chat() {
+import CopyButton from "./CopyButton";
+export default function Competitive() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [leaderboard, setLeaderboard] = useState([]); 
   const {roomId } = useParams();
@@ -19,6 +20,7 @@ export default function Chat() {
   let [points,setPoints]=useState(0);
   const [finishedPlayers, setFinishedPlayers] = useState([]);
   const [submitButton, disableSubmitButton]=useState(false);
+  const [isHost, setIsHost]=useState(true);
   const intervalRef=useRef(null);
   const handleStartGame = () => {
     let time=durationRef.current;
@@ -26,6 +28,7 @@ export default function Chat() {
      
     
   };
+ socket.emit('check-host',roomId)
   const formatTime=(totalSeconds)=>{
     const minutes= String(Math.floor(totalSeconds/60)).padStart(2, '0');
     const seconds= String(totalSeconds % 60).padStart(2, '0');
@@ -65,7 +68,7 @@ const durationRef = useRef(duration);
     const handleBeforeUnload = () => {
     socket.disconnect();
   };
-
+   
   window.addEventListener("beforeunload", handleBeforeUnload);
     durationRef.current = duration;
     socket.on("puzzle", ({puzzle,time}) => {
@@ -91,7 +94,9 @@ socket.on('new-points',(points)=>{
     socket.on("error",(message)=>{
       alert(message);
     })
-
+  socket.on('not-host',()=>{
+    setIsHost(false);
+  })
     socket.on("validate-result", ({ row, col, number, isCorrect }) => {
       setPuzzle((prev) => {
         const newPuzzle=prev.map((r)=>[...r]);
@@ -131,7 +136,12 @@ socket.on('new-points',(points)=>{
   socket.on("game-incomplete",(message)=>{
     setSubmitMessage(message);
   })
+  socket.on('update-duration', (newDuration) => {
+  setDuration(newDuration); // 🔁 Update local state
+});
+
     return () => {
+      socket.off('update-duration');
        window.removeEventListener("beforeunload", handleBeforeUnload);
        clearInterval(intervalRef.current);
        socket.off('new-points');
@@ -184,13 +194,18 @@ socket.on('new-points',(points)=>{
     <div className="sudoku-container">
       <h1 className="Game">Sudoku Showdown</h1>
       <p>Game Mode : Competitive</p>
-      {showStartButton&&(<form>
+      <CopyButton/>
+      {showStartButton&&isHost&&(<form>
         <label>
           Enter time to solve Sudoku (in minutes) :&nbsp;&nbsp;&nbsp;
           <input
             type="number"
             value={duration}
-            onChange={(e) => setDuration(Number(e.target.value))}
+            onChange={(e) => {
+  const newDuration = Number(e.target.value);
+  setDuration(newDuration);
+  socket.emit('duration-change', { roomId, duration: newDuration }); 
+}}
             className="time-select"
             min="2"
             max="30"
@@ -198,7 +213,8 @@ socket.on('new-points',(points)=>{
           />
         </label>
       </form>)}
-     {showStartButton&&(<button className="start-game" onClick={handleStartGame}  >
+      {!isHost&&puzzle.length==0&&(<h5>time duration set by host: {duration} minutes</h5>)}
+     {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
         Start Game
       </button>)} 
       <div className="sudoku-grid">
@@ -233,8 +249,18 @@ socket.on('new-points',(points)=>{
       </button>)} 
       <div/>
       <div className="left-panel">
-        {submissionMessage&&<div className="game-message">{submissionMessage}</div>}
-       <h1>Timer : {formatTime(timeLeft)}</h1>
+        {submissionMessage&&(
+          <div className="modal-overlay">
+    <div className="modal-content leaderboard-modal">
+          <div className="game-message">{submissionMessage}</div>
+          <br></br>
+          <button onClick={() => setSubmitMessage('')}>Close</button>
+          </div>
+          </div>)
+          }
+        <FaClock size={60} /> 
+       <h1 style={{fontFamily:"'Major Mono Display',monospace"}}>
+        {formatTime(timeLeft)}</h1>
        <h2>Points : {points}</h2>
       <div className="rules-fixed">
         <h3>Competition Rules</h3>

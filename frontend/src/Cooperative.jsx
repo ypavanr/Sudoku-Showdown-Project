@@ -1,10 +1,11 @@
 import React, { useState, useEffect,useRef } from "react";
 import "./Sudoku.css";
+import { FaClock } from "react-icons/fa";
 import socket from "./socket";
 import { useParams } from "react-router-dom";
 import Username from "./username";
-
-export default function Sudoku() {
+import CopyButton from "./CopyButton";
+export default function Cooperative() {
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
     const [isRunning, setIsRunning] = useState(false);
@@ -115,7 +116,12 @@ export default function Sudoku() {
       <Username/>
     <div className="sudoku-container">
       <h1 className="Game">Sudoku Showdown</h1>
+      
       <p>Game Mode : Cooperative</p>
+      
+      <CopyButton/>
+     
+      <br></br>
      {showStartButton&&(<button className="start-game" onClick={handleStartGame}  >
         Start Game
       </button>)} 
@@ -151,8 +157,18 @@ export default function Sudoku() {
       </button>)} 
       </div>
       <div className="left-panel">
-       {submissionMessage&&<div className="game-message">{submissionMessage}</div>}
-       <h1>Timer: {formatTime(secondsElapsed)}</h1> 
+        
+         {submissionMessage&&(
+          <div className="modal-overlay">
+          <div className="modal-content leaderboard-modal">
+          <div className="game-message">{submissionMessage}</div>
+           <br></br>
+         <button onClick={() => setSubmitMessage('')}>Close</button>
+    </div>
+       </div>
+          )}
+        <FaClock size={60} /> 
+       <h1 style={{fontFamily:"'Major Mono Display',monospace"}}>{formatTime(secondsElapsed)}</h1> 
        <div className="rules-fixed">
         <h3>Sudoku Rules</h3>
         <ul>
