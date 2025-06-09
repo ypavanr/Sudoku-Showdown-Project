@@ -2,11 +2,8 @@
 function generateSudokuPuzzle(level) {
   const SIZE = 9;
   const EMPTY = 0;
-
-  // Create a blank 9x9 grid
   const grid = Array.from({ length: SIZE }, () => Array(SIZE).fill(EMPTY));
 
-  // Helper: Check if placing num at (row, col) is valid
   function isValid(grid, row, col, num) {
     for (let i = 0; i < SIZE; i++) {
       if (grid[row][i] === num || grid[i][col] === num) return false;
@@ -17,7 +14,6 @@ function generateSudokuPuzzle(level) {
     return true;
   }
 
-  // Backtracking solver: returns number of solutions found (stop after 2)
   function countSolutions(grid, limit = 2) {
     let count = 0;
     function solve() {
@@ -42,7 +38,6 @@ function generateSudokuPuzzle(level) {
     return count;
   }
 
-  // Fill the diagonal 3x3 boxes first to make solving faster
   function fillDiagonalBoxes(grid) {
     for (let box = 0; box < SIZE; box += 3) {
       const nums = shuffle([...Array(SIZE).keys()].map(n => n + 1));
@@ -52,7 +47,6 @@ function generateSudokuPuzzle(level) {
     }
   }
 
-  // Fill the entire grid with a valid solution
   function fillGrid(grid) {
     function fill(r = 0, c = 0) {
       if (r === SIZE) return true;
@@ -72,7 +66,6 @@ function generateSudokuPuzzle(level) {
     return fill();
   }
 
-  // Remove cells while keeping the puzzle solvable and unique
   function removeCells(grid) {
     let attempts=0;
     if(level==='easy')attempts=30;
@@ -87,7 +80,7 @@ function generateSudokuPuzzle(level) {
       grid[row][col] = EMPTY;
       const gridCopy = grid.map(row => row.slice());
       if (countSolutions(gridCopy) !== 1) {
-        grid[row][col] = backup; // revert if not unique
+        grid[row][col] = backup; 
       }
     }
   }
@@ -102,7 +95,7 @@ function generateSudokuPuzzle(level) {
 
   fillDiagonalBoxes(grid);
   fillGrid(grid);
-  const puzzle = grid.map(row => row.slice()); // deep copy
+  const puzzle = grid.map(row => row.slice()); 
   removeCells(puzzle);
 
   return puzzle;
