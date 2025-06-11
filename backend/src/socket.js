@@ -8,35 +8,35 @@ export default function setupSocket(io){
   io.on('connection',(socket)=>{
     console.log('User connected:', socket.id);
 
-    socket.on('create-room',({roomId,mode})=>{
+    socket.on('create-room',({roomId,mode,username})=>{
       const solvedPuzzle = generateSudokuPuzzle('medium');
       let unsolvedPuzzle = JSON.parse(JSON.stringify(solvedPuzzle));
       solve(solvedPuzzle);
-      roomData.set(roomId,{unsolvedPuzzle,solvedPuzzle,host:socket.id, mode: mode,players: {[socket.id]:{score: 0, isFinished: false}}});
+      roomData.set(roomId,{unsolvedPuzzle,solvedPuzzle,hostid:socket.id,host:username, mode: mode,players: {[socket.id]:{name:null, score: 0, isFinished: false}}});
       socket.join(roomId);
-       socketToRoom.set(socket.id, roomId);
-      console.log(`Room created:${roomId} by ${socket.id}`);
+      socketToRoom.set(socket.id,roomId);
+      console.log(`Room created:${roomId} by ${username}`);
       console.log("Received mode:", mode);
       socket.emit('room-created',{roomId,mode});
+      roomData.get(roomId).players[socket.id] = { name:username , score: 0, completed: false };
     });
 
-    socket.on('join-room', (roomId) => {
+    socket.on('join-room', (roomId,username) => {
         const room = roomData.get(roomId);
     if(!room){
         socket.emit('error',"room not found");
         return;
       }
       socket.join(roomId);
-       socketToRoom.set(socket.id, roomId);
+      socketToRoom.set(socket.id,roomId);
       socket.emit('room-joined', roomId);
        
       socket.emit('mode', room.mode);
-      socket.to(roomId).emit('user-joined', `${socket.id} has joined the room`);
-      console.log(`${socket.id} joined room: ${roomId}`);
+      socket.to(roomId).emit('user-joined', `${username} has joined the room`);
+      console.log(`${username} joined room: ${roomId}`);
       if(room.mode==='competitive'){
-        room.players[socket.id] = { score: 0, completed: false };
+        room.players[socket.id] = { name:username, score: 0, completed: false };
       }
-    
     });
 socket.on("duration-change", ({ roomId, duration }) => {
   socket.to(roomId).emit("update-duration", duration);
@@ -48,7 +48,7 @@ socket.on("duration-change", ({ roomId, duration }) => {
         socket.emit('error',"room not found");
         return;
       }
-      if (room.host!==socket.id) {
+      if (room.hostid!==socket.id) {
         socket.emit('not-host');
         return;
       }
@@ -64,7 +64,7 @@ socket.on("duration-change", ({ roomId, duration }) => {
         socket.emit('error',"room not found");
         return;
       }
-      if (room.host!==socket.id) {
+      if (room.hostid!==socket.id) {
         socket.emit('not-host');
         return;
       }
@@ -91,11 +91,8 @@ socket.on("duration-change", ({ roomId, duration }) => {
         const room=roomData.get(roomId);
         const solved=room.solvedPuzzle;
         if(isSamePuzzle(solved,puzzle)){
-            
             io.in(roomId).emit('game-complete', "Puzzle solved! Hooray!!!");
                 return;
-            
-           
         }
         else{
             socket.emit("game-incomplete",'Game not yet completed')
@@ -105,7 +102,7 @@ socket.on("duration-change", ({ roomId, duration }) => {
     socket.on('validate-submission-competitive', ({ roomId, puzzle, points,percentageTimeLeft }) => {
   const room = roomData.get(roomId);
   const solved = room.solvedPuzzle;
-  
+  let name;
   if (!room.players[socket.id]) return;
    
   if (isSamePuzzle(solved, puzzle)) {
@@ -116,16 +113,18 @@ socket.on("duration-change", ({ roomId, duration }) => {
 
     room.players[socket.id].completed = true;
     room.players[socket.id].score = points;
+    name = room.players[socket.id].name;
     socket.emit('new-points',points);
     socket.emit('game-complete', "Puzzle solved! Hooray!!!");
     io.in(roomId).emit('player-finished', {
       playerId: socket.id,
       points,
+      name,
     });
     const allDone = Object.values(room.players).every(p => p.completed);
     if (allDone) {
       const leaderboard = Object.entries(room.players)
-        .map(([id, data]) => ({ playerId: id, score: data.score }))
+        .map(([id, data]) => ({ playerId: id, score: data.score, name:data.name}))
         .sort((a, b) => b.score - a.score);
 
       io.in(roomId).emit('show-leaderboard', leaderboard);
@@ -139,7 +138,7 @@ socket.on("time-up", (roomId,points) => {
   if (!room) return;
   room.players[socket.id].score = points;
   const leaderboard = Object.entries(room.players)
-    .map(([id, data]) => ({ playerId: id,score: data.score }))
+    .map(([id, data]) => ({ playerId: id,score: data.score,name:data.name }))
     .sort((a, b) => b.score - a.score);
   io.in(roomId).emit("show-leaderboard", leaderboard);
 });

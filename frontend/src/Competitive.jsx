@@ -24,9 +24,7 @@ export default function Competitive() {
   const intervalRef=useRef(null);
   const handleStartGame = () => {
     let time=durationRef.current;
-    socket.emit("start-game", {roomId,time});
-     
-    
+    socket.emit("start-game", {roomId,time});    
   };
  socket.emit('check-host',roomId)
   const formatTime=(totalSeconds)=>{
@@ -86,9 +84,9 @@ const durationRef = useRef(duration);
 socket.on('new-points',(points)=>{
     setPoints(points);
 })
-  socket.on("player-finished",({playerId,points})=>{
+  socket.on("player-finished",({playerId,points,name})=>{
     console.log("player-finished received:", playerId, points);
-    setFinishedPlayers((prev) => [...prev, { playerId, points }]);
+    setFinishedPlayers((prev) => [...prev, { playerId, points, name}]);
   })
 
     socket.on("error",(message)=>{
@@ -213,7 +211,7 @@ socket.on('new-points',(points)=>{
           />
         </label>
       </form>)}
-      {!isHost&&puzzle.length==0&&(<h5>time duration set by host: {duration} minutes</h5>)}
+      {!isHost&&puzzle.length==0&&(<h5>Time duration set by Host: {duration} minutes</h5>)}
      {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
         Start Game
       </button>)} 
@@ -282,7 +280,7 @@ socket.on('new-points',(points)=>{
   <h3>✔️ Players Finished :</h3>
   <ul>
     {finishedPlayers.map((p, idx) => (
-      <li key={idx}>{p.playerId}: {p.points} points</li>
+      <li key={idx}>{p.name}: {p.points} points</li>
     ))}
   </ul>
 </div>
@@ -293,10 +291,8 @@ socket.on('new-points',(points)=>{
     <div className="modal-content leaderboard-modal">
       <h2>🏆 Leaderboard</h2>
       <ol>
-        {leaderboard.map(({ playerId, score }, idx) => (
-          <li key={idx}>
-            {playerId} : {score} points
-          </li>
+        {leaderboard.map(({ playerId, score, name }, idx) => (
+          <li key={idx}>{name} : {score} points</li>
         ))}
       </ol>
       <button onClick={() => setShowLeaderboard(false)}>Close</button>

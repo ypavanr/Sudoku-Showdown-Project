@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import socket from "./socket";
 import { nanoid } from 'nanoid';
 import Username from "./username";
+import {username} from "./login"
 
 const SudokuBlock = ({ top, left, numbers, delay }) => {
   const cells = Array(9).fill("");
@@ -70,7 +71,7 @@ const Room = () => {
   const handleSubmit =(e)=>{
     e.preventDefault();
     console.log('Joining room with ID:', roomId);
-    socket.emit('join-room', roomId);
+    socket.emit('join-room',roomId,username);
     socket.once('mode',(mode)=>{
       navigate(`/room/${mode}/${roomId}`);
     });
@@ -87,7 +88,7 @@ const handleSubmitMode = (event) => {
   alert('Please select a mode');
   return;
 }
-    socket.emit('create-room', { roomId: newRoomId, mode } );
+    socket.emit('create-room', { roomId: newRoomId, mode,username} );
   };
 useEffect(()=>{
   
