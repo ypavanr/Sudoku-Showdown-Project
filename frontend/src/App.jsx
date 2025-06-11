@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./login";
+import {Login} from "./login";
 import Register from "./register";
 import Room from "./room";
 import Competitive from "./Competitive";

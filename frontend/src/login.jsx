@@ -5,6 +5,7 @@ import './Login.css';
 import 'boxicons/css/boxicons.min.css';
 import Background from './Background';
 
+let username;
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -34,6 +35,7 @@ const Login = () => {
       } else {
         alert('Login failed: ' + response.data.message);
       }
+      username=response.data.username;
     } catch (error) {
       console.error('Error during login:', error);
       alert(error.response?.data?.message || 'An error occurred');
@@ -86,4 +88,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export {Login,username};
