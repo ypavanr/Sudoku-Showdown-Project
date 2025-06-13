@@ -12,7 +12,6 @@ const Login = () => {
     email: '',
     password: ''
   });
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -29,13 +28,12 @@ const Login = () => {
         formData
       );
       if (response.status === 200) {
-        const { token } = response.data;
+        localStorage.setItem('username', response.data.username);
         console.log('Login successful:', response.data);
         navigate('/room');
       } else {
         alert('Login failed: ' + response.data.message);
       }
-      username=response.data.username;
     } catch (error) {
       console.error('Error during login:', error);
       alert(error.response?.data?.message || 'An error occurred');

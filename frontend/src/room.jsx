@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import socket from "./socket";
 import { nanoid } from 'nanoid';
 import Username from "./username";
-import {username} from "./login"
+
 
 const SudokuBlock = ({ top, left, numbers, delay }) => {
   const cells = Array(9).fill("");
@@ -54,7 +54,7 @@ const Room = () => {
   const [roomId, setRoomId] = useState('');
   const [showMode,setShowMode]=useState(false);
   const [selectedMode, setSelectedMode] = useState('competitive');
-
+  const [username,setUsername]=useState(null);
   const handleCreateRoom = () => {
     setShowMode(true);
     
@@ -91,7 +91,8 @@ const handleSubmitMode = (event) => {
     socket.emit('create-room', { roomId: newRoomId, mode,username} );
   };
 useEffect(()=>{
-  
+  const storedUsername=localStorage.getItem('username');
+    setUsername(storedUsername);
   const handleRoomCreated=({roomId,mode})=>{
     console.log('Room created with ID:', roomId);
     navigate(`/room/${mode}/${roomId}`);

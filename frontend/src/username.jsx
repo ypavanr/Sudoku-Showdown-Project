@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./username.css"
-import {username} from "./login"
 
 function Username() {
+    const [username,setUsername]=useState(null);
+    useEffect(() => {
+    const storedUsername=localStorage.getItem('username');
+    setUsername(storedUsername);
+  }, []);
+
+
   return (
-    <div className="username-box">{username}</div>
+    <div className="username-box">{username||'guest'}</div>
   );
 }
 
