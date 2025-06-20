@@ -13,9 +13,13 @@ export default function Cooperative() {
   const [showStartButton, setStartButton]=useState(true);
   const [submissionMessage, setSubmitMessage]=useState('');
   const [secondsElapsed, setSecondsElapsed]=useState(0);
+  const [selectedLevel, setSelectedLevel] = useState('easy');
+    const selectedLevelRef = useRef(selectedLevel);
+    const [isHost, setIsHost]=useState(true);
   const intervalRef=useRef(null);
   const handleStartGame = () => {
-    socket.emit("start-game", {roomId,});
+    let difficulty = selectedLevelRef.current;
+    socket.emit("start-game", {roomId,difficulty,});
     
   };
   const formatTime=(totalSeconds)=>{
@@ -49,7 +53,10 @@ export default function Cooperative() {
     socket.on("error",(message)=>{
       alert(message);
     })
-
+ socket.on('not-host',()=>{
+    setIsHost(false);
+  })
+  socket.emit('check-host',roomId);
     socket.on("validate-result", ({ row, col, number, isCorrect }) => {
       setPuzzle((prev) => {
         const newPuzzle=prev.map((r)=>[...r]);
@@ -81,8 +88,13 @@ export default function Cooperative() {
   socket.on("game-incomplete",(message)=>{
     setSubmitMessage(message);
   })
+  socket.on('update-difficulty',(newDifficulty)=>{
+  setSelectedLevel(newDifficulty);
+})
     return () => {
     clearInterval(intervalRef.current);
+    socket.off('update-difficulty');
+    socket.off('not-host');
     socket.off("puzzle");
     socket.off("validate-result");
     socket.off("clear-cell");
@@ -122,9 +134,31 @@ export default function Cooperative() {
       <CopyButton/>
      
       <br></br>
-     {showStartButton&&(<button className="start-game" onClick={handleStartGame}  >
+      {showStartButton&&isHost&&(<form>
+        <label htmlFor="dropdown">
+          choose the difficulty level:
+        </label>
+        <select
+  id="dropdown"
+  value={selectedLevel}
+  onChange={(e) => {
+    const newDifficulty = e.target.value;
+    setSelectedLevel(newDifficulty);
+    selectedLevelRef.current = newDifficulty;
+    socket.emit('difficulty-change', { roomId, difficulty: newDifficulty });
+  }}
+  className="mode-select"
+>
+  <option value="easy">easy</option>
+  <option value="medium">medium</option>
+  <option value="hard">hard</option>
+</select>
+      </form>)}
+      {!isHost&&puzzle.length==0&&(<h5>difficulty level set by Host: {selectedLevel} </h5>)}
+     {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
         Start Game
       </button>)} 
+      {!showStartButton&&(<h5>difficulty level: {selectedLevel}</h5>)}
       <div className="sudoku-grid">
         {puzzle.length > 0 &&
           puzzle.map((row, rIdx) => (

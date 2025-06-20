@@ -8,27 +8,52 @@ export default function setupSocket(io){
   io.on('connection',(socket)=>{
     console.log('User connected:', socket.id);
 
-    socket.on('create-room',({roomId,mode,username})=>{
-      const solvedPuzzle = generateSudokuPuzzle('medium');
-      let unsolvedPuzzle = JSON.parse(JSON.stringify(solvedPuzzle));
-      solve(solvedPuzzle);
-      roomData.set(roomId,{unsolvedPuzzle,solvedPuzzle,hostid:socket.id,host:username, mode: mode,players: {[socket.id]:{name:null, score: 0, isFinished: false}}});
+    socket.on('create-room',async ({roomId,mode,username})=>{
+     
+      roomData.set(roomId,{unsolvedPuzzle:null,solvedPuzzle:null,hostid:socket.id,host:username, mode: mode,players: {[socket.id]:{name:username, score: 0, isFinished: false}}});
+      if(socketToRoom.get(socket.id)){
+        const prevRoom=socketToRoom.get(socket.id);
+        socket.leave(prevRoom);
+        const clients = await io.in(prevRoom).allSockets();
+
+  if (clients.size === 0) {
+    console.log(`Room ${prevRoom} is now empty. Deleting room data.`);
+    roomData.delete(prevRoom);
+  }
+      }
+      
+        socketToRoom.set(socket.id,roomId);
+      
       socket.join(roomId);
-      socketToRoom.set(socket.id,roomId);
+      
+      
       console.log(`Room created:${roomId} by ${username}`);
       console.log("Received mode:", mode);
       socket.emit('room-created',{roomId,mode});
-      roomData.get(roomId).players[socket.id] = { name:username , score: 0, completed: false };
+      
     });
 
-    socket.on('join-room', (roomId,username) => {
+    socket.on('join-room',async (roomId,username) => {
         const room = roomData.get(roomId);
     if(!room){
         socket.emit('error',"room not found");
         return;
       }
+      if(socketToRoom.get(socket.id)){
+        const prevRoom=socketToRoom.get(socket.id);
+        socket.leave(prevRoom);
+        const clients = await io.in(prevRoom).allSockets();
+
+  if (clients.size === 0) {
+    console.log(`Room ${prevRoom} is now empty. Deleting room data.`);
+    roomData.delete(prevRoom);
+  }
+      }
+      
+        socketToRoom.set(socket.id,roomId);
+      
       socket.join(roomId);
-      socketToRoom.set(socket.id,roomId);
+      
       socket.emit('room-joined', roomId);
        
       socket.emit('mode', room.mode);
@@ -41,8 +66,10 @@ export default function setupSocket(io){
 socket.on("duration-change", ({ roomId, duration }) => {
   socket.to(roomId).emit("update-duration", duration);
 });
-
-    socket.on('start-game', ({roomId,time}) => {
+socket.on("difficulty-change",({roomId,difficulty})=>{
+  socket.to(roomId).emit("update-difficulty", difficulty);
+})
+    socket.on('start-game', ({roomId,difficulty,time}) => {
       const room=roomData.get(roomId);
       if(!room){
         socket.emit('error',"room not found");
@@ -52,9 +79,13 @@ socket.on("duration-change", ({ roomId, duration }) => {
         socket.emit('not-host');
         return;
       }
-      const {unsolvedPuzzle, solvedPuzzle}=room;
+       const unsolvedPuzzle = generateSudokuPuzzle(difficulty);
+const solvedPuzzle = JSON.parse(JSON.stringify(unsolvedPuzzle)); 
+solve(solvedPuzzle); 
+  room.solvedPuzzle = solvedPuzzle;
+  room.unsolvedPuzzle = unsolvedPuzzle;
       io.in(roomId).emit('puzzle', {puzzle:unsolvedPuzzle,time});
-      console.log(`Game started in room ${roomId}, solved puzzle:`);
+      console.log(`Game started in room ${roomId}.difficulty level: ${difficulty} solved puzzle:`);
       Util.print2DArray(solvedPuzzle);
     });
     
@@ -74,7 +105,8 @@ socket.on("duration-change", ({ roomId, duration }) => {
 
     socket.on('validate-move',({roomId,puzzle,row,col,number,socketId})=>{
       const room=roomData.get(roomId);
-      if(!room) return;
+            if (!room || !room.solvedPuzzle) return;
+
       const correctValue=room.solvedPuzzle[row][col];
       const isCorrect=correctValue === number;
       if(room.mode==='cooperative'){
@@ -89,6 +121,7 @@ socket.on("duration-change", ({ roomId, duration }) => {
     });
     socket.on('validate-submission',({roomId,puzzle})=>{
         const room=roomData.get(roomId);
+              if (!room || !room.solvedPuzzle) return;
         const solved=room.solvedPuzzle;
         if(isSamePuzzle(solved,puzzle)){
             io.in(roomId).emit('game-complete', "Puzzle solved! Hooray!!!");
@@ -149,8 +182,6 @@ socket.on("time-up", (roomId,points) => {
       io.in(roomId).emit("clear-cell",{row,col});});
 
    socket.on('disconnect', async () => {
-  console.log('User disconnected:', socket.id);
-
   const roomId = socketToRoom.get(socket.id);
 
   if (!roomId) return;

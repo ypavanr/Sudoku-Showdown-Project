@@ -8,6 +8,8 @@ import Username from "./username";
 import CopyButton from "./CopyButton";
 export default function Competitive() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [selectedLevel, setSelectedLevel] = useState('easy');
+  const selectedLevelRef = useRef(selectedLevel);
     const [leaderboard, setLeaderboard] = useState([]); 
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
@@ -24,9 +26,9 @@ export default function Competitive() {
   const intervalRef=useRef(null);
   const handleStartGame = () => {
     let time=durationRef.current;
-    socket.emit("start-game", {roomId,time});    
+let difficulty = selectedLevelRef.current;
+  socket.emit("start-game", {roomId,difficulty,time});    
   };
- socket.emit('check-host',roomId)
   const formatTime=(totalSeconds)=>{
     const minutes= String(Math.floor(totalSeconds/60)).padStart(2, '0');
     const seconds= String(totalSeconds % 60).padStart(2, '0');
@@ -95,6 +97,7 @@ socket.on('new-points',(points)=>{
   socket.on('not-host',()=>{
     setIsHost(false);
   })
+  socket.emit('check-host',roomId);
     socket.on("validate-result", ({ row, col, number, isCorrect }) => {
       setPuzzle((prev) => {
         const newPuzzle=prev.map((r)=>[...r]);
@@ -137,11 +140,16 @@ socket.on('new-points',(points)=>{
   socket.on('update-duration', (newDuration) => {
   setDuration(newDuration); // 🔁 Update local state
 });
-
+socket.on('update-difficulty',(newDifficulty)=>{
+  setSelectedLevel(newDifficulty);
+})
     return () => {
+
       socket.off('update-duration');
+      socket.off('not-host');
        window.removeEventListener("beforeunload", handleBeforeUnload);
        clearInterval(intervalRef.current);
+       socket.off('update-difficulty');
        socket.off('new-points');
        socket.off("show-leaderboard");
        socket.off("player-finished");
@@ -211,10 +219,34 @@ socket.on('new-points',(points)=>{
           />
         </label>
       </form>)}
+      <br></br>
+      {showStartButton&&isHost&&(<form>
+        <label htmlFor="dropdown">
+          Choose the Difficulty Level:
+        </label>
+        <select style={{width:"110px",height:"47px"}}
+  id="dropdown"
+  value={selectedLevel}
+  onChange={(e) => {
+    const newDifficulty = e.target.value;
+    setSelectedLevel(newDifficulty);
+    selectedLevelRef.current = newDifficulty;
+    socket.emit('difficulty-change', { roomId, difficulty: newDifficulty });
+  }}
+  className="mode-select"
+>
+  <option value="easy">easy</option>
+  <option value="medium">medium</option>
+  <option value="hard">hard</option>
+</select>
+      </form>)}
       {!isHost&&puzzle.length==0&&(<h5>Time duration set by Host: {duration} minutes</h5>)}
+      {!isHost&&puzzle.length==0&&(<h5>difficulty level set by Host: {selectedLevel} </h5>)}
+      <br></br>
      {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
         Start Game
       </button>)} 
+      {!showStartButton&&(<h5>difficulty level: {selectedLevel}</h5>)}
       <div className="sudoku-grid">
         {puzzle.length > 0 &&
           puzzle.map((row, rIdx) => (

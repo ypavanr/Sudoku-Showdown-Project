@@ -1,4 +1,4 @@
-
+import { Util } from "./sudokuUtil.js";
 function generateSudokuPuzzle(level) {
   const SIZE = 9;
   const EMPTY = 0;
@@ -66,24 +66,38 @@ function generateSudokuPuzzle(level) {
     return fill();
   }
 
-  function removeCells(grid) {
-    let attempts=0;
-    if(level==='easy')attempts=30;
-    if(level==='medium')attempts=45;
-    if(level==='difficult')attempts=60;
- 
-    for (let i = 0; i < attempts; i++) {
-      const row = Math.floor(Math.random() * SIZE);
-      const col = Math.floor(Math.random() * SIZE);
-      const backup = grid[row][col];
-      if (backup === EMPTY) {i--;}
-      grid[row][col] = EMPTY;
-      const gridCopy = grid.map(row => row.slice());
-      if (countSolutions(gridCopy) !== 1) {
-        grid[row][col] = backup; 
-      }
+  function removeCells(grid ) {
+    let emptyTarget=0;
+  if (level=='easy')emptyTarget=35;
+  if (level=='medium')emptyTarget=45;
+  if (level=='hard')emptyTarget=55;
+
+
+  const positions = [];
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      positions.push([r, c]);
     }
   }
+
+  shuffle(positions);
+
+  let removed = 0;
+  for (let [row, col] of positions) {
+    const backup = grid[row][col];
+    if (backup === EMPTY) continue;
+
+    grid[row][col] = EMPTY;
+    const gridCopy = grid.map(row => row.slice());
+    if (countSolutions(gridCopy) === 1) {
+      removed++;
+    } else {
+      grid[row][col] = backup;
+    }
+
+    if (removed >= emptyTarget) break;
+  }
+}
 
   function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -145,7 +159,14 @@ function isSamePuzzle(p1, p2) {
   return true;
 }
 
-const solved = generateSudokuPuzzle('medium');
+const solved = generateSudokuPuzzle('hard');
+
 let unsolvedPuzzle = JSON.parse(JSON.stringify(solved));
-solve(solved);
+let count=0;
+for(let i=0;i<9;i++){
+    for(let j=0;j<9;j++){
+        if(unsolvedPuzzle[i][j]===0)count++;
+    }
+}
+
 export {generateSudokuPuzzle, solve,isSamePuzzle}
