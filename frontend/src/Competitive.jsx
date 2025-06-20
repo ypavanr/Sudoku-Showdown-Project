@@ -222,9 +222,9 @@ socket.on('update-difficulty',(newDifficulty)=>{
       <br></br>
       {showStartButton&&isHost&&(<form>
         <label htmlFor="dropdown">
-          Choose the Difficulty Level:
+          Choose the Difficulty Level :&nbsp;&nbsp;
         </label>
-        <select style={{width:"110px",height:"47px"}}
+        <select style={{width:"105px",height:"47px"}}
   id="dropdown"
   value={selectedLevel}
   onChange={(e) => {
@@ -235,18 +235,18 @@ socket.on('update-difficulty',(newDifficulty)=>{
   }}
   className="mode-select"
 >
-  <option value="easy">easy</option>
-  <option value="medium">medium</option>
-  <option value="hard">hard</option>
+  <option value="easy">Easy</option>
+  <option value="medium">Medium</option>
+  <option value="hard">Hard</option>
 </select>
       </form>)}
-      {!isHost&&puzzle.length==0&&(<h5>Time duration set by Host: {duration} minutes</h5>)}
-      {!isHost&&puzzle.length==0&&(<h5>difficulty level set by Host: {selectedLevel} </h5>)}
+      {!isHost&&puzzle.length==0&&(<h5>Time duration set by Host : {duration} minutes</h5>)}
+      {!isHost&&puzzle.length==0&&(<h5>Difficulty level set by Host : {selectedLevel} </h5>)}
       <br></br>
      {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
         Start Game
       </button>)} 
-      {!showStartButton&&(<h5>difficulty level: {selectedLevel}</h5>)}
+      {!showStartButton&&(<h5>Difficulty Level : {selectedLevel}</h5>)}
       <div className="sudoku-grid">
         {puzzle.length > 0 &&
           puzzle.map((row, rIdx) => (
@@ -310,11 +310,7 @@ socket.on('update-difficulty',(newDifficulty)=>{
       </div>
        <div className="finished-list">
   <h3>✔️ Players Finished :</h3>
-  <ul>
-    {finishedPlayers.map((p, idx) => (
-      <li key={idx}>{p.name}: {p.points} points</li>
-    ))}
-  </ul>
+  {finishedPlayers.map((p, idx) => (<li key={idx}>{p.name}: {p.points} points</li> ))}
 </div>
 
         <div>
@@ -322,11 +318,9 @@ socket.on('update-difficulty',(newDifficulty)=>{
   <div className="modal-overlay">
     <div className="modal-content leaderboard-modal">
       <h2>🏆 Leaderboard</h2>
-      <ol>
         {leaderboard.map(({ playerId, score, name }, idx) => (
-          <li key={idx}>{name} : {score} points</li>
+          <li key={idx}>{idx+1} . {name} : {score} points</li>
         ))}
-      </ol>
       <button onClick={() => setShowLeaderboard(false)}>Close</button>
     </div>
   </div>

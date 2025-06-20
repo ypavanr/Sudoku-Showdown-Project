@@ -37,6 +37,7 @@ p{font-size: 20px;
   padding: 10px;
   border-radius: 10px;
   box-shadow: 0 0 10px #333;
+  caret-color: black;
 }
 
 .sudoku-row {
@@ -53,6 +54,10 @@ p{font-size: 20px;
   outline: none;
   background-color: white;
   transition: background-color 0.3s ease;
+}
+
+.sudoku-input:hover{
+  background-color: #d0d0d0;
 }
 
 .sudoku-input.border-right {

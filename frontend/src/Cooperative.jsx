@@ -128,17 +128,14 @@ export default function Cooperative() {
       <Username/>
     <div className="sudoku-container">
       <h1 className="Game">Sudoku Showdown</h1>
-      
       <p>Game Mode : Cooperative</p>
-      
       <CopyButton/>
-     
       <br></br>
       {showStartButton&&isHost&&(<form>
         <label htmlFor="dropdown">
-          choose the difficulty level:
+          Choose the Difficulty Level : &nbsp;&nbsp;
         </label>
-        <select
+        <select style={{width:"105px",height:"47px"}}
   id="dropdown"
   value={selectedLevel}
   onChange={(e) => {
@@ -149,16 +146,16 @@ export default function Cooperative() {
   }}
   className="mode-select"
 >
-  <option value="easy">easy</option>
-  <option value="medium">medium</option>
-  <option value="hard">hard</option>
+  <option value="easy">Easy</option>
+  <option value="medium">Medium</option>
+  <option value="hard">Hard</option>
 </select>
       </form>)}
-      {!isHost&&puzzle.length==0&&(<h5>difficulty level set by Host: {selectedLevel} </h5>)}
+      {!isHost&&puzzle.length==0&&(<h5>Difficulty Level set by Host : {selectedLevel} </h5>)}
      {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
         Start Game
       </button>)} 
-      {!showStartButton&&(<h5>difficulty level: {selectedLevel}</h5>)}
+      {!showStartButton&&(<h5>Difficulty Level : {selectedLevel}</h5>)}
       <div className="sudoku-grid">
         {puzzle.length > 0 &&
           puzzle.map((row, rIdx) => (

@@ -24,7 +24,7 @@ const [copyMessage, setCopyMessage] = useState(false);
       <span style={{ fontFamily: "monospace", background: "#eee", padding: "4px 8px", borderRadius: "4px" , color:"black"}}>
         {roomId}
       </span>
-      <button onClick={handleCopy} style={{ background: "none", border: "none", cursor: "pointer" }} title="Copy">
+      <button onClick={handleCopy} style={{ background: "none", border: "none", cursor: "pointer",color:"white"}} title="Copy">
         <Copy size={18} />
       </button>
       {copyMessage && <h6 style={{ color: "green" }}>Room code copied!</h6>}
