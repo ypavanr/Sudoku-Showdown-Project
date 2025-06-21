@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState } from "react";
 import './Room.css';
 import { useNavigate } from "react-router-dom";
-import socket from "./socket";
+import socket from "../../socket";
 import { nanoid } from 'nanoid';
-import Username from "./username";
+import Username from "../features/username";
 
 
 const SudokuBlock = ({ top, left, numbers, delay }) => {

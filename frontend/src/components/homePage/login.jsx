@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Login.css';
 import 'boxicons/css/boxicons.min.css';
-import Background from './Background';
+import Background from '../features/Background';
 
 let username;
 const Login = () => {

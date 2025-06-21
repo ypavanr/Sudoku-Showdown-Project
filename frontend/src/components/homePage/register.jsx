@@ -3,7 +3,7 @@ import { Form, Button } from 'react-bootstrap';
 import './Register.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Background from './Background';
+import Background from '../features/Background';
 
 export default function Register() {
     const navigate = useNavigate();

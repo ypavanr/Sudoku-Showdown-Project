@@ -1,11 +1,11 @@
 import React, { useState, useEffect,useRef } from "react";
 import "./Sudoku.css";
 import { FaClock } from "react-icons/fa";
-import socket from "./socket";
+import socket from "../../socket";
 import { useParams } from "react-router-dom";
 import "./Competitive.css"
-import Username from "./username";
-import CopyButton from "./CopyButton";
+import Username from "../features/username";
+import CopyButton from "../features/CopyButton";
 export default function Competitive() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState('easy');
@@ -138,7 +138,7 @@ socket.on('new-points',(points)=>{
     setSubmitMessage(message);
   })
   socket.on('update-duration', (newDuration) => {
-  setDuration(newDuration); // 🔁 Update local state
+  setDuration(newDuration); 
 });
 socket.on('update-difficulty',(newDifficulty)=>{
   setSelectedLevel(newDifficulty);
@@ -202,24 +202,25 @@ socket.on('update-difficulty',(newDifficulty)=>{
       <p>Game Mode : Competitive</p>
       <CopyButton/>
       {showStartButton&&isHost&&(<form>
-        <label>
-          Enter time to solve Sudoku (in minutes) :&nbsp;&nbsp;&nbsp;
-          <input
-            type="number"
+        <label>Enter time to solve Sudoku (in minutes) :&nbsp;&nbsp;&nbsp;
+          <select
             value={duration}
             onChange={(e) => {
-  const newDuration = Number(e.target.value);
-  setDuration(newDuration);
-  socket.emit('duration-change', { roomId, duration: newDuration }); 
-}}
+            const newDuration = Number(e.target.value);
+            setDuration(newDuration);
+            socket.emit('duration-change', { roomId, duration: newDuration }); 
+            }}
             className="time-select"
-            min="2"
-            max="30"
             required
-          />
-        </label>
+          >
+          <option value="" disabled></option>
+           {[...Array(29)].map((_, i) => {
+           const val = i + 2;
+           return <option key={val} value={val}>{val}</option>;
+           })}
+          </select>
+      </label>
       </form>)}
-      <br></br>
       {showStartButton&&isHost&&(<form>
         <label htmlFor="dropdown">
           Choose the Difficulty Level :&nbsp;&nbsp;
@@ -242,7 +243,6 @@ socket.on('update-difficulty',(newDifficulty)=>{
       </form>)}
       {!isHost&&puzzle.length==0&&(<h5>Time duration set by Host : {duration} minutes</h5>)}
       {!isHost&&puzzle.length==0&&(<h5>Difficulty level set by Host : {selectedLevel} </h5>)}
-      <br></br>
      {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
         Start Game
       </button>)} 
@@ -297,22 +297,24 @@ socket.on('update-difficulty',(newDifficulty)=>{
         <ul>
         <li>For every correct entry its +10 Points</li>
         <li>For every wrong entry its -5 Points</li>
+        <li>Bonus : If you complete the puzzle early, your final points are increased by percentage of time left<br />
+        For example, if 40% time is left and you scored 60 points<br />
+        Final Score = 60 × (1 + 0.4) = 84 </li>
         </ul>
         <h3>Sudoku Rules</h3>
         <ul>
-          <li>Enter numbers 1-9 in empty white cells only.</li>
+          <li>Enter numbers 1-9 in empty white cells only</li>
           <li>
             Each number can appear only once in each row,
-            column, and 3x3 box.
+            column, and 3x3 box
           </li>
-          <li>Correct entries turn green, incorrect ones turn red.</li>
+          <li>Correct entries turn green, incorrect ones turn red</li>
         </ul>
       </div>
        <div className="finished-list">
   <h3>✔️ Players Finished :</h3>
   {finishedPlayers.map((p, idx) => (<li key={idx}>{p.name}: {p.points} points</li> ))}
 </div>
-
         <div>
     {showLeaderboard && (
   <div className="modal-overlay">

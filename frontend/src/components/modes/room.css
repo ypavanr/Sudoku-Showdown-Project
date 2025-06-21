@@ -186,6 +186,7 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  z-index: 50;
 }
 
 .room-submit:disabled {

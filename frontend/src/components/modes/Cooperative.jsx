@@ -1,10 +1,10 @@
 import React, { useState, useEffect,useRef } from "react";
 import "./Sudoku.css";
 import { FaClock } from "react-icons/fa";
-import socket from "./socket";
+import socket from "../../socket";
 import { useParams } from "react-router-dom";
-import Username from "./username";
-import CopyButton from "./CopyButton";
+import Username from "../features/username";
+import CopyButton from "../features/CopyButton";
 export default function Cooperative() {
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
