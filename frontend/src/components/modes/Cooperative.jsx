@@ -5,6 +5,7 @@ import socket from "../../socket";
 import { useParams } from "react-router-dom";
 import Username from "../features/username";
 import CopyButton from "../features/CopyButton";
+import Chat from "../features/chat";
 export default function Cooperative() {
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
@@ -126,11 +127,11 @@ export default function Cooperative() {
   return (
     <div>
       <Username/>
+      <Chat/>
     <div className="sudoku-container">
       <h1 className="Game">Sudoku Showdown</h1>
       <p>Game Mode : Cooperative</p>
       <CopyButton/>
-      <br></br>
       {showStartButton&&isHost&&(<form>
         <label htmlFor="dropdown">
           Choose the Difficulty Level : &nbsp;&nbsp;

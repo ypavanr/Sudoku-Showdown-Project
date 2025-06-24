@@ -88,9 +88,9 @@ p{font-size: 20px;
 
 .left-panel{
   position: absolute;
-  top: 50px;
-  left: 100px;
-  max-width: 300px;
+  top: 30px;
+  left: 30px;
+  max-width: 450px;
   color:white;
   align-items: center;
   text-align: center;
@@ -101,7 +101,7 @@ p{font-size: 20px;
   padding: 15px;
   background-color: #222;
   border-radius: 10px;
-  max-width: 380px;
+  max-width: 500px;
   font-size: 16px;   
   font-weight: 400;
   text-align: left;

@@ -5,7 +5,6 @@ import socket from "../../socket";
 import { nanoid } from 'nanoid';
 import Username from "../features/username";
 
-
 const SudokuBlock = ({ top, left, numbers, delay }) => {
   const cells = Array(9).fill("");
   const positions = [];

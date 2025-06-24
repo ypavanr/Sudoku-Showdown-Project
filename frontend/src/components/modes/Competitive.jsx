@@ -58,7 +58,6 @@ let difficulty = selectedLevelRef.current;
 
 const durationRef = useRef(duration);
 
-
   const stopTimer = () => {
     clearInterval(intervalRef.current);
     setIsRunning(false);

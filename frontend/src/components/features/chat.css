@@ -1,0 +1,12 @@
+.chatbox {
+  position: absolute;
+  top: 80px; 
+  right: 30px;
+  background-color: white;
+  color: black;
+  padding: 10px 10px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  z-index: 99;
+  width: 450px; 
+}
