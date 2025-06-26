@@ -86,7 +86,11 @@ const handleSubmitMode = (event) => {
   alert('Please select a mode');
   return;
 }
-    socket.emit('create-room', { roomId: newRoomId, mode,username} );
+if(mode==='solo'){
+  navigate(`/room/solo`);
+}
+else
+   { socket.emit('create-room', { roomId: newRoomId, mode,username} );}
   };
 useEffect(()=>{
   const storedUsername=localStorage.getItem('username');
@@ -131,6 +135,7 @@ useEffect(()=>{
              <select id="dropdown" value={selectedMode} onChange={(e)=>setSelectedMode(e.target.value)} className="mode-select">
              <option value="competitive">Competitive</option>
              <option value="cooperative">Cooperative</option>
+             <option value="solo">Solo</option>
              </select>
             <button type="submit" className="mode-submit">Submit</button>
     </form>)} 

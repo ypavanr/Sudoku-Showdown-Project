@@ -6,6 +6,7 @@ import Competitive from "./components/modes/Competitive.jsx";
 import Home from "./components/homePage/Home.jsx";
 import Cooperative from "./components/modes/Cooperative.jsx";
 import About from "./components/homePage/About.jsx";
+import Solo from "./components/modes/solo.jsx";
 function App() {
   return (
     <Router>
@@ -17,6 +18,7 @@ function App() {
         <Route path="/room" element={<Room />} />
         <Route path="/room/cooperative/:roomId" element={<Cooperative />} />
         <Route path="/room/competitive/:roomId" element={<Competitive />} />
+        <Route path="/room/solo" element={<Solo />} />
       </Routes>
     </Router>
   );

@@ -224,7 +224,7 @@ socket.on('update-difficulty',(newDifficulty)=>{
         <label htmlFor="dropdown">
           Choose the Difficulty Level :&nbsp;&nbsp;
         </label>
-        <select style={{width:"105px",height:"47px"}}
+        <select style={{width:"107px",height:"47px"}}
   id="dropdown"
   value={selectedLevel}
   onChange={(e) => {

@@ -7,6 +7,7 @@ import { authRouter } from "./routes/authRoutes.js";
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import setupSocket from "./socket.js";
+import { sudokuRouter } from "./routes/sudokuRoutes.js";
 const app=express()
 env.config()
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -28,6 +29,8 @@ app.post("/test", (req, res) => {
 });
 setupSocket(io);
 app.use("/auth",authRouter)
+app.use("/sudoku",sudokuRouter)
+
 server.listen(3000,()=>{
     console.log("server listening on port 3000")
 })

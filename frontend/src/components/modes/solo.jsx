@@ -1,13 +1,9 @@
 import React, { useState, useEffect,useRef } from "react";
 import "./Sudoku.css";
 import { FaClock } from "react-icons/fa";
-import socket from "../../socket";
-import { useParams } from "react-router-dom";
 import Username from "../features/username";
-import CopyButton from "../features/CopyButton";
-import Chat from "../features/chat";
-export default function Cooperative() {
-  const {roomId } = useParams();
+import axios from "axios";
+export default function Solo() {
   const [puzzle, setPuzzle] = useState([]);
     const [isRunning, setIsRunning] = useState(false);
   const [inputStatus, setInputStatus] = useState({});
@@ -16,11 +12,19 @@ export default function Cooperative() {
   const [secondsElapsed, setSecondsElapsed]=useState(0);
   const [selectedLevel, setSelectedLevel] = useState('easy');
     const selectedLevelRef = useRef(selectedLevel);
-    const [isHost, setIsHost]=useState(true);
   const intervalRef=useRef(null);
-  const handleStartGame = () => {
+  const handleStartGame = async() => {
     let difficulty = selectedLevelRef.current;
-    socket.emit("start-game", {roomId,difficulty,});
+    try{
+        const puzzle=await axios.post("http://localhost:3000/sudoku/generate",{difficulty})
+        setPuzzle(puzzle.data);
+        startTimer();
+        setStartButton(false);
+        console.log(puzzle.data);
+    }
+    catch (err) {
+      alert("error fetching puzzle, "+ err);
+    }
     
   };
   const formatTime=(totalSeconds)=>{
@@ -43,35 +47,16 @@ export default function Cooperative() {
   };
 
   useEffect(() => {
-    
-    socket.on("puzzle", ({puzzle,}) => {
-      setPuzzle(puzzle);
-      startTimer();
-      setInputStatus({});
-      console.log("Puzzle received:", puzzle);
-      setStartButton(false);
-    });
-    socket.on("error",(message)=>{
-      alert(message);
-    })
- socket.on('not-host',()=>{
-    setIsHost(false);
-  })
-  socket.emit('check-host',roomId);
-    socket.on("validate-result", ({ row, col, number, isCorrect }) => {
-      setPuzzle((prev) => {
-        const newPuzzle=prev.map((r)=>[...r]);
-        newPuzzle[row][col]=number;
-        return newPuzzle;
-      });
-      setInputStatus((prev) => ({
-        ...prev,
-        [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
-      }));
-    });
-
-    socket.on("clear-cell",({row,col}) => {
-      setPuzzle((prev) => {
+   
+    return () => {
+    clearInterval(intervalRef.current);
+   
+    };
+  }, []);
+   
+  const handleInputChange = (e, row, col) => {
+    const val = e.target.value;
+    if (val === "") {setPuzzle((prev) => {
       const newPuzzle=prev.map((r) => [...r]);
       newPuzzle[row][col]=0;
       return newPuzzle;
@@ -81,58 +66,53 @@ export default function Cooperative() {
       delete copy[`${row}-${col}`];
       return copy;
     });
-  });
-  socket.on("game-complete",(message)=>{
-    setSubmitMessage(message);
-    stopTimer();
-  });
-  socket.on("game-incomplete",(message)=>{
-    setSubmitMessage(message);
-  })
-  socket.on('update-difficulty',(newDifficulty)=>{
-  setSelectedLevel(newDifficulty);
-})
-    return () => {
-    clearInterval(intervalRef.current);
-    socket.off('update-difficulty');
-    socket.off('not-host');
-    socket.off("puzzle");
-    socket.off("validate-result");
-    socket.off("clear-cell");
-    socket.off("game-complete");
-    socket.off("game-incomplete");
-    socket.off("error");
-    };
-  }, []);
-   
-  const handleInputChange = (e, row, col) => {
-    const val = e.target.value;
-    if (val === "") {socket.emit("clear-cell",{roomId,row,col});
-    return;
     }
 
     const num = parseInt(val);
     if (num >= 1 && num <= 9) {
-      socket.emit("validate-move", {roomId,puzzle,row,col,number: num,socketId: socket.id,});
-      setPuzzle((prev) => {
-        const newPuzzle = prev.map((r) => [...r]);
-        newPuzzle[row][col] = num;
+      
+      const validateResult=async(row,col,number)=>{
+   try{const response=await axios.post("http://localhost:3000/sudoku/verifymove",{row,col,number});
+   const isCorrect=response.data.isCorrect;
+   setPuzzle((prev) => {
+        const newPuzzle=prev.map((r)=>[...r]);
+        newPuzzle[row][col]=number;
         return newPuzzle;
       });
+      setInputStatus((prev) => ({
+        ...prev,
+        [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
+      }));}
+      catch (err) {
+      alert("error validating move, "+ err);
+    }
+   }
+   validateResult(row,col,num);
     }
   };
-  const handleSubmission=()=>{
-    socket.emit("validate-submission",{roomId,puzzle});
+  const handleSubmission=async()=>{
+   
+   try{
+    const result=await axios.post("http://localhost:3000/sudoku/validatesubmission",{puzzle});
+    if(result.data.solved){
+        setSubmitMessage("Game completed. Hooray!!!");
+        stopTimer();
+    }
+    else{
+        setSubmitMessage("Game not yet completed.")
+    }
+   }
+   catch (err) {
+      alert("error validating submission, "+ err);
+    }
   }
   return (
     <div>
       <Username/>
-      <Chat/>
     <div className="sudoku-container">
       <h1 className="Game">Sudoku Showdown</h1>
-      <p>Game Mode : Cooperative</p>
-      <CopyButton/>
-      {showStartButton&&isHost&&(<form>
+      <p>Game Mode : Solo</p>
+      {showStartButton&&(<form>
         <label htmlFor="dropdown">
           Choose the Difficulty Level : &nbsp;&nbsp;
         </label>
@@ -143,7 +123,6 @@ export default function Cooperative() {
     const newDifficulty = e.target.value;
     setSelectedLevel(newDifficulty);
     selectedLevelRef.current = newDifficulty;
-    socket.emit('difficulty-change', { roomId, difficulty: newDifficulty });
   }}
   className="mode-select"
 >
@@ -152,8 +131,7 @@ export default function Cooperative() {
   <option value="hard">Hard</option>
 </select>
       </form>)}
-      {!isHost&&puzzle.length==0&&(<h5>Difficulty Level set by Host : {selectedLevel} </h5>)}
-     {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
+     {showStartButton&&(<button className="start-game" onClick={handleStartGame}  >
         Start Game
       </button>)} 
       {!showStartButton&&(<h5>Difficulty Level : {selectedLevel}</h5>)}
