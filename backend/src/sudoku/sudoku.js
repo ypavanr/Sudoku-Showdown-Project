@@ -1,4 +1,3 @@
-import { Util } from "./sudokuUtil.js";
 function generateSudokuPuzzle(level) {
   const SIZE = 9;
   const EMPTY = 0;
@@ -152,16 +151,6 @@ function isSamePuzzle(p1, p2) {
     }
   }
   return true;
-}
-
-const solved = generateSudokuPuzzle('hard');
-
-let unsolvedPuzzle = JSON.parse(JSON.stringify(solved));
-let count=0;
-for(let i=0;i<9;i++){
-    for(let j=0;j<9;j++){
-        if(unsolvedPuzzle[i][j]===0)count++;
-    }
 }
 
 export {generateSudokuPuzzle, solve,isSamePuzzle}
