@@ -13,7 +13,7 @@ env.config()
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors({
-    origin:process.env.CORS_ORIGIN_URL
+  origin:process.env.CORS_ORIGIN_URL
 }));
 const server = createServer(app);
 const io = new Server(server, {

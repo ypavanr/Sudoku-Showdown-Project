@@ -5,13 +5,13 @@ import Username from "../features/username";
 import axios from "axios";
 export default function Solo() {
   const [puzzle, setPuzzle] = useState([]);
-    const [isRunning, setIsRunning] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
   const [inputStatus, setInputStatus] = useState({});
   const [showStartButton, setStartButton]=useState(true);
   const [submissionMessage, setSubmitMessage]=useState('');
   const [secondsElapsed, setSecondsElapsed]=useState(0);
   const [selectedLevel, setSelectedLevel] = useState('easy');
-    const selectedLevelRef = useRef(selectedLevel);
+  const selectedLevelRef = useRef(selectedLevel);
   const intervalRef=useRef(null);
   const handleStartGame = async() => {
     let difficulty = selectedLevelRef.current;
@@ -25,7 +25,6 @@ export default function Solo() {
     catch (err) {
       alert("error fetching puzzle, "+ err);
     }
-    
   };
   const formatTime=(totalSeconds)=>{
     const minutes= String(Math.floor(totalSeconds/60)).padStart(2, '0');
@@ -40,17 +39,14 @@ export default function Solo() {
       setIsRunning(true);
     }
   };
-
   const stopTimer = () => {
     clearInterval(intervalRef.current);
     setIsRunning(false);
   };
 
   useEffect(() => {
-   
     return () => {
     clearInterval(intervalRef.current);
-   
     };
   }, []);
    
@@ -71,7 +67,7 @@ export default function Solo() {
     const num = parseInt(val);
     if (num >= 1 && num <= 9) {
       
-      const validateResult=async(row,col,number)=>{
+    const validateResult=async(row,col,number)=>{
    try{const response=await axios.post("http://localhost:3000/sudoku/verifymove",{row,col,number});
    const isCorrect=response.data.isCorrect;
    setPuzzle((prev) => {
@@ -106,6 +102,7 @@ export default function Solo() {
       alert("error validating submission, "+ err);
     }
   }
+
   return (
     <div>
       <Username/>
@@ -167,7 +164,6 @@ export default function Solo() {
       </button>)} 
       </div>
       <div className="left-panel">
-        
          {submissionMessage&&(
           <div className="modal-overlay">
           <div className="modal-content leaderboard-modal">
