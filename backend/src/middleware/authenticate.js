@@ -59,5 +59,4 @@ const register = async (req, res) => {
   }
 };
 
-
 export {authenticate, register}
