@@ -13,10 +13,18 @@ export default function Solo() {
   const [selectedLevel, setSelectedLevel] = useState('easy');
   const selectedLevelRef = useRef(selectedLevel);
   const intervalRef=useRef(null);
+  const token = localStorage.getItem("token");
   const handleStartGame = async() => {
     let difficulty = selectedLevelRef.current;
     try{
-        const puzzle=await axios.post("http://localhost:3000/sudoku/generate",{difficulty})
+        const puzzle=await axios.post("http://localhost:3000/sudoku/generate",{difficulty}
+          ,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+        )
         setPuzzle(puzzle.data);
         startTimer();
         setStartButton(false);
@@ -68,7 +76,13 @@ export default function Solo() {
     if (num >= 1 && num <= 9) {
       
     const validateResult=async(row,col,number)=>{
-   try{const response=await axios.post("http://localhost:3000/sudoku/verifymove",{row,col,number});
+   try{const response=await axios.post("http://localhost:3000/sudoku/verifymove",{row,col,number},
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+   );
    const isCorrect=response.data.isCorrect;
    setPuzzle((prev) => {
         const newPuzzle=prev.map((r)=>[...r]);
@@ -89,7 +103,12 @@ export default function Solo() {
   const handleSubmission=async()=>{
    
    try{
-    const result=await axios.post("http://localhost:3000/sudoku/validatesubmission",{puzzle});
+    const result=await axios.post("http://localhost:3000/sudoku/validatesubmission",{puzzle},
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
     if(result.data.solved){
         setSubmitMessage("Game completed. Hooray!!!");
         stopTimer();

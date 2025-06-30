@@ -1,14 +1,14 @@
 import db from "../config/pdDB.js";
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+const SECRET_KEY=process.env.JWT_SECRET||"your-secret-key";
 const authenticate = async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
-    if (result.rows.length === 0) {
+    if (result.rows.length===0) {
       return res.status(401).json({ message: "Email does not exist. Please register" });
     }
-
     const user = result.rows[0];
     const isMatch = await bcrypt.compare(password, user.password_hash);
 
@@ -16,8 +16,14 @@ const authenticate = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    const token = jwt.sign(
+      {id: user.id, email:user.email, username:user.username },
+      SECRET_KEY,
+      { expiresIn:"2h"}
+    );
     return res.status(200).json({
       message: "Authenticated",
+      token,
       username: user.username
     });
   } catch (error) {

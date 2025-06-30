@@ -1,12 +1,14 @@
 import React, { useState, useEffect,useRef } from "react";
 import "./Sudoku.css";
 import { FaClock } from "react-icons/fa";
-import socket from "../../socket";
+import { getSocket } from "../../socket.js";
+const socket = getSocket();
 import { useParams } from "react-router-dom";
 import Username from "../features/username";
 import CopyButton from "../features/CopyButton";
 import Chat from "../features/chat";
 export default function Cooperative() {
+  const socket = getSocket();
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
     const [isRunning, setIsRunning] = useState(false);
