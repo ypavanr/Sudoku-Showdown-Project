@@ -3,13 +3,27 @@
   top: 80px; 
   right: 30px;
   background-color: white;
-  color: black;
-  padding: 10px 10px;
+  padding: 10px;
   border-radius: 10px;
   font-size: 0.95rem;
   z-index: 99;
   width: 400px; 
   height : 550px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-bottom: 10px;
+}
+
+#form {
+  display: flex;
+  gap: 10px;
 }
 .join-message {
   padding: 5px;
@@ -24,4 +38,45 @@
 .color-b{
   background-color:	#e6f0ff;
   color:#3459c0;
+}
+
+.messages {
+  padding:5px;
+  font-size: 0.95rem;
+}
+
+
+#form input {
+  flex: 1;
+  width: 75%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: white;
+}
+
+#form input:focus {
+  border-color: #5e3ca4;
+  outline: none;
+  background-color: white;
+  cursor:pointer;
+}
+
+#form button[type="submit"] {
+  width: 20%;
+  padding: 10px;
+  background-color: #5e3ca4; 
+  color: white;
+  border: none;
+  margin-right:10px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+#form button[type="submit"]:hover {
+  background-color: #462d91; 
 }

@@ -68,6 +68,16 @@ export default function setupSocket(io){
       }
     });
 
+    socket.on('new-message',(roomId,input)=>{
+      const room=roomData.get(roomId);
+      if(!room){
+        socket.emit('error',"room not found");
+        return;
+      }
+       console.log('Message:',input);
+       io.to(roomId).emit('display-messages',input);
+    });
+
     socket.on("duration-change", ({ roomId, duration }) => {
     socket.to(roomId).emit("update-duration", duration);
     });
