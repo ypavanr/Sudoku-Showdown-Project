@@ -15,11 +15,12 @@ export default function Cooperative() {
   const [inputStatus, setInputStatus] = useState({});
   const [showStartButton, setStartButton]=useState(true);
   const [submissionMessage, setSubmitMessage]=useState('');
-  const [secondsElapsed, setSecondsElapsed]=useState(0);
+  const [secondsElapsed, setSecondsElapsed] = useState(0);
+const startTimeRef = useRef(null);
+const intervalRef = useRef(null);
   const [selectedLevel, setSelectedLevel] = useState('easy');
     const selectedLevelRef = useRef(selectedLevel);
     const [isHost, setIsHost]=useState(true);
-  const intervalRef=useRef(null);
   const handleStartGame = () => {
     let difficulty = selectedLevelRef.current;
     socket.emit("start-game", {roomId,difficulty,});
@@ -30,19 +31,22 @@ export default function Cooperative() {
     const seconds= String(totalSeconds % 60).padStart(2, '0');
     return `${minutes}:${seconds}`;
   };
- const startTimer = () => {
-    if (!isRunning) {
-      intervalRef.current = setInterval(() => {
-        setSecondsElapsed((prev) => prev + 1);
-      }, 1000);
-      setIsRunning(true);
-    }
-  };
+const startTimer = () => {
+  if (!isRunning) {
+    startTimeRef.current = Date.now(); 
+    intervalRef.current = setInterval(() => {
+      const now = Date.now();
+      const diffInSeconds = Math.floor((now - startTimeRef.current) / 1000);
+      setSecondsElapsed(diffInSeconds);
+    }, 1000);
+    setIsRunning(true);
+  }
+};
 
   const stopTimer = () => {
-    clearInterval(intervalRef.current);
-    setIsRunning(false);
-  };
+  clearInterval(intervalRef.current);
+  setIsRunning(false);
+};
 
   useEffect(() => {
     

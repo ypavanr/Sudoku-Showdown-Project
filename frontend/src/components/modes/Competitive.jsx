@@ -15,7 +15,7 @@ export default function Competitive() {
   const [leaderboard, setLeaderboard] = useState([]); 
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
-  const [isRunning, setIsRunning] = useState(false);
+  const deadlineRef = useRef(null);
   const [inputStatus, setInputStatus] = useState({});
   const [showStartButton, setStartButton]=useState(true);
   const [submissionMessage, setSubmitMessage]=useState('');
@@ -37,32 +37,31 @@ export default function Competitive() {
     return `${minutes}:${seconds}`;
   };
   const startTimer = (minutes) => {
-    minutes=parseInt(minutes);
-  if (minutes >= 2 && minutes <= 30) {
-    const totalSeconds = minutes * 60;
-    setTimeLeft(totalSeconds);
-    setIsRunning(true);
+  const totalSeconds = parseInt(minutes) * 60;
+  const deadline = Date.now() + totalSeconds * 1000;
+  deadlineRef.current = deadline;
 
-    intervalRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(intervalRef.current);
-          setIsRunning(false);
-          socket.emit("time-up", roomId,points);
-          setSubmitMessage("Time's up! Game over.");
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  }
+  const tick = () => {
+    const remaining = Math.max(0, Math.floor((deadlineRef.current - Date.now()) / 1000));
+    setTimeLeft(remaining);
+
+    if (remaining <= 0) {
+      clearInterval(intervalRef.current);
+     
+      socket.emit("time-up", roomId, points);
+      setSubmitMessage("Time's up! Game over.");
+    }
+  };
+  tick(); 
+  intervalRef.current = setInterval(tick, 1000);
+  
 };
 
 const durationRef = useRef(duration);
 
   const stopTimer = () => {
     clearInterval(intervalRef.current);
-    setIsRunning(false);
+ 
   };
 
   useEffect(() => {
