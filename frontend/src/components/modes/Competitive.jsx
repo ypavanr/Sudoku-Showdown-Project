@@ -2,20 +2,20 @@ import React, { useState, useEffect,useRef } from "react";
 import "./Sudoku.css";
 import { FaClock } from "react-icons/fa";
 import { getSocket } from "../../socket.js";
-
 import { useParams } from "react-router-dom";
 import "./Competitive.css"
 import Username from "../features/username";
 import CopyButton from "../features/CopyButton";
+import ChatBox from "../features/ChatBox.jsx";
 export default function Competitive() {
   const socket = getSocket();
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState('easy');
   const selectedLevelRef = useRef(selectedLevel);
-    const [leaderboard, setLeaderboard] = useState([]); 
+  const [leaderboard, setLeaderboard] = useState([]); 
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
-    const [isRunning, setIsRunning] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
   const [inputStatus, setInputStatus] = useState({});
   const [showStartButton, setStartButton]=useState(true);
   const [submissionMessage, setSubmitMessage]=useState('');
@@ -27,8 +27,8 @@ export default function Competitive() {
   const [isHost, setIsHost]=useState(true);
   const intervalRef=useRef(null);
   const handleStartGame = () => {
-    let time=durationRef.current;
-let difficulty = selectedLevelRef.current;
+  let time=durationRef.current;
+  let difficulty = selectedLevelRef.current;
   socket.emit("start-game", {roomId,difficulty,time});    
   };
   const formatTime=(totalSeconds)=>{
@@ -36,7 +36,7 @@ let difficulty = selectedLevelRef.current;
     const seconds= String(totalSeconds % 60).padStart(2, '0');
     return `${minutes}:${seconds}`;
   };
- const startTimer = (minutes) => {
+  const startTimer = (minutes) => {
     minutes=parseInt(minutes);
   if (minutes >= 2 && minutes <= 30) {
     const totalSeconds = minutes * 60;
@@ -198,6 +198,7 @@ socket.on('update-difficulty',(newDifficulty)=>{
   return (
     <div>
       <Username/>
+      <ChatBox/>
     <div className="sudoku-container">
       <h1 className="Game">Sudoku Showdown</h1>
       <p>Game Mode : Competitive</p>

@@ -104,16 +104,11 @@ useEffect(()=>{
    socket.on("error",(message)=>{
       alert(message);
     })
-  const handleUserJoined=(message)=>{
-    console.log('User joined:'+message);
-  };
   socket.on('room-created',handleRoomCreated);
-  socket.on('user-joined',handleUserJoined);
 
   return ()=>{
     socket.off("error");
     socket.off('room-created',handleRoomCreated);
-    socket.off('user-joined', handleUserJoined);
   };
 },[navigate]);
   return(

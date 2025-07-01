@@ -6,7 +6,7 @@ const socket = getSocket();
 import { useParams } from "react-router-dom";
 import Username from "../features/username";
 import CopyButton from "../features/CopyButton";
-import Chat from "../features/chat";
+import ChatBox from "../features/ChatBox.jsx";
 export default function Cooperative() {
   const socket = getSocket();
   const {roomId } = useParams();
@@ -129,7 +129,7 @@ export default function Cooperative() {
   return (
     <div>
       <Username/>
-      <Chat/>
+      <ChatBox/>
     <div className="sudoku-container">
       <h1 className="Game">Sudoku Showdown</h1>
       <p>Game Mode : Cooperative</p>

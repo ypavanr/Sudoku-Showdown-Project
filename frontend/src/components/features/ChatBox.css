@@ -1,0 +1,27 @@
+.chatbox {
+  position: absolute;
+  top: 80px; 
+  right: 30px;
+  background-color: white;
+  color: black;
+  padding: 10px 10px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  z-index: 99;
+  width: 400px; 
+  height : 550px;
+}
+.join-message {
+  padding: 5px;
+  font-size: 0.95rem;
+}
+
+.color-a{
+  background-color:#eae6f8;
+  color:#5e3ca4;
+}
+
+.color-b{
+  background-color:	#e6f0ff;
+  color:#3459c0;
+}
