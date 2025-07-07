@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import Background from "../features/Background";
+import Logo from "../features/logo";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -9,8 +10,10 @@ const HomePage = () => {
   return (
     <div className="homepage-container">
       <Background />
+    
       <div className="homepage-content">
-        <h1>Sudoku Showdown</h1>
+        <Logo/>
+        <h1 style={{ marginTop: '0' }}>Sudoku Showdown</h1>
         <p className="tagline">Sudoku isn’t just solo anymore—invite friends and see who’s the puzzle master!<br></br>
         What do we offer?<br></br>
         Competitive mode - To see who can conquer the Grid!<br></br>

@@ -3,6 +3,7 @@ import "./Sudoku.css";
 import { FaClock } from "react-icons/fa";
 import Username from "../features/username";
 import axios from "axios";
+import Logo from "../features/logo";
 export default function Solo() {
   const [puzzle, setPuzzle] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
@@ -126,6 +127,7 @@ export default function Solo() {
     <div>
       <Username/>
     <div className="sudoku-container">
+      <Logo/>
       <h1 className="Game">Sudoku Showdown</h1>
       <p>Game Mode : Solo</p>
       {showStartButton&&(<form>

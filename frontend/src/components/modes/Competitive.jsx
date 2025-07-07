@@ -7,6 +7,7 @@ import "./Competitive.css"
 import Username from "../features/username";
 import CopyButton from "../features/CopyButton";
 import ChatBox from "../features/ChatBox.jsx";
+import Logo from "../features/logo.jsx";
 export default function Competitive() {
   const socket = getSocket();
   const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -199,6 +200,7 @@ socket.on('update-difficulty',(newDifficulty)=>{
       <Username/>
       <ChatBox/>
     <div className="sudoku-container">
+       <Logo/>
       <h1 className="Game">Sudoku Showdown</h1>
       <p>Game Mode : Competitive</p>
       <CopyButton/>

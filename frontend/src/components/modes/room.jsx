@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import './Room.css';
 import { useNavigate } from "react-router-dom";
 import { getSocket } from "../../socket";
-
+import Logo from "../features/logo";
 import { nanoid } from 'nanoid';
 import Username from "../features/username";
 
@@ -112,12 +112,15 @@ useEffect(()=>{
   };
 },[navigate]);
   return(
-    <div><Username/>
+    
+    <div>
+      <Username/>
     <div className="room-wrapper">
       {blocksData.map(({ top, left, numbers, delay }, i) => (
         <SudokuBlock key={i} top={top} left={left} numbers={numbers} delay={delay} />
       ))}
       <div className="room-card">
+         <Logo/>
         <h1 className="room-title">Sudoku Showdown</h1>
         <p className="room-subtitle">Challenge yourself or compete with friends!</p>
         <div className="room-buttons">

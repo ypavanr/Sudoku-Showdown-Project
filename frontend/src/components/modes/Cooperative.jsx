@@ -2,6 +2,7 @@ import React, { useState, useEffect,useRef } from "react";
 import "./Sudoku.css";
 import { FaClock } from "react-icons/fa";
 import { getSocket } from "../../socket.js";
+import Logo from "../features/logo.jsx";
 const socket = getSocket();
 import { useParams } from "react-router-dom";
 import Username from "../features/username";
@@ -135,6 +136,7 @@ const startTimer = () => {
       <Username/>
       <ChatBox/>
     <div className="sudoku-container">
+       <Logo/>
       <h1 className="Game">Sudoku Showdown</h1>
       <p>Game Mode : Cooperative</p>
       <CopyButton/>

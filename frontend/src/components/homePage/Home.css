@@ -7,11 +7,12 @@
 }
 
 .homepage-content {
+ 
   position: relative;
   z-index: 1;
   text-align: center;
   color: #ffffff;
-  padding-top: 20vh;
+  padding-top: 5vh;
 }
 
 .homepage-content h1 {
