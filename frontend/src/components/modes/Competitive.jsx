@@ -1,7 +1,7 @@
 import React, { useState, useEffect,useRef } from "react";
 import "./Sudoku.css";
 import { FaClock } from "react-icons/fa";
-import { getSocket } from "../../socket.js";
+import socket from "../../socket.js";
 import { useParams } from "react-router-dom";
 import "./Competitive.css"
 import Username from "../features/username";
@@ -9,7 +9,6 @@ import CopyButton from "../features/CopyButton";
 import ChatBox from "../features/ChatBox.jsx";
 import Logo from "../features/logo.jsx";
 export default function Competitive() {
-  const socket = getSocket();
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState('easy');
   const selectedLevelRef = useRef(selectedLevel);

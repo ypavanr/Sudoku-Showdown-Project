@@ -3,7 +3,6 @@ import bodyParser from "body-parser";
 import db from "./config/pdDB.js";
 import cors from "cors";
 import env from "dotenv";
-import { authRouter } from "./routes/authRoutes.js";
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import setupSocket from "./socket.js";
@@ -28,7 +27,7 @@ app.post("/test", (req, res) => {
   return res.status(200).json({ message: "Test route working" });
 });
 setupSocket(io);
-app.use("/auth",authRouter)
+
 app.use("/sudoku",sudokuRouter)
 
 server.listen(3000,()=>{

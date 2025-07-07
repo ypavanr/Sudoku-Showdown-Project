@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import './Room.css';
 import { useNavigate } from "react-router-dom";
-import { getSocket } from "../../socket";
+import socket from "../../socket.js";
 import Logo from "../features/logo";
 import { nanoid } from 'nanoid';
 import Username from "../features/username";
@@ -48,7 +48,7 @@ const blocksData = [
 ];
 
 const Room = () => {
-  const socket = getSocket();
+
   const navigate = useNavigate();
   const [showInput, setShowInput] = useState(false);
   const [roomId, setRoomId] = useState('');

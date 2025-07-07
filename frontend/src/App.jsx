@@ -1,6 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./components/homePage/login.jsx";
-import Register from "./components/homePage/register.jsx";
 import Room from "./components/modes/room.jsx";
 import Competitive from "./components/modes/Competitive.jsx";
 import Home from "./components/homePage/Home.jsx";
@@ -12,8 +10,6 @@ function App() {
   return (
     <Router>
       <Routes>
-          <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/room" element={

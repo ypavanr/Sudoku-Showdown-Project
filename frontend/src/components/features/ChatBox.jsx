@@ -1,10 +1,9 @@
 import React, { useState, useEffect,useRef } from "react";
 import "./ChatBox.css";
-import { getSocket } from "../../socket.js";
+import socket from "../../socket";
 import { useParams } from "react-router-dom";
 
 function ChatBox(){
-    const socket = getSocket();  
     const messagesEndRef = useRef(null);
     const [joinMessages, setJoinMessages]=useState([]);
     const [input, setInput] = useState('');

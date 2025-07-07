@@ -2,21 +2,6 @@ import { generateSudokuPuzzle, solve, isSamePuzzle } from "./sudoku/sudoku.js";
 import { Util } from "./sudoku/sudokuUtil.js";
 import jwt from "jsonwebtoken";
 export default function setupSocket(io){
-    io.use((socket, next) => {
-    const token = socket.handshake.auth.token;
-
-    if (!token) {
-      return next(new Error("No token provided"));
-    }
-
-    try {
-      const user = jwt.verify(token, process.env.JWT_SECRET);
-      socket.user = user; 
-      next();
-    } catch (err) {
-      return next(new Error("Authentication error"));
-    }
-  });
   const roomData=new Map();
   const socketToRoom = new Map();
 
