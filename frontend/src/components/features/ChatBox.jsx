@@ -42,7 +42,7 @@ function ChatBox(){
 
     return (
     <div className="chatbox">
-      <div className="message-container">
+      <div className="messages-container">
       {joinMessages.map((usermsg,index)=>(
         <div key={index} className={`join-message ${index % 2 === 0 ? 'color-a' : 'color-b'}`}>
           <p>{usermsg}</p>

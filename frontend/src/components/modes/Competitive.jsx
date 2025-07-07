@@ -302,21 +302,9 @@ socket.on('update-difficulty',(newDifficulty)=>{
         For example, if 40% time is left and you scored 60 points<br />
         Final Score = 60 × (1 + 0.4) = 84 </li>
         </ul>
-        <h3>Sudoku Rules</h3>
-        <ul>
-          <li>Enter numbers 1-9 in empty white cells only</li>
-          <li>
-            Each number can appear only once in each row,
-            column, and 3x3 box
-          </li>
-          <li>Correct entries turn green, incorrect ones turn red</li>
-        </ul>
       </div>
        <div className="finished-list">
-  <h3>✔️ Players Finished :</h3>
-  {finishedPlayers.map((p, idx) => (<li key={idx}>{p.name}: {p.points} points</li> ))}
-</div>
-        <div>
+  
     {showLeaderboard && (
   <div className="modal-overlay">
     <div className="modal-content leaderboard-modal">

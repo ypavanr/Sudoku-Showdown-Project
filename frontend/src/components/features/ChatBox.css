@@ -19,6 +19,7 @@
   overflow-y: auto;
   padding-right: 6px;
   margin-bottom: 10px;
+  color:black;
 }
 
 #form {
@@ -55,6 +56,8 @@
   border-radius: 8px;
   font-size: 16px;
   background-color: white;
+  color:black;
+  caret-color: black;
 }
 
 #form input:focus {
@@ -62,6 +65,8 @@
   outline: none;
   background-color: white;
   cursor:pointer;
+  color:black;
+  caret-color: black;
 }
 
 #form button[type="submit"] {
