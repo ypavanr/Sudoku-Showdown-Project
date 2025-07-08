@@ -5,17 +5,31 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   height:100%;
 }
+
+html, body {
+  scroll-behavior: auto;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
 .sudoku-container {
-  padding: 20px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
   color:white;
+  margin-bottom: 2px;
 }
 
+.sudoku-container h5{
+  margin-top:2px;
+  margin-bottom: 5px;
+}
 p{font-size: 20px;   
-  font-weight: 400;}
+  font-weight: 400;
+  margin: 2px;}
 
 .start-game {
   padding: 10px 20px;
@@ -77,7 +91,6 @@ p{font-size: 20px;
   background-color: #e79a9a;
 }
 
-
 .game-message {
   text-align: center;
   margin-top: 20px;
@@ -101,7 +114,7 @@ p{font-size: 20px;
   padding: 15px;
   background-color: #222;
   border-radius: 10px;
-  max-width: 500px;
+  max-width: 400px;
   font-size: 16px;   
   font-weight: 400;
   text-align: left;
@@ -131,4 +144,5 @@ h1{white-space: nowrap;}
   color: #ffffff;
   text-shadow: 0 0 10px #b19cd9;
   margin-top: 2px;
+  margin-bottom: 2px;
 }

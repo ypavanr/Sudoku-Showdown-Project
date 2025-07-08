@@ -200,7 +200,7 @@ socket.on('update-difficulty',(newDifficulty)=>{
       <ChatBox/>
     <div className="sudoku-container">
        <Logo/>
-      <h1 className="Game">Sudoku Showdown</h1>
+      <h1 className="Game">Sudoku Savvy</h1>
       <p>Game Mode : Competitive</p>
       <CopyButton/>
       {showStartButton&&isHost&&(<form>
@@ -291,9 +291,9 @@ socket.on('update-difficulty',(newDifficulty)=>{
           </div>)
           }
         <FaClock size={60} /> 
-       <h1 style={{fontFamily:"'Major Mono Display',monospace"}}>
+       <h1 style={{fontFamily:"'Major Mono Display',monospace",margin:'0'}}>
         {formatTime(timeLeft)}</h1>
-       <h2>Points : {points}</h2>
+       <h2 style={{margin:'1'}}>Points : {points}</h2>
       <div className="rules-fixed">
         <h3>Competition Rules</h3>
         <ul>

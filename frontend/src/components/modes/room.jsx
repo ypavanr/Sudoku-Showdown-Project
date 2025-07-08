@@ -121,7 +121,7 @@ useEffect(()=>{
       ))}
       <div className="room-card">
         <Logo/>
-        <h1 className="room-title">Sudoku Showdown</h1>
+        <h1 className="room-title">Sudoku Savvy</h1>
         <p className="room-subtitle">Challenge yourself or compete with friends!</p>
         <div className="room-buttons">
           <button className="room-btn create" onClick={handleCreateRoom}>Create Room</button>

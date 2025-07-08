@@ -58,9 +58,8 @@ const icons = [
 const HomePage = () => {
 const [formData, setFormData] = useState({ username: '', icon: icons[0].src, iconName: icons[0].name });
 
-
-
   const navigate = useNavigate();
+  const [activeIconIndex, setActiveIconIndex] = useState(0);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -80,72 +79,73 @@ const handleSubmit = (e) => {
   }
 };
 
+ const handlePrevIcon = () => {
+    const newIndex = activeIconIndex === 0 ? icons.length - 1 : activeIconIndex - 1;
+    setActiveIconIndex(newIndex);
+    setFormData((prev) => ({
+      ...prev,
+      icon: icons[newIndex].src,
+      iconName: icons[newIndex].name,
+    }));
+  };
+
+  const handleNextIcon = () => {
+    const newIndex = activeIconIndex === icons.length - 1 ? 0 : activeIconIndex + 1;
+    setActiveIconIndex(newIndex);
+    setFormData((prev) => ({
+      ...prev,
+      icon: icons[newIndex].src,
+      iconName: icons[newIndex].name,
+    }));
+  };
+
   return (
     <div className="homepage-container">
       <Background />
-    
       <div className="homepage-content">
         <Logo/>
-        <h1 style={{ marginTop: '0' }}>Sudoku Showdown</h1>
+        <h1 style={{ marginTop: '0'}}>Sudoku Savvy</h1>
         <p className="tagline">Sudoku isn’t just solo anymore—invite friends and see who’s the puzzle master!<br></br>
         What do we offer?<br></br>
         Competitive mode - To see who can conquer the Grid!<br></br>
         Cooperative mode - Join forces and solve the Grid as one!<br></br>
         CC mode - Competitive but make it Cooperative! Bring on the team wars!!<br></br>
-        Solo mode - Wanna brush up your skills alone? We got ya!</p>
-        <div className="registerwhole">
+        Solo mode - Wanna brush up your skills alone? We got ya!<br></br>
+        Expert level - We mess up your brain...Try it to know more ^-^!!</p>
+        <div className="register-whole">
           <div className="register-container">
 <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="username">
-                    <Form.Label>Username:</Form.Label>
+                  <div className="selection-bar">
                     <Form.Control
                         type="text"
                         name="username"
                         value={formData.username}
                         onChange={handleChange}
-                        placeholder="Enter your username"
+                        placeholder="Enter your Username"
                         required
                     />
-                </Form.Group>
-                  <Form.Group controlId="icon">
-    <Form.Label>Select an Avatar:</Form.Label>
-    <div className="icon-grid">
-     {icons.map((icon, index) => (
-  <img
-    key={index}
-    src={icon.src}
-    alt={icon.name}
-    width={50}
-    onClick={() =>
-      setFormData((prev) => ({
-        ...prev,
-        icon: icon.src,
-        iconName: icon.name,
-      }))
-    }
-    style={{
-      border: formData.iconName === icon.name ? "2px solid #6fafff" : "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      margin: "5px"
-    }}
-  />
-))}
-    </div>
-    {formData.iconName && (
-  <p style={{ marginTop: "10px", color: "white" }}>
-    Selected Icon: <strong>{formData.iconName}</strong>
-  </p>
-)}
-
-  </Form.Group>
-                <Button variant="primary" type="submit">
+                <Button variant="primary" type="submit" className="play-btn">
                     Play
                 </Button>
+                </div>
+                </Form.Group>
+                  <Form.Group controlId="icon">
+    <Form.Label>Select an Avatar</Form.Label>
+    
+<div className="icon-carousel">
+  <button type="button" onClick={handlePrevIcon}>&lt;</button>
+  <img
+    src={icons[activeIconIndex].src}
+    alt={icons[activeIconIndex].name}
+  />
+  <button type="button" onClick={handleNextIcon}>&gt;</button>
+</div>
+  </Form.Group>
+                
             </Form>
           </div>
         </div>
-       
       </div>
     </div>
   );

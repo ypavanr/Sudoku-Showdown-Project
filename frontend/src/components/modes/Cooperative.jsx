@@ -137,7 +137,7 @@ const startTimer = () => {
       <ChatBox/>
     <div className="sudoku-container">
        <Logo/>
-      <h1 className="Game">Sudoku Showdown</h1>
+      <h1 className="Game">Sudoku Savvy</h1>
       <p>Game Mode : Cooperative</p>
       <CopyButton/>
       {showStartButton&&isHost&&(<form>
@@ -208,7 +208,7 @@ const startTimer = () => {
        </div>
           )}
         <FaClock size={60} /> 
-       <h1 style={{fontFamily:"'Major Mono Display',monospace"}}>{formatTime(secondsElapsed)}</h1> 
+       <h1 style={{fontFamily:"'Major Mono Display',monospace",margin:'0'}}>{formatTime(secondsElapsed)}</h1> 
        <div className="rules-fixed">
         <h3>Sudoku Rules</h3>
         <ul>

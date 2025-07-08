@@ -7,12 +7,11 @@
 }
 
 .homepage-content {
- 
   position: relative;
   z-index: 1;
   text-align: center;
   color: #ffffff;
-  padding-top: 5vh;
+  padding-top: 2vh;
 }
 
 .homepage-content h1 {
@@ -24,8 +23,9 @@
 
 .tagline {
   font-size: 1.3rem;
-  margin-bottom: 30px;
+  margin-bottom: 2px;
   color: #ccccff;
+  margin-top:2px;
 }
 
 .home-buttons {

@@ -19,7 +19,6 @@ function Username() {
 
   return (
     <div className="username-box">
-      <div>{username}</div>
       {avatar && (
         <img
           src={avatar}
@@ -28,6 +27,7 @@ function Username() {
           style={{ marginTop: '5px', borderRadius: '50%' }}
         />
       )}
+      <div>{username}</div>
     </div>
   );
 }

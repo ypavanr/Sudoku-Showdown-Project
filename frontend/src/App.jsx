@@ -6,9 +6,11 @@ import Cooperative from "./components/modes/Cooperative.jsx";
 import About from "./components/homePage/About.jsx";
 import Solo from "./components/modes/solo.jsx";
 import PrivateRoute from "./components/features/PrivateRoutes.jsx";
+import Scroll from "./components/features/scroll.jsx";
 function App() {
   return (
     <Router>
+      <Scroll/>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />

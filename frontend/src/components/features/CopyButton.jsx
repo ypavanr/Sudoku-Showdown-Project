@@ -19,7 +19,7 @@ const [copyMessage, setCopyMessage] = useState(false);
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "8px", left:"150px", marginBottom: "10px",marginLeft: "20px" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "8px", left:"150px", marginBottom: "2px",marginLeft: "20px" }}>
       <strong>    Room Code:</strong>
       <span style={{ fontFamily: "monospace", background: "#eee", padding: "4px 8px", borderRadius: "4px" , color:"black"}}>
         {roomId}
