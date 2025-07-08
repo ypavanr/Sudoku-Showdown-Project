@@ -120,7 +120,7 @@ useEffect(()=>{
         <SudokuBlock key={i} top={top} left={left} numbers={numbers} delay={delay} />
       ))}
       <div className="room-card">
-         <Logo/>
+        <Logo/>
         <h1 className="room-title">Sudoku Showdown</h1>
         <p className="room-subtitle">Challenge yourself or compete with friends!</p>
         <div className="room-buttons">
