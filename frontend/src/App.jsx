@@ -5,6 +5,7 @@ import Home from "./components/homePage/Home.jsx";
 import Cooperative from "./components/modes/Cooperative.jsx";
 import About from "./components/homePage/About.jsx";
 import Solo from "./components/modes/solo.jsx";
+import CC from "./components/modes/CC.jsx";
 import PrivateRoute from "./components/features/PrivateRoutes.jsx";
 import Scroll from "./components/features/scroll.jsx";
 function App() {
@@ -22,6 +23,9 @@ function App() {
         } />
         <Route path="/room/competitive/:roomId" element={
           <PrivateRoute><Competitive /></PrivateRoute>
+        } />
+        <Route path="/room/cc/:roomId" element={
+          <PrivateRoute><CC /></PrivateRoute>
         } />
         <Route path="/room/solo" element={
           <PrivateRoute><Solo /></PrivateRoute>

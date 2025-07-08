@@ -55,6 +55,8 @@ const Room = () => {
   const [showMode,setShowMode]=useState(false);
   const [selectedMode, setSelectedMode] = useState('competitive');
   const [username,setUsername]=useState(null);
+  const [avatar, setAvatar] = useState('');
+  const [teamName, setTeamName] = useState("");
   const handleCreateRoom = () => {
     setShowMode(true);
     
@@ -71,7 +73,7 @@ const Room = () => {
   const handleSubmit =(e)=>{
     e.preventDefault();
     console.log('Joining room with ID:', roomId);
-    socket.emit('join-room',roomId,username);
+    socket.emit('join-room',roomId,username,avatar);
     socket.once('mode',(mode)=>{
       navigate(`/room/${mode}/${roomId}`);
     });
@@ -88,15 +90,25 @@ const handleSubmitMode = (event) => {
   alert('Please select a mode');
   return;
 }
+if (mode === 'cc' && !teamName.trim()) {
+    alert("Please enter a team name");
+    return;
+  }
 if(mode==='solo'){
   navigate(`/room/solo`);
 }
-else
-   { socket.emit('create-room', { roomId: newRoomId, mode,username} );}
+else{
+  if(mode==='cc')
+    socket.emit('create-room', { roomId: newRoomId, mode,username,avatar,teamName});
+  else
+   socket.emit('create-room', { roomId: newRoomId, mode,avatar,username,});
+}
   };
 useEffect(()=>{
   const storedUsername=localStorage.getItem('username');
+  const storedAvatar = localStorage.getItem("avatar");
     setUsername(storedUsername);
+    setAvatar(storedAvatar);
   const handleRoomCreated=({roomId,mode})=>{
     console.log('Room created with ID:', roomId);
     navigate(`/room/${mode}/${roomId}`);
@@ -136,10 +148,21 @@ useEffect(()=>{
              <option value="competitive">Competitive</option>
              <option value="cooperative">Cooperative</option>
              <option value="solo">Solo</option>
+             <option value="cc">CC</option>
              </select>
+              {selectedMode === "cc" && (
+             <input
+              type="text"
+              placeholder="Enter Team Name"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              required
+              className="room-input"
+            />
+    )}
+
             <button type="submit" className="mode-submit">Submit</button>
     </form>)} 
-
           {showInput && (
             <form onSubmit={handleSubmit} className="room-form">
               <input

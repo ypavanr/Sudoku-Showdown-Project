@@ -7,8 +7,8 @@ export default function setupSocket(io){
 
   io.on('connection',(socket)=>{
     console.log('User connected:', socket.id);
-    socket.on('create-room',async ({roomId,mode,username})=>{
-      roomData.set(roomId,{unsolvedPuzzle:null,solvedPuzzle:null,hostid:socket.id,host:username, mode: mode,players: {[socket.id]:{name:username, score: 0, isFinished: false}}});
+    socket.on('create-room',async ({roomId,mode,username,avatar,teamName})=>{
+      roomData.set(roomId,{unsolvedPuzzle:null,solvedPuzzle:null,hostid:socket.id,host:username, mode: mode,players: {[socket.id]:{name:username,icon: avatar, score: 0, completed: false, team: teamName}}});
       if(socketToRoom.get(socket.id)){
         const prevRoom=socketToRoom.get(socket.id);
         socket.leave(prevRoom);
@@ -25,7 +25,7 @@ export default function setupSocket(io){
       socket.emit('room-created',{roomId,mode}); 
     });
 
-    socket.on('join-room',async (roomId,username) => {
+    socket.on('join-room',async (roomId,username,avatar) => {
     const room = roomData.get(roomId);
     if(!room){
         socket.emit('error',"room not found");
@@ -44,15 +44,18 @@ export default function setupSocket(io){
       }
       socketToRoom.set(socket.id,roomId);      
       socket.join(roomId);
+      if(room.mode==='competitive'||room.mode==='cc'||room.mode==='cooperative'){
+        room.players[socket.id] = { name:username, icon:avatar,score: 0, completed: false };
+        io.to(roomId).emit("update-players", {
+          players: room.players,
+        });
+      }
       socket.emit('room-joined', roomId); 
       socket.emit('mode', room.mode);
       socket.to(roomId).emit('user-joined', `${username} has joined the room`);
       console.log(`${username} joined room: ${roomId}`);
-      if(room.mode==='competitive'){
-        room.players[socket.id] = { name:username, score: 0, completed: false };
-      }
     });
-
+    
     socket.on('new-message',(roomId,input)=>{
       const room=roomData.get(roomId);
       if(!room){
