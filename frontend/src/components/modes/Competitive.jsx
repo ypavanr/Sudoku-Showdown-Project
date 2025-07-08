@@ -196,8 +196,13 @@ socket.on('update-difficulty',(newDifficulty)=>{
 
   return (
     <div>
-      <Username/>
-      <ChatBox/>
+       <Username />
+      <div className="top-bar">
+ 
+</div>
+<ChatBox />
+
+      
     <div className="sudoku-container">
        <Logo/>
       <h1 className="Game">Sudoku Savvy</h1>
@@ -290,10 +295,11 @@ socket.on('update-difficulty',(newDifficulty)=>{
           </div>
           </div>)
           }
-        <FaClock size={60} /> 
-       <h1 style={{fontFamily:"'Major Mono Display',monospace",margin:'0'}}>
-        {formatTime(timeLeft)}</h1>
-       <h2 style={{margin:'1'}}>Points : {points}</h2>
+         <div className="score-time" style={{ marginRight: '300px',marginTop: '5px',width:'200px' }}>
+    <FaClock size={30} style={{ marginRight: '10px' }} />
+    <span className="time-text" >{formatTime(timeLeft)}</span>
+    <span className="points-text" > | Points: {points}</span>
+  </div>
       <div className="rules-fixed">
         <h3>Competition Rules</h3>
         <ul>
