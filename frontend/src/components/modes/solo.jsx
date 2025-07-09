@@ -18,14 +18,7 @@ export default function Solo() {
   const handleStartGame = async() => {
     let difficulty = selectedLevelRef.current;
     try{
-        const puzzle=await axios.post("http://localhost:3000/sudoku/generate",{difficulty}
-          ,
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-        )
+        const puzzle=await axios.post("http://localhost:3000/sudoku/generate",{difficulty}   )
         setPuzzle(puzzle.data);
         startTimer();
         setStartButton(false);
@@ -190,7 +183,17 @@ export default function Solo() {
           <div className="modal-content leaderboard-modal">
           <div className="game-message">{submissionMessage}</div>
            <br></br>
-         <button onClick={() => setSubmitMessage('')}>Close</button>
+         <button onClick={() => {
+         if(submissionMessage=='Game completed. Hooray!!!')
+          { setStartButton(true);
+  setPuzzle([]);
+  setInputStatus({});
+  setSubmitMessage('');
+  setSecondsElapsed(0);
+  setIsRunning(false);
+}
+setSubmitMessage('');
+         }}>Close</button>
     </div>
        </div>
           )}

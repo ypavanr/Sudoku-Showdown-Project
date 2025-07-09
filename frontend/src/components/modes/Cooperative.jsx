@@ -70,6 +70,7 @@ socket.on('return-players', ({ players,host }) => {
   });
     
     socket.on("puzzle", ({puzzle,}) => {
+        setSubmitMessage('');
       setPuzzle(puzzle);
       startTimer();
       setInputStatus({});
@@ -242,7 +243,23 @@ socket.on('return-players', ({ players,host }) => {
       </div>
     </div>
   </div>
-
+{submissionMessage&&(
+          <div className="modal-overlay">
+          <div className="modal-content leaderboard-modal">
+          <div className="game-message">{submissionMessage}</div>
+           <br></br>
+         <button onClick={() => {
+         if(submissionMessage=='Puzzle solved! Hooray!!!')
+          { setStartButton(true);
+  setPuzzle([]);
+  setInputStatus({});
+  setSubmitMessage('');
+}
+setSubmitMessage('');
+         }}>Close</button>
+    </div>
+       </div>
+          )}
 <div className="left-panel">
   <div className="top-left-box">
     <div className="score-time">

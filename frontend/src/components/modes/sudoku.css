@@ -53,7 +53,7 @@ p{font-size: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px #333;
   caret-color: black;
-  z-index: 5000;
+  z-index: 10;
 }
 
 .sudoku-row {

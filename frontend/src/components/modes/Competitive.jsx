@@ -33,6 +33,7 @@ export default function Competitive() {
   let time=durationRef.current;
   let difficulty = selectedLevelRef.current;
   socket.emit("start-game", {roomId,difficulty,time});    
+
   };
   const formatTime=(totalSeconds)=>{
     const minutes= String(Math.floor(totalSeconds/60)).padStart(2, '0');
@@ -89,6 +90,8 @@ const durationRef = useRef(duration);
   window.addEventListener("beforeunload", handleBeforeUnload);
     durationRef.current = duration;
     socket.on("puzzle", ({puzzle,time}) => {
+        setShowLeaderboard(false);
+  setSubmitMessage('');
   setPuzzle(puzzle);
   setInputStatus({});
   console.log("Puzzle received:", puzzle);
@@ -312,7 +315,8 @@ socket.on('update-difficulty',(newDifficulty)=>{
     <div className="modal-content leaderboard-modal">
           <div className="game-message">{submissionMessage}</div>
           <br></br>
-          <button onClick={() => setSubmitMessage('')}>Close</button>
+          <button onClick={() => {setSubmitMessage('');
+          }}>Close</button>
           </div>
           </div>)
           }
@@ -365,7 +369,15 @@ socket.on('update-difficulty',(newDifficulty)=>{
           const displayName = playerId === mySocketId ? `${name} (You)` : name;
           return (<li key={idx}> {idx + 1}. {displayName} : {score} points </li>);
         })}
-      <button onClick={() => setShowLeaderboard(false)}>Close</button>
+      <button onClick={() => {  setShowLeaderboard(false);
+  setStartButton(true);
+  setPuzzle([]);
+  setInputStatus({});
+  setPoints(0);
+  setSubmitMessage('');
+  disableSubmitButton(false);
+  setFinishedPlayers([]);
+      }}>Close</button>
     </div>
   </div>
 )}
