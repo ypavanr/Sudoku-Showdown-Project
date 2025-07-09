@@ -26,6 +26,9 @@ export default function Competitive() {
   const [submitButton, disableSubmitButton]=useState(false);
   const [isHost, setIsHost]=useState(true);
   const intervalRef=useRef(null);
+  const [players, setPlayers] = useState({});
+  const [mySocketId, setMySocketId] = useState("");
+  const [hostId, setHostId] = useState("");
   const handleStartGame = () => {
   let time=durationRef.current;
   let difficulty = selectedLevelRef.current;
@@ -65,9 +68,23 @@ const durationRef = useRef(duration);
   };
 
   useEffect(() => {
-    const handleBeforeUnload = () => {
-    socket.disconnect();
-  };
+    socket.emit('ready');
+        socket.on('socket-id',(sid)=>{
+          setMySocketId(sid);
+        });
+        const handleBeforeUnload = () => {
+        socket.disconnect();
+      };
+      socket.emit('get-players', roomId);
+    socket.on('return-players', ({ players,host }) => {
+      setPlayers(players);
+      setHostId(host);
+    });
+    
+       socket.on("update-players",({players})=>{
+        console.log("Updated players:", players)
+        setPlayers(players);
+      });
    
   window.addEventListener("beforeunload", handleBeforeUnload);
     durationRef.current = duration;
@@ -147,18 +164,22 @@ socket.on('update-difficulty',(newDifficulty)=>{
 
       socket.off('update-duration');
       socket.off('not-host');
-       window.removeEventListener("beforeunload", handleBeforeUnload);
-       clearInterval(intervalRef.current);
-       socket.off('update-difficulty');
-       socket.off('new-points');
-       socket.off("show-leaderboard");
-       socket.off("player-finished");
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      clearInterval(intervalRef.current);
+      socket.off('update-difficulty');
+      socket.off('new-points');
+      socket.off("show-leaderboard");
+      socket.off("player-finished");
       socket.off("puzzle");
       socket.off("validate-result");
       socket.off("clear-cell");
       socket.off("game-complete");
-    socket.off("game-incomplete");
-    socket.off("error");
+      socket.off("game-incomplete");
+      socket.off("error");
+      socket.off("update-players");
+      socket.off("connect");
+      socket.off('return-players');
+      socket.off('socket-id');
     };
   }, [duration]);
    
@@ -295,30 +316,55 @@ socket.on('update-difficulty',(newDifficulty)=>{
           </div>
           </div>)
           }
-         <div className="score-time" style={{ marginRight: '300px',marginTop: '5px',width:'200px' }}>
-    <FaClock size={30} style={{ marginRight: '10px' }} />
-    <span className="time-text" >{formatTime(timeLeft)}</span>
-    <span className="points-text" > | Points: {points}</span>
+         <div className="score-time">
+  <FaClock size={30} style={{ marginRight: '10px' }} />
+  <span className="time-text">{formatTime(timeLeft)}</span>
+  <span className="points-text"> |&nbsp; Points: {points}</span>
+
+  <div className="rules-hover-container">
+    <span className="rules-label">
+      &nbsp; | &nbsp;Rules <span className="question-icon">?</span>
+    </span>
+    <div className="rules-fixed">
+      <h3>Competition Rules</h3>
+      <ul>
+        <li>For every correct entry, it's +10 Points</li>
+        <li>For every wrong entry, it's -5 Points</li>
+        <li>
+          Bonus: If you complete the puzzle early, your final points are increased
+          by the percentage of time left.<br />
+          For example, if 40% time is left and you scored 60 points:<br />
+          Final Score = 60 × (1 + 0.4) = 84
+        </li>
+      </ul>
+    </div>
   </div>
-      <div className="rules-fixed">
-        <h3>Competition Rules</h3>
-        <ul>
-        <li>For every correct entry its +10 Points</li>
-        <li>For every wrong entry its -5 Points</li>
-        <li>Bonus : If you complete the puzzle early, your final points are increased by percentage of time left<br />
-        For example, if 40% time is left and you scored 60 points<br />
-        Final Score = 60 × (1 + 0.4) = 84 </li>
-        </ul>
+</div>
+      <div className="player-list">
+  {players&& Object.entries(players).map(([socketId, player])=>{
+    const avatarPath = `/src/assets/icons/${player.icon}`;
+    const label = socketId === hostId && socketId === mySocketId ? `${player.name} (You) (Host)` 
+    : socketId === hostId ? `${player.name} (Host)`
+    : socketId === mySocketId ? `${player.name} (You)`
+    : player.name;
+    return (
+      <div className="player-item" key={socketId}>
+        <img src={avatarPath} alt={player.name} />
+        <span>{label}</span>
       </div>
+    );
+  })}
+</div>
        <div className="finished-list">
   
     {showLeaderboard && (
   <div className="modal-overlay">
     <div className="modal-content leaderboard-modal">
       <h2>🏆 Leaderboard</h2>
-        {leaderboard.map(({ playerId, score, name }, idx) => (
-          <li key={idx}>{idx+1} . {name} : {score} points</li>
-        ))}
+        {leaderboard.map(({ playerId, score, name }, idx) => {
+          const displayName = playerId === mySocketId ? `${name} (You)` : name;
+          return (<li key={idx}> {idx + 1}. {displayName} : {score} points </li>);
+        })}
       <button onClick={() => setShowLeaderboard(false)}>Close</button>
     </div>
   </div>

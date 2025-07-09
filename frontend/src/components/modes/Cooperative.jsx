@@ -12,16 +12,19 @@ export default function Cooperative() {
   
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
-    const [isRunning, setIsRunning] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
   const [inputStatus, setInputStatus] = useState({});
   const [showStartButton, setStartButton]=useState(true);
   const [submissionMessage, setSubmitMessage]=useState('');
   const [secondsElapsed, setSecondsElapsed] = useState(0);
-const startTimeRef = useRef(null);
-const intervalRef = useRef(null);
+  const startTimeRef = useRef(null);
+  const intervalRef = useRef(null);
   const [selectedLevel, setSelectedLevel] = useState('easy');
-    const selectedLevelRef = useRef(selectedLevel);
-    const [isHost, setIsHost]=useState(true);
+  const selectedLevelRef = useRef(selectedLevel);
+  const [isHost, setIsHost]=useState(true)
+  const [players, setPlayers] = useState({});
+  const [mySocketId, setMySocketId] = useState("");
+  const [hostId, setHostId] = useState("");
   const handleStartGame = () => {
     let difficulty = selectedLevelRef.current;
     socket.emit("start-game", {roomId,difficulty,});
@@ -50,6 +53,21 @@ const startTimer = () => {
 };
 
   useEffect(() => {
+    socket.emit('ready');
+    socket.on('socket-id',(sid)=>{
+      setMySocketId(sid);
+    });
+
+  socket.emit('get-players', roomId);
+socket.on('return-players', ({ players,host }) => {
+  setPlayers(players);
+  setHostId(host);
+});
+
+   socket.on("update-players",({players})=>{
+    console.log("Updated players:", players)
+    setPlayers(players);
+  });
     
     socket.on("puzzle", ({puzzle,}) => {
       setPuzzle(puzzle);
@@ -109,6 +127,10 @@ const startTimer = () => {
     socket.off("game-complete");
     socket.off("game-incomplete");
     socket.off("error");
+    socket.off("update-players");
+    socket.off("connect");
+    socket.off('return-players');
+    socket.off('socket-id');
     };
   }, []);
    
@@ -196,31 +218,76 @@ const startTimer = () => {
         Submit
       </button>)} 
       </div>
-      <div className="left-panel">
-        
-         {submissionMessage&&(
-          <div className="modal-overlay">
-          <div className="modal-content leaderboard-modal">
-          <div className="game-message">{submissionMessage}</div>
-           <br></br>
-         <button onClick={() => setSubmitMessage('')}>Close</button>
+       <div className="top-bar">
+    <div className="score-time">
+      <FaClock size={30} style={{ marginRight: '10px' }} />
+      <span className="time-text">{formatTime(secondsElapsed)}</span>
     </div>
-       </div>
-          )}
-        <FaClock size={60} /> 
-       <h1 style={{fontFamily:"'Major Mono Display',monospace",margin:'0'}}>{formatTime(secondsElapsed)}</h1> 
-       <div className="rules-fixed">
+
+    <div className="rules-hover-container">
+      <span className="rules-label">
+        Rules <span className="question-icon">?</span>
+      </span>
+      <div className="rules-fixed">
         <h3>Sudoku Rules</h3>
         <ul>
-          <li>Enter numbers 1-9 in empty white cells only.</li>
-          <li>
-            Each number can appear only once in each row,
-            column, and 3x3 box.
-          </li>
+          <li>Enter numbers 1–9 in empty white cells only.</li>
+          <li>Each number can appear only once per row, column, and 3×3 box.</li>
           <li>Correct entries turn green, incorrect ones turn red.</li>
+          <li>+10 points for correct, –5 for wrong</li>
+          <li>
+            Bonus: If you finish early, score = points × (1 + % time left)
+          </li>
         </ul>
-       </div>
       </div>
+    </div>
+  </div>
+
+<div className="left-panel">
+  <div className="top-left-box">
+    <div className="score-time">
+      <FaClock size={30} style={{ marginRight: '10px' }} />
+      <span className="time-text">{formatTime(secondsElapsed)}</span>
+
+      <div className="rules-hover-container">
+        <span className="rules-label">
+          &nbsp; | &nbsp;Rules <span className="question-icon">?</span>
+        </span>
+        <div className="rules-fixed">
+          <h3>Sudoku Rules</h3>
+          <ul>
+            <li>Enter numbers 1-9 in empty white cells only.</li>
+            <li>Each number can appear only once in each row, column, and 3×3 box.</li>
+            <li>Correct entries turn green, incorrect ones turn red.</li>
+            <li>+10 points for correct, -5 for wrong.</li>
+            <li>Bonus if puzzle is solved early!</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div className="player-list">
+    {players && Object.entries(players).map(([socketId, player]) => {
+      const avatarPath = `/src/assets/icons/${player.icon}`;
+      const label =
+        socketId === hostId && socketId === mySocketId
+          ? `${player.name} (You) (Host)`
+          : socketId === hostId
+          ? `${player.name} (Host)`
+          : socketId === mySocketId
+          ? `${player.name} (You)`
+          : player.name;
+      return (
+        <div className="player-item" key={socketId}>
+          <img src={avatarPath} alt={player.name} />
+          <span>{label}</span>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
     </div>
   );
 } 

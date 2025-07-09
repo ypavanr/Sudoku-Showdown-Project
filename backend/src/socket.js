@@ -7,6 +7,10 @@ export default function setupSocket(io){
 
   io.on('connection',(socket)=>{
     console.log('User connected:', socket.id);
+    socket.on('ready',() =>{
+       socket.emit('socket-id',socket.id);
+    });
+    
     socket.on('create-room',async ({roomId,mode,username,avatar,teamName})=>{
       roomData.set(roomId,{unsolvedPuzzle:null,solvedPuzzle:null,hostid:socket.id,host:username, mode: mode,players: {[socket.id]:{name:username,icon: avatar, score: 0, completed: false, team: teamName}}});
       if(socketToRoom.get(socket.id)){
@@ -58,7 +62,7 @@ export default function setupSocket(io){
     socket.on('get-players', (roomId) => {
   const room = roomData.get(roomId);
   if (room && room.players) {
-    socket.emit('return-players', { players: room.players });
+    socket.emit('return-players', { players: room.players,host: room.hostid });
   } else {
     socket.emit('return-players', { players: [] });
   }
@@ -164,7 +168,7 @@ export default function setupSocket(io){
       const allDone = Object.values(room.players).every(p => p.completed);
       if (allDone) {
         const leaderboard = Object.entries(room.players)
-        .map(([id, data]) => ({ playerId: id, score: data.score, name:data.name}))
+        .map(([id, data]) => ({ playerId: id,sid: data.socketId, score: data.score, name:data.name}))
         .sort((a, b) => b.score - a.score);
         io.in(roomId).emit('show-leaderboard', leaderboard);
       }} 

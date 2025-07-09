@@ -194,19 +194,26 @@ export default function Solo() {
     </div>
        </div>
           )}
-        <FaClock size={60} /> 
-       <h1 style={{fontFamily:"'Major Mono Display',monospace",margin:'0'}}>{formatTime(secondsElapsed)}</h1> 
-       <div className="rules-fixed">
-        <h3>Sudoku Rules</h3>
-        <ul>
-          <li>Enter numbers 1-9 in empty white cells only.</li>
-          <li>
-            Each number can appear only once in each row,
-            column, and 3x3 box.
-          </li>
-          <li>Correct entries turn green, incorrect ones turn red.</li>
-        </ul>
-       </div>
+ <div className="score-time">
+            <FaClock size={30} style={{ marginRight: '10px' }} />
+            <span className="time-text">{formatTime(secondsElapsed)}</span>
+            <div className="rules-hover-container">
+              <span className="rules-label">
+                &nbsp; | &nbsp;Rules <span className="question-icon">?</span>
+              </span>
+              <div className="rules-fixed">
+                 <h3>Sudoku Rules</h3>
+                  <ul>
+                    <li>Enter numbers 1-9 in empty white cells only.</li>
+                    <li>
+                      Each number can appear only once in each row,
+                      column, and 3x3 box.
+                    </li>
+                    <li>Correct entries turn green, incorrect ones turn red.</li>
+                  </ul>
+              </div>
+            </div>
+          </div>
       </div>
     </div>
   );
