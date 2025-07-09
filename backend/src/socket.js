@@ -55,7 +55,14 @@ export default function setupSocket(io){
       socket.to(roomId).emit('user-joined', `${username} has joined the room`);
       console.log(`${username} joined room: ${roomId}`);
     });
-    
+    socket.on('get-players', (roomId) => {
+  const room = roomData.get(roomId);
+  if (room && room.players) {
+    socket.emit('return-players', { players: room.players });
+  } else {
+    socket.emit('return-players', { players: [] });
+  }
+});
     socket.on('new-message',(roomId,input)=>{
       const room=roomData.get(roomId);
       if(!room){

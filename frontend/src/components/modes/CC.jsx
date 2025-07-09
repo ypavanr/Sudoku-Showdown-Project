@@ -33,7 +33,8 @@ export default function Competitive() {
   const handleStartGame = () => {
   let time=durationRef.current;
   let difficulty = selectedLevelRef.current;
-  socket.emit("start-game", {roomId,difficulty,time});    
+  socket.emit("start-game", {roomId,difficulty,time}); 
+    
   };
   const formatTime=(totalSeconds)=>{
     const minutes= String(Math.floor(totalSeconds/60)).padStart(2, '0');
@@ -72,7 +73,10 @@ const durationRef = useRef(duration);
     const handleBeforeUnload = () => {
     socket.disconnect();
   };
-
+  socket.emit('get-players', roomId);
+socket.on('return-players', ({ players }) => {
+  setPlayers(players);
+});
     socket.on("connect",()=>{
     setMySocketId(socket.id);
   });
