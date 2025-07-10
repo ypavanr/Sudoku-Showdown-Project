@@ -53,7 +53,7 @@ p{font-size: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px #333;
   caret-color: black;
-  z-index: 10;
+  z-index: 2000;
 }
 
 .sudoku-row {
@@ -111,7 +111,6 @@ h1{white-space: nowrap;}
   margin-bottom: 2px;
 }
 
-
 .left-panel {
   position: absolute;
   top: 15px;
@@ -121,7 +120,6 @@ h1{white-space: nowrap;}
   display: flex;
   flex-direction: column;
   gap: 15px;
-  z-index: 1000;
 }
 
 .top-left-box {
@@ -142,6 +140,8 @@ h1{white-space: nowrap;}
   box-shadow: 0 0 10px rgba(50, 50, 100, 0.8);
   backdrop-filter: blur(5px);
   margin-left: 10px;
+  position: relative; 
+  z-index: 1001; 
 }
 
 .time-text {
@@ -155,7 +155,7 @@ h1{white-space: nowrap;}
 
 .rules-hover-container {
   position: relative;
-  display: inline-block;
+  z-index:1001;
 }
 
 .rules-label {
@@ -194,7 +194,7 @@ h1{white-space: nowrap;}
   font-size: 15px;
   font-weight: 400;
   text-align: left;
-  z-index: 10000;
+  z-index: 1000;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
 }
 

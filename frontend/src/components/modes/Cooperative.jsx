@@ -219,30 +219,6 @@ socket.on('return-players', ({ players,host }) => {
         Submit
       </button>)} 
       </div>
-       <div className="top-bar">
-    <div className="score-time">
-      <FaClock size={30} style={{ marginRight: '10px' }} />
-      <span className="time-text">{formatTime(secondsElapsed)}</span>
-    </div>
-
-    <div className="rules-hover-container">
-      <span className="rules-label">
-        Rules <span className="question-icon">?</span>
-      </span>
-      <div className="rules-fixed">
-        <h3>Sudoku Rules</h3>
-        <ul>
-          <li>Enter numbers 1–9 in empty white cells only.</li>
-          <li>Each number can appear only once per row, column, and 3×3 box.</li>
-          <li>Correct entries turn green, incorrect ones turn red.</li>
-          <li>+10 points for correct, –5 for wrong</li>
-          <li>
-            Bonus: If you finish early, score = points × (1 + % time left)
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
 {submissionMessage&&(
           <div className="modal-overlay">
           <div className="modal-content leaderboard-modal">

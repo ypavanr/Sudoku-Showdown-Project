@@ -1,6 +1,5 @@
 import { generateSudokuPuzzle, solve, isSamePuzzle } from "./sudoku/sudoku.js";
 import { Util } from "./sudoku/sudokuUtil.js";
-import jwt from "jsonwebtoken";
 export default function setupSocket(io){
   const roomData=new Map();
   const socketToRoom = new Map();
