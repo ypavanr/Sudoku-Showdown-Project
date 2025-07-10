@@ -66,14 +66,19 @@ export default function setupSocket(io){
     socket.emit('return-players', { players: [] });
   }
 });
-    socket.on('new-message',(roomId,input)=>{
+    socket.on('new-message',(roomId,input,sid)=>{
       const room=roomData.get(roomId);
       if(!room){
         socket.emit('error',"room not found");
         return;
       }
+      const playerInfo = room.players[sid];
+      if (!playerInfo) {
+        socket.emit('error',"sender not found in room");
+        return;
+      }
        console.log('Message:',input);
-       io.to(roomId).emit('display-messages',input);
+       io.to(roomId).emit('display-messages',input,sid,playerInfo.name);
     });
 
     socket.on("duration-change", ({ roomId, duration }) => {

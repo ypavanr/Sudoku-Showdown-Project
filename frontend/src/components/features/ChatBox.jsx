@@ -9,15 +9,20 @@ function ChatBox(){
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
     const {roomId } = useParams();
+    const [mySocketId, setMySocketId] = useState("");
       useEffect(() => {
         if (!socket ) return;
+        socket.emit('ready');
+          socket.on('socket-id',(sid)=>{
+          setMySocketId(sid);
+        });
         const handleUserJoined= (usermessage)=>{
-            console.log(usermessage);
-            setJoinMessages((prev) => [...prev, usermessage]);  
+          console.log(usermessage);
+          setJoinMessages((prev) => [...prev, usermessage]);  
         };
-         const handleMessages= (input)=>{
+        const handleMessages= (input,sid,senderusername)=>{
           console.log(input);
-          setMessages((prev) => [...prev, input]);
+          setMessages((prev) => [...prev,{input,sid,senderusername}]);
           setInput('');
         };
         socket.on("user-joined", handleUserJoined);
@@ -32,7 +37,7 @@ function ChatBox(){
       const handleSubmit = (e) => {
         e.preventDefault();
         if (input.trim() === '') return;
-        socket.emit('new-message', roomId,input);
+        socket.emit('new-message', roomId,input,mySocketId);
       };
 
       useEffect(() => {
@@ -49,7 +54,9 @@ function ChatBox(){
       ))}
         {messages.map((msg, index) => (
           <div key={index} className={`messages ${index % 2 === 0 ? 'color-a' : 'color-b'}`}>
-            <p>{msg}</p>
+            <p>
+              <strong>{msg.sid === mySocketId ? 'You' : msg.senderusername}:</strong> {msg.input}
+            </p>
           </div>
       ))}
       <div ref={messagesEndRef} />
