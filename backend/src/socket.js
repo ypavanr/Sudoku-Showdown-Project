@@ -5,6 +5,7 @@ export default function setupSocket(io){
   const socketToRoom = new Map();
 
   io.on('connection',(socket)=>{
+  
     console.log('User connected:', socket.id);
     socket.on( 'ready',() =>{
        socket.emit('socket-id',socket.id);
@@ -51,6 +52,7 @@ export default function setupSocket(io){
         room.players[socket.id] = { name:username, icon:avatar,score: 0, completed: false };
         io.to(roomId).emit("update-players", {
           players: room.players,
+          host: room.hostid
         });
       }
       socket.emit('room-joined', roomId); 
@@ -98,12 +100,14 @@ export default function setupSocket(io){
       socket.to(roomId).emit("display-messages", 
         {text:`${username} has left the room.`,sid:"system",senderusername:username,type:"leave"}
       );
-      io.to(roomId).emit("update-players",{players: room.players,});
+     
       if (room.hostid === socket.id) {
         const remainingPlayerIds = Object.keys(room.players);
         if (remainingPlayerIds.length > 0) {
           const newHostId = remainingPlayerIds[0];
           room.hostid = newHostId;
+          const targetSocket = io.sockets.sockets.get(newHostId);
+          targetSocket.emit('is-host');
           const newHostName = room.players[newHostId].name;
           io.to(roomId).emit("display-messages",
             {text:`${newHostName} is now the host.`,sid:newHostId,senderusername:newHostName,type: "host"}
@@ -111,6 +115,9 @@ export default function setupSocket(io){
         }  
         else {roomData.delete(roomId);}
       }
+       io.to(roomId).emit("update-players",{players: room.players,
+        host: room.hostid
+       });
       console.log(`${username} left room: ${roomId}`);
     });
 
@@ -145,7 +152,6 @@ export default function setupSocket(io){
     socket.on('check-host',(roomId)=>{
       const room=roomData.get(roomId);
       if(!room){
-        socket.emit('error',"room not found");
         return;
       }
       if (room.hostid!==socket.id) {
@@ -231,14 +237,40 @@ export default function setupSocket(io){
     });
 
     socket.on('disconnect', async () => {
-      const roomId = socketToRoom.get(socket.id);
+        const roomId = socketToRoom.get(socket.id);
       if (!roomId) return;
-      const clients = await io.in(roomId).allSockets();
-      if (clients.size === 0) {
-        console.log(`Room ${roomId} is now empty. Deleting room data.`);
-        roomData.delete(roomId);
-      }
+      const room = roomData.get(roomId);
+      if (!room) return;
+      const username = room.players[socket.id]?.name||"Unknown";
+      delete room.players[socket.id];
       socketToRoom.delete(socket.id);
+      socket.leave(roomId);
+      socket.to(roomId).emit("display-messages", 
+        {text:`${username} has left the room.`,sid:"system",senderusername:username,type:"leave"}
+      );
+     
+      if (room.hostid === socket.id) {
+        const remainingPlayerIds = Object.keys(room.players);
+        if (remainingPlayerIds.length > 0) {
+          const newHostId = remainingPlayerIds[0];
+          room.hostid = newHostId;
+          const targetSocket = io.sockets.sockets.get(newHostId);
+          targetSocket.emit('is-host');
+          const newHostName = room.players[newHostId].name;
+          io.to(roomId).emit("display-messages",
+            {text:`${newHostName} is now the host.`,sid:newHostId,senderusername:newHostName,type: "host"}
+          );
+        }  
+        else {roomData.delete(roomId);
+           console.log(`Room ${roomId} is now empty. Deleting room data.`);
+        }
+      }
+       io.to(roomId).emit("update-players",{players: room.players,
+        host: room.hostid
+       });
+      console.log(`${username} left room: ${roomId}`);
+      socket.emit('error',"user-disconnected");
     });
+    
   });
 }

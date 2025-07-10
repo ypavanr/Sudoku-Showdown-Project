@@ -85,9 +85,10 @@ const durationRef = useRef(duration);
       setHostId(host);
     });
     
-       socket.on("update-players",({players})=>{
+       socket.on("update-players",({players,host})=>{
         console.log("Updated players:", players)
         setPlayers(players);
+        setHostId(host);
       });
    
   window.addEventListener("beforeunload", function () {
@@ -119,6 +120,10 @@ socket.on('new-points',(points)=>{
 
     socket.on("error",(message)=>{
       alert(message);
+      navigate("/room");
+    })
+    socket.on('is-host',()=>{
+       setIsHost(true);
     })
   socket.on('not-host',()=>{
     setIsHost(false);
@@ -158,7 +163,7 @@ socket.on('new-points',(points)=>{
   socket.on("game-complete",(message)=>{
     setSubmitMessage(message);
     disableSubmitButton(true);
-    stopTimer();
+    
   });
   socket.on("game-incomplete",(message)=>{
     setSubmitMessage(message);
@@ -170,7 +175,7 @@ socket.on('update-difficulty',(newDifficulty)=>{
   setSelectedLevel(newDifficulty);
 })
     return () => {
-
+     socket.off('is-host');
       socket.off('update-duration');
       socket.off('not-host');
       window.removeEventListener("beforeunload", handleBeforeUnload);
