@@ -6,7 +6,7 @@ export default function setupSocket(io){
 
   io.on('connection',(socket)=>{
     console.log('User connected:', socket.id);
-    socket.on('ready',() =>{
+    socket.on( 'ready',() =>{
        socket.emit('socket-id',socket.id);
     });
     
@@ -29,8 +29,8 @@ export default function setupSocket(io){
     });
 
     socket.on('join-room',async (roomId,username,avatar) => {
-    const room = roomData.get(roomId);
-    if(!room){
+      const room = roomData.get(roomId);
+      if(!room){
         socket.emit('error',"room not found");
         return;
       }
@@ -55,17 +55,20 @@ export default function setupSocket(io){
       }
       socket.emit('room-joined', roomId); 
       socket.emit('mode', room.mode);
-      socket.to(roomId).emit('user-joined', `${username} has joined the room`);
+      socket.to(roomId).emit('display-messages', {text:`${username} has joined the room.`,sid: "system",senderusername:username,type: "join"});
       console.log(`${username} joined room: ${roomId}`);
     });
+
     socket.on('get-players', (roomId) => {
-  const room = roomData.get(roomId);
-  if (room && room.players) {
-    socket.emit('return-players', { players: room.players,host: room.hostid });
-  } else {
-    socket.emit('return-players', { players: [] });
-  }
-});
+      const room = roomData.get(roomId);
+      if (room && room.players) {
+        socket.emit('return-players', { players: room.players,host: room.hostid });
+      } 
+      else {
+        socket.emit('return-players', { players: [] });
+      }
+    });
+
     socket.on('new-message',(roomId,input,sid)=>{
       const room=roomData.get(roomId);
       if(!room){
@@ -77,8 +80,38 @@ export default function setupSocket(io){
         socket.emit('error',"sender not found in room");
         return;
       }
-       console.log('Message:',input);
-       io.to(roomId).emit('display-messages',input,sid,playerInfo.name);
+      console.log('Message:',input);
+      io.to(roomId).emit('display-messages',
+        {text:input,sid,senderusername: playerInfo.name,type: "chat"}
+      );
+    });
+
+    socket.on("leave-room", async () => {
+      const roomId = socketToRoom.get(socket.id);
+      if (!roomId) return;
+      const room = roomData.get(roomId);
+      if (!room) return;
+      const username = room.players[socket.id]?.name||"Unknown";
+      delete room.players[socket.id];
+      socketToRoom.delete(socket.id);
+      socket.leave(roomId);
+      socket.to(roomId).emit("display-messages", 
+        {text:`${username} has left the room.`,sid:"system",senderusername:username,type:"leave"}
+      );
+      io.to(roomId).emit("update-players",{players: room.players,});
+      if (room.hostid === socket.id) {
+        const remainingPlayerIds = Object.keys(room.players);
+        if (remainingPlayerIds.length > 0) {
+          const newHostId = remainingPlayerIds[0];
+          room.hostid = newHostId;
+          const newHostName = room.players[newHostId].name;
+          io.to(roomId).emit("display-messages",
+            {text:`${newHostName} is now the host.`,sid:newHostId,senderusername:newHostName,type: "host"}
+          );
+        }  
+        else {roomData.delete(roomId);}
+      }
+      console.log(`${username} left room: ${roomId}`);
     });
 
     socket.on("duration-change", ({ roomId, duration }) => {

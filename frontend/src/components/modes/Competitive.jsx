@@ -1,4 +1,5 @@
 import React, { useState, useEffect,useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Sudoku.css";
 import { FaClock } from "react-icons/fa";
 import socket from "../../socket.js";
@@ -19,6 +20,7 @@ export default function Competitive() {
   const [inputStatus, setInputStatus] = useState({});
   const [showStartButton, setStartButton]=useState(true);
   const [submissionMessage, setSubmitMessage]=useState('');
+  const [showQuitModal, setShowQuitModal] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [duration,setDuration]=useState(30);
   let [points,setPoints]=useState(0);
@@ -29,6 +31,7 @@ export default function Competitive() {
   const [players, setPlayers] = useState({});
   const [mySocketId, setMySocketId] = useState("");
   const [hostId, setHostId] = useState("");
+  const navigate = useNavigate();
   const handleStartGame = () => {
   let time=durationRef.current;
   let difficulty = selectedLevelRef.current;
@@ -87,7 +90,10 @@ const durationRef = useRef(duration);
         setPlayers(players);
       });
    
-  window.addEventListener("beforeunload", handleBeforeUnload);
+  window.addEventListener("beforeunload", function () {
+    console.log("Triggering leave message");
+    sendLeaveMessage();
+  });
     durationRef.current = duration;
     socket.on("puzzle", ({puzzle,time}) => {
         setShowLeaderboard(false);
@@ -218,6 +224,11 @@ socket.on('update-difficulty',(newDifficulty)=>{
   console.log("Percentage of time left:", percentageTimeLeft);
 };
 
+const handleQuit = () => {
+  setSubmitMessage("Are you sure you want to quit?");
+  setShowQuitModal(true);
+};
+
   return (
     <div>
        <Username />
@@ -305,9 +316,16 @@ socket.on('update-difficulty',(newDifficulty)=>{
             </div>
           ))}
       </div><br></br>
-       {!showStartButton&&(<button className="start-game" onClick={handleSubmission}  disabled={submitButton}> 
-        Submit
-      </button>)} 
+       <div className="game-actions">
+      {!showStartButton && (
+        <button className="start-game" onClick={handleSubmission}>
+           Submit
+        </button>
+      )}
+      <button className="quit-game" onClick={handleQuit}>
+        Quit
+      </button>
+</div>
       <div/>
       <div className="left-panel">
         {submissionMessage&&(
@@ -320,6 +338,7 @@ socket.on('update-difficulty',(newDifficulty)=>{
           </div>
           </div>)
           }
+          
          <div className="score-time">
   <FaClock size={30} style={{ marginRight: '10px' }} />
   <span className="time-text">{formatTime(timeLeft)}</span>
@@ -378,10 +397,37 @@ socket.on('update-difficulty',(newDifficulty)=>{
   disableSubmitButton(false);
   setFinishedPlayers([]);
       }}>Close</button>
+
     </div>
   </div>
 )}
   </div>
+  {showQuitModal && (
+  <div className="modal-overlay">
+    <div className="modal-content leaderboard-modal">
+      <div className="game-message">{submissionMessage}</div>
+      <br />
+      <button
+        onClick={() => {
+          socket.emit('leave-room');
+          setShowQuitModal(false);
+          navigate('/room');
+        }}
+        style={{ backgroundColor: "#d9534f", color: "white", marginRight: "10px" }}
+      >
+        Yes
+      </button>
+      <button
+        onClick={() => {
+          setShowQuitModal(false);
+          setSubmitMessage('');
+        }}
+      >
+        No
+      </button>
+    </div>
+  </div>
+)}
   </div>
   </div>
     </div>

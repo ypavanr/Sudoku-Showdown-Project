@@ -31,7 +31,7 @@ p{font-size: 20px;
   font-weight: 400;
   margin: 2px;}
 
-.start-game {
+.start-game, .quit-game{
   padding: 10px 20px;
   font-size: 18px;
   font-weight: 400;
@@ -41,10 +41,19 @@ p{font-size: 20px;
   border-radius: 6px;
   cursor: pointer;
   margin-bottom: 20px;
+  margin-left: 10px;
 }
 
 .start-game:hover {
   background-color: #218838;
+}
+
+.quit-game{
+ background-color: #dc3545;
+}
+
+.quit-game:hover {
+  background-color: #c82333;
 }
 
 .sudoku-grid {
@@ -53,7 +62,7 @@ p{font-size: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px #333;
   caret-color: black;
-  z-index: 2000;
+  z-index: 500;
 }
 
 .sudoku-row {
@@ -65,13 +74,13 @@ p{font-size: 20px;
   height: 40px;
   text-align: center;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 700;
   border: 1px solid #999;
   outline: none;
   background-color: white;
   transition: background-color 0.3s ease;
+  color: #333 !important;
 }
-
 .sudoku-input:hover{
   background-color: #d0d0d0;
 }
