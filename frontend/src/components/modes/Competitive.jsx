@@ -115,6 +115,7 @@ const durationRef = useRef(duration);
   console.log("Leaderboard:", leaderboard);
   setLeaderboard(leaderboard); 
   setShowLeaderboard(true);
+  stopTimer();
 });
 socket.on('new-points',(points)=>{
     setPoints(points);
@@ -384,7 +385,7 @@ const handleQuit = () => {
       </div><br></br>
        <div className="game-actions">
       {!showStartButton && (
-        <button className="start-game" onClick={handleSubmission}>
+        <button className="start-game" onClick={handleSubmission} disabled={submitButton}>
            Submit
         </button>
       )}

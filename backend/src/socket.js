@@ -139,6 +139,7 @@ export default function setupSocket(io){
         socket.emit('not-host');
         return;
       }
+       socket.to(roomId).emit("update-difficulty", difficulty);
       const unsolvedPuzzle = generateSudokuPuzzle(difficulty);
       const solvedPuzzle = JSON.parse(JSON.stringify(unsolvedPuzzle)); 
       solve(solvedPuzzle); 
@@ -227,6 +228,7 @@ export default function setupSocket(io){
 socket.on("expert-clear", ({ roomId, row, col }) => {
   socket.to(roomId).emit("update-expert-clear", { row, col });
 });
+ 
 
     socket.on('expert-submission-competitive',({roomId,remaining})=>{
       const roomID = socketToRoom.get(socket.id);

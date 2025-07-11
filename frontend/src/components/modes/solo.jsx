@@ -1,4 +1,5 @@
 import React, { useState, useEffect,useRef } from "react";
+import isValidCompletedSudoku from "./expertValidation";
 import "./Sudoku.css";
 import { FaClock } from "react-icons/fa";
 import Username from "../features/username";
@@ -7,6 +8,7 @@ import Logo from "../features/logo";
 export default function Solo() {
   const [puzzle, setPuzzle] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [originalPuzzle, setOriginalPuzzle] = useState([]);
   const [inputStatus, setInputStatus] = useState({});
   const [showStartButton, setStartButton]=useState(true);
   const [submissionMessage, setSubmitMessage]=useState('');
@@ -20,6 +22,7 @@ export default function Solo() {
     try{
         const puzzle=await axios.post("http://localhost:3000/sudoku/generate",{difficulty}   )
         setPuzzle(puzzle.data);
+        setOriginalPuzzle(puzzle.data);
         startTimer();
         setStartButton(false);
         console.log(puzzle.data);
@@ -68,53 +71,80 @@ export default function Solo() {
 
     const num = parseInt(val);
     if (num >= 1 && num <= 9) {
-      
-    const validateResult=async(row,col,number)=>{
-   try{const response=await axios.post("http://localhost:3000/sudoku/verifymove",{row,col,number},
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+  if (selectedLevelRef.current === "expert") {
+    setPuzzle((prev) => {
+      const newPuzzle = prev.map((r) => [...r]);
+      newPuzzle[row][col] = num;
+      return newPuzzle;
+    });
+    setInputStatus((prev) => ({
+      ...prev,
+      [`${row}-${col}`]: "", 
+    }));
+  } else {
+    const validateResult = async (row, col, number) => {
+      try {
+        const response = await axios.post(
+          "http://localhost:3000/sudoku/verifymove",
+          { row, col, number },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const isCorrect = response.data.isCorrect;
+        setPuzzle((prev) => {
+          const newPuzzle = prev.map((r) => [...r]);
+          newPuzzle[row][col] = number;
+          return newPuzzle;
+        });
+        setInputStatus((prev) => ({
+          ...prev,
+          [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
+        }));
+      } catch (err) {
+        alert("error validating move, " + err);
+      }
+    };
+    validateResult(row, col, num);
   }
-   );
-   const isCorrect=response.data.isCorrect;
-   setPuzzle((prev) => {
-        const newPuzzle=prev.map((r)=>[...r]);
-        newPuzzle[row][col]=number;
-        return newPuzzle;
-      });
-      setInputStatus((prev) => ({
-        ...prev,
-        [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
-      }));}
-      catch (err) {
-      alert("error validating move, "+ err);
-    }
-   }
-   validateResult(row,col,num);
-    }
+}
+
   };
-  const handleSubmission=async()=>{
-   
-   try{
-    const result=await axios.post("http://localhost:3000/sudoku/validatesubmission",{puzzle},
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-    if(result.data.solved){
-        setSubmitMessage("Game completed. Hooray!!!");
-        stopTimer();
+  const handleSubmission = async () => {
+  if (selectedLevelRef.current === "expert") {
+    if (isValidCompletedSudoku(puzzle)) {
+      setSubmitMessage("Game completed. Hooray!!!");
+      stopTimer();
+    } else {
+      setSubmitMessage("Invalid solution. Check rows, columns, or boxes.");
     }
-    else{
-        setSubmitMessage("Game not yet completed.")
-    }
-   }
-   catch (err) {
-      alert("error validating submission, "+ err);
-    }
+    return;
   }
+
+  try {
+    const result = await axios.post(
+      "http://localhost:3000/sudoku/validatesubmission",
+      { puzzle },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (result.data.solved) {
+      setSubmitMessage("Game completed. Hooray!!!");
+      stopTimer();
+    } else {
+      setSubmitMessage("Game not yet completed.");
+    }
+  } catch (err) {
+    alert("error validating submission, " + err);
+  }
+};
+
 
   return (
     <div>
@@ -140,6 +170,7 @@ export default function Solo() {
   <option value="easy">Easy</option>
   <option value="medium">Medium</option>
   <option value="hard">Hard</option>
+  <option value="expert">Expert</option>
 </select>
       </form>)}
      {showStartButton&&(<button className="start-game" onClick={handleStartGame}  >
@@ -153,7 +184,7 @@ export default function Solo() {
               {row.map((cell, cIdx) => {
                 const key = `${rIdx}-${cIdx}`;
                 const status = inputStatus[key];
-                const isOriginal = cell !== 0 && !["correct", "wrong"].includes(status);
+                const isOriginal = originalPuzzle[rIdx]?.[cIdx] !== 0;
                 return (
                   <input
                     key={key}

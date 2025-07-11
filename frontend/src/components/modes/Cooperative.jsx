@@ -9,7 +9,7 @@ import Username from "../features/username";
 import CopyButton from "../features/CopyButton";
 import ChatBox from "../features/ChatBox.jsx";
 export default function Cooperative() {
-  
+  const [originalCells, setOriginalCells] = useState([]);
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
@@ -71,7 +71,10 @@ socket.on('return-players', ({ players,host }) => {
     
     socket.on("puzzle", ({puzzle,}) => {
         setSubmitMessage('');
-      setPuzzle(puzzle);
+       setPuzzle(puzzle);
+  setOriginalCells(
+    puzzle.map(row => row.map(cell => cell !== 0)) 
+  );
       startTimer();
       setInputStatus({});
       console.log("Puzzle received:", puzzle);
@@ -264,7 +267,7 @@ socket.off("update-expert-clear");
               {row.map((cell, cIdx) => {
                 const key = `${rIdx}-${cIdx}`;
                 const status = selectedLevel === "expert" ? "" : inputStatus[key];
-                const isOriginal = cell !== 0 && !["correct", "wrong"].includes(status);
+                const isOriginal = originalCells[rIdx]?.[cIdx] === true;
                 return (
                   <input
                     key={key}
