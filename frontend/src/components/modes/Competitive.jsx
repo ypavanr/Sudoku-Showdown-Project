@@ -9,8 +9,10 @@ import Username from "../features/username";
 import CopyButton from "../features/CopyButton";
 import ChatBox from "../features/ChatBox.jsx";
 import Logo from "../features/logo.jsx";
+import isValidCompletedSudoku from "./expertValidation.js";
 export default function Competitive() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [originalPuzzle, setOriginalPuzzle] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState('easy');
   const selectedLevelRef = useRef(selectedLevel);
   const [leaderboard, setLeaderboard] = useState([]); 
@@ -72,6 +74,9 @@ const durationRef = useRef(duration);
   };
 
   useEffect(() => {
+    socket.on('reload',()=>{
+      navigate('/room');
+    })
     socket.emit('ready');
         socket.on('socket-id',(sid)=>{
           setMySocketId(sid);
@@ -99,7 +104,8 @@ const durationRef = useRef(duration);
     socket.on("puzzle", ({puzzle,time}) => {
         setShowLeaderboard(false);
   setSubmitMessage('');
-  setPuzzle(puzzle);
+  setOriginalPuzzle(puzzle); 
+  setPuzzle(puzzle.map(row => [...row]))
   setInputStatus({});
   console.log("Puzzle received:", puzzle);
   startTimer(time);
@@ -175,6 +181,7 @@ socket.on('update-difficulty',(newDifficulty)=>{
   setSelectedLevel(newDifficulty);
 })
     return () => {
+      socket.off('reload');
      socket.off('is-host');
       socket.off('update-duration');
       socket.off('not-host');
@@ -197,33 +204,86 @@ socket.on('update-difficulty',(newDifficulty)=>{
     };
   }, [duration]);
    
-  const handleInputChange = (e, row, col) => {
-    const val = e.target.value;
-    if (val === "") {socket.emit("clear-cell",{roomId,row,col});
-    return;
+const handleInputChange = (e, row, col) => {
+  const val = e.target.value;
+
+  if (selectedLevel === "expert") {
+    if (val === "") {
+      setPuzzle((prev) => {
+        const newPuzzle = prev.map((r) => [...r]);
+        newPuzzle[row][col] = 0;
+        return newPuzzle;
+      });
+
+      setInputStatus((prev) => {
+        const copy = { ...prev };
+        delete copy[`${row}-${col}`];
+        return copy;
+      });
+
+      return;
     }
 
     const num = parseInt(val);
     if (num >= 1 && num <= 9) {
-      socket.emit("validate-move", {roomId,puzzle,row,col,number: num,socketId: socket.id,});
       setPuzzle((prev) => {
         const newPuzzle = prev.map((r) => [...r]);
         newPuzzle[row][col] = num;
         return newPuzzle;
       });
     }
-  };
+
+    return;
+  }
+
+  if (val === "") {
+    socket.emit("clear-cell", { roomId, row, col });
+    return;
+  }
+
+  const num = parseInt(val);
+  if (num >= 1 && num <= 9) {
+    setPuzzle((prev) => {
+      const newPuzzle = prev.map((r) => [...r]);
+      newPuzzle[row][col] = num;
+      return newPuzzle;
+    });
+
+    socket.emit("validate-move", {
+      roomId,
+      puzzle,
+      row,
+      col,
+      number: num,
+      socketId: socket.id,
+    });
+  }
+};
+
+
   const handleSubmission = () => {
   const total=durationRef.current*60;
   const remaining=timeLeft;     
   const percentageTimeLeft=(remaining/total)*100;
-
-  socket.emit("validate-submission-competitive", {
+  if(selectedLevel!=='expert'){
+     socket.emit("validate-submission-competitive", {
     roomId,
     puzzle,
     points,
     percentageTimeLeft
   });
+  }
+  else{
+    if(isValidCompletedSudoku(puzzle)){
+      socket.emit('expert-submission-competitive',{roomId,remaining})
+      setPoints(remaining)
+      setSubmitMessage("Game completed. Hoorayy!!!");
+      disableSubmitButton(true);
+    }
+    else{
+      setSubmitMessage("Game not yet completed.");
+    }
+  }
   console.log("durationRef.current:", durationRef.current);
   console.log("Time left:", remaining, "seconds");
   console.log("Percentage of time left:", percentageTimeLeft);
@@ -286,6 +346,7 @@ const handleQuit = () => {
   <option value="easy">Easy</option>
   <option value="medium">Medium</option>
   <option value="hard">Hard</option>
+  <option value="expert">Expert</option>
 </select>
       </form>)}
       {!isHost&&puzzle.length==0&&(<h5>Time duration set by Host : {duration} minutes</h5>)}
@@ -300,8 +361,8 @@ const handleQuit = () => {
             <div className="sudoku-row" key={rIdx} style={{ display: "flex" }}>
               {row.map((cell, cIdx) => {
                 const key = `${rIdx}-${cIdx}`;
-                const status = inputStatus[key];
-                const isOriginal = cell !== 0 && !["correct", "wrong"].includes(status);
+                const status = selectedLevel === "expert" ? "" : inputStatus[key];
+                const isOriginal = originalPuzzle[rIdx]?.[cIdx] !== 0;
                 return (
                   <input
                     key={key}

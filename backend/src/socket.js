@@ -5,7 +5,7 @@ export default function setupSocket(io){
   const socketToRoom = new Map();
 
   io.on('connection',(socket)=>{
-  
+     socket.emit('reload')
     console.log('User connected:', socket.id);
     socket.on( 'ready',() =>{
        socket.emit('socket-id',socket.id);
@@ -186,7 +186,7 @@ export default function setupSocket(io){
         socket.emit("game-incomplete",'Game not yet completed')
       }
     });
-
+ 
     socket.on('validate-submission-competitive', ({ roomId, puzzle, points,percentageTimeLeft }) => {
       const room = roomData.get(roomId);
       const solved = room.solvedPuzzle;
@@ -207,6 +207,7 @@ export default function setupSocket(io){
         points,
         name,
       });
+   
 
       const allDone = Object.values(room.players).every(p => p.completed);
       if (allDone) {
@@ -219,7 +220,40 @@ export default function setupSocket(io){
         socket.emit('game-incomplete', 'Game not yet completed');
       }
     });
+   socket.on("expert-input", ({ roomId, row, col, number }) => {
+  socket.to(roomId).emit("update-expert-input", { row, col, number });
+});
 
+socket.on("expert-clear", ({ roomId, row, col }) => {
+  socket.to(roomId).emit("update-expert-clear", { row, col });
+});
+
+    socket.on('expert-submission-competitive',({roomId,remaining})=>{
+      const roomID = socketToRoom.get(socket.id);
+       if (!roomID) return;
+      const room = roomData.get(roomId);
+      let name;
+      if (!room.players[socket.id]) return;
+      let points=remaining;
+      room.players[socket.id].completed = true;
+      room.players[socket.id].score = points;
+      name = room.players[socket.id].name;
+      io.in(roomId).emit('player-finished', {
+        playerId: socket.id,
+        points,
+        name,
+      });
+      const allDone = Object.values(room.players).every(p => p.completed);
+      if (allDone) {
+        const leaderboard = Object.entries(room.players)
+        .map(([id, data]) => ({ playerId: id,sid: data.socketId, score: data.score, name:data.name}))
+        .sort((a, b) => b.score - a.score);
+        io.in(roomId).emit('show-leaderboard', leaderboard);
+      }
+    })
+   socket.on("expert-submission-cooperative",  (roomId)=>{
+        io.in(roomId).emit('game-complete',"Puzzle solved! Hooray!!!");
+       } );
     socket.on("time-up", (roomId,points) => {
       const room = roomData.get(roomId);
       if (!room) return;
@@ -269,7 +303,7 @@ export default function setupSocket(io){
         host: room.hostid
        });
       console.log(`${username} left room: ${roomId}`);
-      socket.emit('error',"user-disconnected");
+      
     });
     
   });

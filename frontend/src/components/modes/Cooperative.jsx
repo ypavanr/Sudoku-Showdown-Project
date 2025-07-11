@@ -3,7 +3,7 @@ import "./Sudoku.css";
 import { FaClock } from "react-icons/fa";
 import socket from "../../socket.js";
 import Logo from "../features/logo.jsx";
-
+import isValidCompletedSudoku from "./expertValidation.js";
 import { useParams } from "react-router-dom";
 import Username from "../features/username";
 import CopyButton from "../features/CopyButton";
@@ -118,8 +118,27 @@ socket.on('return-players', ({ players,host }) => {
   socket.on('update-difficulty',(newDifficulty)=>{
   setSelectedLevel(newDifficulty);
 })
+socket.on("update-expert-input", ({ row, col, number }) => {
+  setPuzzle((prev) => {
+    const newPuzzle = prev.map((r) => [...r]);
+    newPuzzle[row][col] = number;
+    return newPuzzle;
+  });
+});
+
+socket.on("update-expert-clear", ({ row, col }) => {
+  setPuzzle((prev) => {
+    const newPuzzle = prev.map((r) => [...r]);
+    newPuzzle[row][col] = 0;
+    return newPuzzle;
+  });
+});
+
     return () => {
     clearInterval(intervalRef.current);
+    socket.off("update-expert-input");
+socket.off("update-expert-clear");
+
     socket.off('update-difficulty');
     socket.off('not-host');
     socket.off("puzzle");
@@ -135,25 +154,74 @@ socket.on('return-players', ({ players,host }) => {
     };
   }, []);
    
-  const handleInputChange = (e, row, col) => {
-    const val = e.target.value;
-    if (val === "") {socket.emit("clear-cell",{roomId,row,col});
-    return;
-    }
+ const handleInputChange = (e, row, col) => {
+  const val = e.target.value;
 
-    const num = parseInt(val);
-    if (num >= 1 && num <= 9) {
-      socket.emit("validate-move", {roomId,puzzle,row,col,number: num,socketId: socket.id,});
-      setPuzzle((prev) => {
-        const newPuzzle = prev.map((r) => [...r]);
-        newPuzzle[row][col] = num;
-        return newPuzzle;
-      });
-    }
-  };
-  const handleSubmission=()=>{
-    socket.emit("validate-submission",{roomId,puzzle});
+ if (selectedLevel === "expert") {
+  if (val === "") {
+    setPuzzle((prev) => {
+      const newPuzzle = prev.map((r) => [...r]);
+      newPuzzle[row][col] = 0;
+      return newPuzzle;
+    });
+    setInputStatus((prev) => {
+      const copy = { ...prev };
+      delete copy[`${row}-${col}`];
+      return copy;
+    });
+    socket.emit("expert-clear", { roomId, row, col }); 
+    return;
   }
+
+  const num = parseInt(val);
+  if (num >= 1 && num <= 9) {
+    setPuzzle((prev) => {
+      const newPuzzle = prev.map((r) => [...r]);
+      newPuzzle[row][col] = num;
+      return newPuzzle;
+    });
+    socket.emit("expert-input", { roomId, row, col, number: num }); 
+  }
+
+  return;
+}
+
+
+  if (val === "") {
+    socket.emit("clear-cell", { roomId, row, col });
+    return;
+  }
+
+  const num = parseInt(val);
+  if (num >= 1 && num <= 9) {
+    socket.emit("validate-move", {
+      roomId,
+      puzzle,
+      row,
+      col,
+      number: num,
+      socketId: socket.id,
+    });
+    setPuzzle((prev) => {
+      const newPuzzle = prev.map((r) => [...r]);
+      newPuzzle[row][col] = num;
+      return newPuzzle;
+    });
+  }
+};
+
+  const handleSubmission = () => {
+  if (selectedLevel !== "expert") {
+    socket.emit("validate-submission", { roomId, puzzle });
+  } else {
+    if (isValidCompletedSudoku(puzzle)) {
+      socket.emit("expert-submission-cooperative",  roomId );
+    } else {
+      setSubmitMessage("Puzzle is not valid. Keep trying!");
+    }
+  }
+};
+
   return (
     <div>
       <Username/>
@@ -167,7 +235,7 @@ socket.on('return-players', ({ players,host }) => {
         <label htmlFor="dropdown">
           Choose the Difficulty Level : &nbsp;&nbsp;
         </label>
-        <select style={{width:"107px",height:"47px"}}
+       <select style={{width:"107px",height:"47px"}}
   id="dropdown"
   value={selectedLevel}
   onChange={(e) => {
@@ -181,6 +249,7 @@ socket.on('return-players', ({ players,host }) => {
   <option value="easy">Easy</option>
   <option value="medium">Medium</option>
   <option value="hard">Hard</option>
+  <option value="expert">Expert</option>
 </select>
       </form>)}
       {!isHost&&puzzle.length==0&&(<h5>Difficulty Level set by Host : {selectedLevel} </h5>)}
@@ -194,7 +263,7 @@ socket.on('return-players', ({ players,host }) => {
             <div className="sudoku-row" key={rIdx} style={{ display: "flex" }}>
               {row.map((cell, cIdx) => {
                 const key = `${rIdx}-${cIdx}`;
-                const status = inputStatus[key];
+                const status = selectedLevel === "expert" ? "" : inputStatus[key];
                 const isOriginal = cell !== 0 && !["correct", "wrong"].includes(status);
                 return (
                   <input
@@ -206,7 +275,7 @@ socket.on('return-players', ({ players,host }) => {
                     } ${
                       (rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""
                     }`}
-                    value={cell === 0 ? "" : cell}
+                    value={cell === 0 ? "" : String(cell)}
                     disabled={isOriginal}
                     onChange={(e) => handleInputChange(e, rIdx, cIdx)}
                   />
