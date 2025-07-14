@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
-import './Register.css';
 import "../modes/room.css"
 import Background from "../features/Background";
 import Logo from "../features/logo";
