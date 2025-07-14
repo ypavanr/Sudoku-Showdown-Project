@@ -11,12 +11,14 @@ env.config()
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors({
-  origin:'*'
+  origin: ['http://localhost:5173','https://sudoku-savvy.vercel.app'],
+  credentials: true
 }));
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: ['http://localhost:5173','https://sudoku-savvy.vercel.app'],
+    credentials: true
   },
 });
 
