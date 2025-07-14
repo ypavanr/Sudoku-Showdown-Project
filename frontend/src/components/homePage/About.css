@@ -1,4 +1,140 @@
-body{
-background-color: #0d0d1a;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-color: white;}
+body {
+  background-color: #0d0d1a;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+
+.about-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.header{
+    margin-top: 5px;
+    padding: 5px;
+}
+
+h1 {
+  margin: 10px 0 4px 0; 
+  color: #ffffff;
+  text-align: center;
+}
+
+h2 {
+  margin: 0 0 8px 0; 
+  font-size: 1.8rem;
+  color: #ffffff;
+  text-align: center;
+}
+
+p {
+  font-size: 1rem;
+  line-height: 2.0;
+  margin: 4px 0;
+  font-weight: 500;
+}
+
+.developer {
+  padding: 20px;
+  border-radius: 12px;
+  transition: transform 0.2s ease;
+}
+
+.dev-violet {
+  background-color: #8b85ff;
+  box-shadow: 0 0 20px #b2acff;
+}
+
+.developer:hover {
+  transform: scale(1.02);
+}
+
+.developer-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.user-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  fill: white;
+  transition: transform 0.2s ease;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.icon:hover {
+  transform: scale(1.1);
+}
+
+.social-links {
+  margin-top: 10px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.social-links a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.social-links a:hover {
+  text-decoration: underline;
+}
+
+.email {
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  color: white;
+  justify-content: center;
+}
+
+.survey-section {
+  text-align: center;
+  margin-top: 5px;
+}
+
+.survey-section p {
+  margin-bottom: 5px;
+  font-style: italic;
+  color: #ccc;
+}
+
+.survey-button {
+  display: inline-block;
+  background-color: #1a1a2e;
+  color: white;
+  padding: 12px 24px;
+  border: 2px solid white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s ease;
+}
+
+.survey-button:hover {
+  background-color: white;
+  color: #0d0d1a;
+  border-color: white;
+}

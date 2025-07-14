@@ -14,7 +14,7 @@ function App() {
       <Scroll/>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/aboutus" element={<About />} />
         <Route path="/room" element={
           <PrivateRoute><Room /></PrivateRoute>
         } />
