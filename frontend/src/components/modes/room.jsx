@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import './Room.css';
+import './room.css';
 import { useNavigate } from "react-router-dom";
 import socket from "../../socket.js";
 import Logo from "../features/logo";
