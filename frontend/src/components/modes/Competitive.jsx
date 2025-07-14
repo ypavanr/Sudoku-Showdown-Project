@@ -1,6 +1,6 @@
 import React, { useState, useEffect,useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Sudoku.css";
+import "./sudoku.css";
 import { FaClock } from "react-icons/fa";
 import socket from "../../socket.js";
 import { useParams } from "react-router-dom";

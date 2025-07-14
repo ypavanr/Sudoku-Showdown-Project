@@ -1,6 +1,6 @@
 import React, { useState, useEffect,useRef } from "react";
 import isValidCompletedSudoku from "./expertValidation";
-import "./Sudoku.css";
+import "./sudoku.css";
 import { FaClock } from "react-icons/fa";
 import Username from "../features/username";
 import axios from "axios";
