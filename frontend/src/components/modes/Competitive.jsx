@@ -440,7 +440,7 @@ const handleQuit = () => {
 </div>
       <div className="player-list">
   {players && Object.entries(players).map(([socketId, player]) => {
-    const avatarPath = `/src/assets/icons/${player.icon}`;
+    const avatarPath = `/icons/${player.icon}`;
     const label =
       socketId === hostId && socketId === mySocketId ? `${player.name} (You) (Host)`
       : socketId === hostId ? `${player.name} (Host)`

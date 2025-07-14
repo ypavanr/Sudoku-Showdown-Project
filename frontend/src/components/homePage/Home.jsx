@@ -6,30 +6,30 @@ import "../modes/room.css"
 import Background from "../features/Background";
 import Logo from "../features/logo";
 import { Form, Button } from 'react-bootstrap';
-import ant from "../../assets/icons/ant.svg";
-import bear from "../../assets/icons/bear.svg";
-import bee from "../../assets/icons/bee.svg";
-import buffalo from "../../assets/icons/buffalo.svg";
-import butterfly from "../../assets/icons/butterfly.svg";
-import dolphin from "../../assets/icons/dolphin.svg";
-import eagle from "../../assets/icons/eagle.svg";
-import fish from "../../assets/icons/fish.svg";
-import fox from "../../assets/icons/fox.svg";
-import gorilla from "../../assets/icons/gorilla.svg";
-import horse from "../../assets/icons/horse.svg";
-import insect from "../../assets/icons/insect.svg";
-import koala from "../../assets/icons/koala.svg";
-import leopard from "../../assets/icons/leopard.svg";
-import lion from "../../assets/icons/lion.svg";
-import monkey from "../../assets/icons/monkey.svg";
-import panda from "../../assets/icons/panda.svg";
-import panther from "../../assets/icons/panther.svg";
-import penguin from "../../assets/icons/penguin.svg";
-import spider from "../../assets/icons/spider.svg";
-import squirrel from "../../assets/icons/squirrel.svg";
-import starfish from "../../assets/icons/starfish.svg";
-import swan from "../../assets/icons/swan.svg";
-import { LeafIcon } from "lucide-react";
+import ant from "/public/icons/ant.svg";
+import bear from "/public/icons/bear.svg";
+import bee from "/public/icons/bee.svg";
+import buffalo from "/public/icons/buffalo.svg";
+import butterfly from "/public/icons/butterfly.svg";
+import dolphin from "/public/icons/dolphin.svg";
+import eagle from "/public/icons/eagle.svg";
+import fish from "/public/icons/fish.svg";
+import fox from "/public/icons/fox.svg";
+import gorilla from "/public/icons/gorilla.svg";
+import horse from "/public/icons/horse.svg";
+import insect from "/public/icons/insect.svg";
+import koala from "/public/icons/koala.svg";
+import leopard from "/public/icons/leopard.svg";
+import lion from "/public/icons/lion.svg";
+import monkey from "/public/icons/monkey.svg";
+import panda from "/public/icons/panda.svg";
+import panther from "/public/icons/panther.svg";
+import penguin from "/public/icons/penguin.svg";
+import spider from "/public/icons/spider.svg";
+import squirrel from "/public/icons/squirrel.svg";
+import starfish from "/public/icons/starfish.svg";
+import swan from "/public/icons/swan.svg";
+
 const icons = [
   { name: "ant", src: ant },
   { name: "bear", src: bear },

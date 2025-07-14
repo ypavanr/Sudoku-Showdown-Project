@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import './username.css';
 
-const iconMap = import.meta.glob('/src/assets/icons/*.svg', { eager: true });
-
 function Username() {
   const [username, setUsername] = useState('');
   const [avatar, setAvatar] = useState('');
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('username') || 'guest';
-    const iconFileName = localStorage.getItem('avatar');
-    const iconPath = `/src/assets/icons/${iconFileName}`;
-    const iconUrl = iconMap[iconPath]?.default;
-
+    const iconFileName = localStorage.getItem('avatar') || 'default.svg'; 
+    const iconPath = `/icons/${iconFileName}`;
     setUsername(storedUsername);
-    setAvatar(iconUrl); // Store the resolved URL here
-  }, []); // empty dependency array
+    setAvatar(iconPath);
+  }, []);
 
   return (
     <div className="username-box">
