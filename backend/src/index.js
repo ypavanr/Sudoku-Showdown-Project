@@ -1,6 +1,5 @@
 import express from "express";
 import bodyParser from "body-parser";
-import db from "./config/pdDB.js";
 import cors from "cors";
 import env from "dotenv";
 import { createServer } from 'http';
@@ -20,9 +19,7 @@ const io = new Server(server, {
     origin: '*',
   },
 });
-db.connect().then(()=>{
-  console.log("connected to database")
-})
+
 app.post("/test", (req, res) => {
   return res.status(200).json({ message: "Test route working" });
 });

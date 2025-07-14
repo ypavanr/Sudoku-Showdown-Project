@@ -1,5 +1,6 @@
 import { generateSudokuPuzzle, solve, isSamePuzzle } from "./sudoku/sudoku.js";
 import { Util } from "./sudoku/sudokuUtil.js";
+import { supabase } from "./config/supabase.js";
 export default function setupSocket(io){
   const roomData=new Map();
   const socketToRoom = new Map();
@@ -27,6 +28,23 @@ export default function setupSocket(io){
       console.log(`Room created:${roomId} by ${username}`);
       console.log("Received mode:", mode);
       socket.emit('room-created',{roomId,mode}); 
+      const { error } = await supabase.from('game_details').insert([
+    {
+      roomid: roomId,
+      mode: mode,
+      level: null 
+    }
+  ]);
+
+  if (error) console.error('Supabase insert error (game_datails):', error.message);
+  await supabase.from('username').upsert([
+  {
+    username,
+    roomid: roomId
+  }
+], { onConflict: ['username', 'roomid'] }).then(({ error }) => {
+  if (error) console.error('Supabase insert error (username):', error.message);
+});
     });
 
     socket.on('join-room',async (roomId,username,avatar) => {
@@ -59,6 +77,14 @@ export default function setupSocket(io){
       socket.emit('mode', room.mode);
       socket.to(roomId).emit('display-messages', {text:`${username} has joined the room.`,sid: "system",senderusername:username,type: "join"});
       console.log(`${username} joined room: ${roomId}`);
+      await supabase.from('username').upsert([
+  {
+    username,
+    roomid: roomId
+  }
+], { onConflict: ['username', 'roomid'] }).then(({ error }) => {
+  if (error) console.error('Supabase insert error (username):', error.message);
+});
     });
 
 socket.on('create-team', ({ roomId, teamName }) => {
@@ -163,7 +189,7 @@ function broadcastTeams(roomId) {
     socket.to(roomId).emit("update-difficulty", difficulty);
     })
 
-    socket.on('start-game', ({roomId,difficulty,time}) => {
+    socket.on('start-game',async ({roomId,difficulty,time}) => {
       const room=roomData.get(roomId);
       if(!room){
         socket.emit('error',"room not found");
@@ -182,6 +208,13 @@ function broadcastTeams(roomId) {
       io.in(roomId).emit('puzzle', {puzzle:unsolvedPuzzle,time});
       console.log(`Game started in room ${roomId}.difficulty level: ${difficulty} solved puzzle:`);
       Util.print2DArray(solvedPuzzle);
+      await supabase
+  .from('game_details')
+  .update({ level: difficulty })
+  .eq('roomid', roomId)
+  .then(({ error }) => {
+    if (error) console.error('Supabase update error (game_datails.level):', error.message);
+  });
     });
 
     socket.on('check-host',(roomId)=>{
