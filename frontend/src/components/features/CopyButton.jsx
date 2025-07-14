@@ -1,6 +1,5 @@
 import React , {useState} from "react";
 import { useParams } from "react-router-dom";
-import { FaRegClipboard } from "react-icons/fa";
 import { Copy } from "lucide-react";
 export default function CopyButton() {
   const { roomId } = useParams();

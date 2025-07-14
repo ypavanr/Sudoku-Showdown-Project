@@ -21,6 +21,7 @@ function About() {
         <p>2nd Year Information Science and Engineering</p>
         <p>Dayanand Sagar College of Engineering, Bangalore</p>
         <p>Role : Full Stack Development</p>
+        <p>Interests : Frontend Development</p>
         <div className="social-links">
           <a href="https://github.com/Vibha-1802" target="_blank" rel="noopener noreferrer">
             <img src={Git} alt="GitHub" className="icon" />
@@ -36,6 +37,7 @@ function About() {
         <p>2nd Year Information Science and Engineering</p>
         <p>Dayanand Sagar College of Engineering, Bangalore</p>
         <p>Role : Full Stack Development</p>
+        <p>Interests : Backend Development | AIML/DL</p>
         <div className="social-links">
           <a href="https://github.com/ypavanr" target="_blank" rel="noopener noreferrer">
             <img src={Git} alt="GitHub" className="icon" />

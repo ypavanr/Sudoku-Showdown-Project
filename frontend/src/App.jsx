@@ -8,6 +8,7 @@ import Solo from "./components/modes/solo.jsx";
 import CC from "./components/modes/CC.jsx";
 import PrivateRoute from "./components/features/PrivateRoutes.jsx";
 import Scroll from "./components/features/scroll.jsx";
+import AboutProject from "./components/homePage/AboutProject.jsx";
 function App() {
   return (
     <Router>
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/aboutus" element={<About />} />
+        <Route path="/aboutproject" element={<AboutProject />} />
         <Route path="/room" element={
           <PrivateRoute><Room /></PrivateRoute>
         } />

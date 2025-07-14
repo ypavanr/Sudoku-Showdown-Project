@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import './Register.css';
+import "../modes/room.css"
 import Background from "../features/Background";
 import Logo from "../features/logo";
 import { Form, Button } from 'react-bootstrap';
@@ -101,6 +102,10 @@ const handleSubmit = (e) => {
 
   return (
     <div className="homepage-container">
+      <div className="header-buttons ">
+      <button className="room-btn create" onClick={() => navigate('/aboutus')}>About Us</button>
+      <button className="room-btn join" onClick={() => navigate('/aboutproject')}>About Project</button>
+    </div>
       <Background />
       <div className="homepage-content">
         <Logo/>
@@ -109,7 +114,6 @@ const handleSubmit = (e) => {
         What do we offer?<br></br>
         Competitive mode - To see who can conquer the Grid!<br></br>
         Cooperative mode - Join forces and solve the Grid as one!<br></br>
-        CC mode - Competitive but make it Cooperative! Bring on the team wars!!<br></br>
         Solo mode - Wanna brush up your skills alone? We got ya!<br></br>
         Expert level - We mess up your brain...Try it to know more ^-^!!</p>
         <div className="register-whole">
