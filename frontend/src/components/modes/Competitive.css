@@ -54,3 +54,39 @@
   background-color: #933bc0;
 }
 
+.team-modal {
+  background: white;
+  color:black;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 12px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.teams-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  color:black;
+}
+
+.team-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  width: 200px;
+}
+
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 8px 0;
+}
+
+.member img {
+  width: 30px;
+  margin-right: 8px;
+}

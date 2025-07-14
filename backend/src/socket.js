@@ -61,6 +61,41 @@ export default function setupSocket(io){
       console.log(`${username} joined room: ${roomId}`);
     });
 
+    // Inside io.on('connection'):
+socket.on('create-team', ({ roomId, teamName }) => {
+  const room = roomData.get(roomId);
+  if (!room) return;
+  room.players[socket.id].team = teamName;
+  broadcastTeams(roomId);
+});
+
+socket.on('join-team', ({ roomId, teamName }) => {
+  const room = roomData.get(roomId);
+  if (!room) return;
+  room.players[socket.id].team = teamName;
+  broadcastTeams(roomId);
+});
+
+socket.on('leave-team', ({ roomId }) => {
+  const room = roomData.get(roomId);
+  if (!room) return;
+  delete room.players[socket.id].team;
+  broadcastTeams(roomId);
+});
+
+function broadcastTeams(roomId) {
+  const room = roomData.get(roomId);
+  if (!room) return;
+  const teams = {};
+  for (const [id, p] of Object.entries(room.players)) {
+    const t = p.team || 'No Team';
+    teams[t] = teams[t] || [];
+    teams[t].push({ id, name: p.name, icon: p.icon });
+  }
+  io.to(roomId).emit('teams-updated', { teams });
+}
+
+
     socket.on('get-players', (roomId) => {
       const room = roomData.get(roomId);
       if (room && room.players) {
