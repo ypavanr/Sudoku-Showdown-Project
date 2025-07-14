@@ -200,3 +200,23 @@
 .room-submit:hover:enabled,.mode-submit:hover {
   background-color: #4752c4;
 }
+
+.solo-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.room-btn.solo {
+  background-color: #d946ef;
+  color: white;
+  box-shadow: 0 0 15px #f472d0;
+}
+
+.room-btn.solo:hover {
+  background-color: #f472d0;
+  box-shadow: 0 0 25px #f472d0;
+  transform: scale(1.05);
+}
+
+

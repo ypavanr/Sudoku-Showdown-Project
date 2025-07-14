@@ -270,18 +270,18 @@ socket.off("update-expert-clear");
                 const isOriginal = originalCells[rIdx]?.[cIdx] === true;
                 return (
                   <input
-                    key={key}
-                    type="text"
-                    maxLength={1}
-                    className={`sudoku-input ${status || ""} ${
-                      (cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""
-                    } ${
-                      (rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""
-                    }`}
-                    value={cell === 0 ? "" : String(cell)}
-                    disabled={isOriginal}
-                    onChange={(e) => handleInputChange(e, rIdx, cIdx)}
-                  />
+  key={key}
+  type="text"
+  maxLength={1}
+  className={`sudoku-input ${status || ""} 
+    ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
+    ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
+    ${isOriginal ? "prefilled-cell" : ""} 
+    ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""}`}
+  value={cell === 0 ? "" : cell}
+  disabled={isOriginal}
+  onChange={(e) => handleInputChange(e, rIdx, cIdx)}
+/>
                 );
               })}
             </div>
@@ -326,6 +326,12 @@ setSubmitMessage('');
             <li>Correct entries turn green, incorrect ones turn red.</li>
             <li>+10 points for correct, -5 for wrong.</li>
             <li>Bonus if puzzle is solved early!</li>
+          </ul>
+          <h3>Expert Level</h3>
+          <ul>
+            <li>There can be many solutions for this mode 
+                so validation is only done after the game is completed.
+            </li>
           </ul>
         </div>
       </div>

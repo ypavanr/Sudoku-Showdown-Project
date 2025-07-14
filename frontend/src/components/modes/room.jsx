@@ -94,9 +94,6 @@ if (mode === 'cc' && !teamName.trim()) {
     alert("Please enter a team name");
     return;
   }
-if(mode==='solo'){
-  navigate(`/room/solo`);
-}
 else{
   if(mode==='cc')
     socket.emit('create-room', { roomId: newRoomId, mode,username,avatar,teamName});
@@ -137,8 +134,10 @@ useEffect(()=>{
         <p className="room-subtitle">Challenge yourself or compete with friends!</p>
         <div className="room-buttons">
           <button className="room-btn create" onClick={handleCreateRoom}>Create Room</button>
-
           <button className="room-btn join" onClick={handleJoinClick}>Join Room</button>  
+        </div>
+        <div className="solo-wrapper">
+          <button className="room-btn solo" onClick={() => navigate('/room/solo')}>Play Solo</button>
         </div>
       </div>
       <div className="form-wraper">
@@ -147,20 +146,7 @@ useEffect(()=>{
              <select id="dropdown" value={selectedMode} onChange={(e)=>setSelectedMode(e.target.value)} className="mode-select">
              <option value="competitive">Competitive</option>
              <option value="cooperative">Cooperative</option>
-             <option value="solo">Solo</option>
-             <option value="cc">CC</option>
              </select>
-              {selectedMode === "cc" && (
-             <input
-              type="text"
-              placeholder="Enter Team Name"
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
-              required
-              className="room-input"
-            />
-    )}
-
             <button type="submit" className="mode-submit">Submit</button>
     </form>)} 
           {showInput && (

@@ -24,9 +24,6 @@ function App() {
         <Route path="/room/competitive/:roomId" element={
           <PrivateRoute><Competitive /></PrivateRoute>
         } />
-        <Route path="/room/cc/:roomId" element={
-          <PrivateRoute><CC /></PrivateRoute>
-        } />
         <Route path="/room/solo" element={
           <PrivateRoute><Solo /></PrivateRoute>
         } />

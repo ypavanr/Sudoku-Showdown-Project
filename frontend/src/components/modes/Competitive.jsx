@@ -366,18 +366,18 @@ const handleQuit = () => {
                 const isOriginal = originalPuzzle[rIdx]?.[cIdx] !== 0;
                 return (
                   <input
-                    key={key}
-                    type="text"
-                    maxLength={1}
-                    className={`sudoku-input ${status || ""} ${
-                      (cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""
-                    } ${
-                      (rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""
-                    }`}
-                    value={cell === 0 ? "" : cell}
-                    disabled={isOriginal}
-                    onChange={(e) => handleInputChange(e, rIdx, cIdx)}
-                  />
+  key={key}
+  type="text"
+  maxLength={1}
+  className={`sudoku-input ${status || ""} 
+    ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
+    ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
+    ${isOriginal ? "prefilled-cell" : ""} 
+    ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""}`}
+  value={cell === 0 ? "" : cell}
+  disabled={isOriginal}
+  onChange={(e) => handleInputChange(e, rIdx, cIdx)}
+/>
                 );
               })}
             </div>
@@ -409,8 +409,7 @@ const handleQuit = () => {
          <div className="score-time">
   <FaClock size={30} style={{ marginRight: '10px' }} />
   <span className="time-text">{formatTime(timeLeft)}</span>
-  <span className="points-text"> |&nbsp; Points: {points}</span>
-
+  {selectedLevel != "expert" && <span className="points-text"> |&nbsp; Points: {points}</span>}
   <div className="rules-hover-container">
     <span className="rules-label">
       &nbsp; | &nbsp;Rules <span className="question-icon">?</span>
@@ -427,26 +426,41 @@ const handleQuit = () => {
           Final Score = 60 × (1 + 0.4) = 84
         </li>
       </ul>
+      <h3>Expert Level</h3>
+      <ul>
+        <li>There is no points.
+          If you complete the puzzle early you win!
+        </li>
+        <li>There can be many solutions for this mode 
+          so validation is only done after the game is completed.
+        </li>
+      </ul>
     </div>
   </div>
 </div>
       <div className="player-list">
-  {players&& Object.entries(players).map(([socketId, player])=>{
+  {players && Object.entries(players).map(([socketId, player]) => {
     const avatarPath = `/src/assets/icons/${player.icon}`;
-    const label = socketId === hostId && socketId === mySocketId ? `${player.name} (You) (Host)` 
-    : socketId === hostId ? `${player.name} (Host)`
-    : socketId === mySocketId ? `${player.name} (You)`
-    : player.name;
+    const label =
+      socketId === hostId && socketId === mySocketId ? `${player.name} (You) (Host)`
+      : socketId === hostId ? `${player.name} (Host)`
+      : socketId === mySocketId ? `${player.name} (You)`
+      : player.name;
+    const hasFinished = finishedPlayers.some(fp => fp.playerId === socketId);
     return (
-      <div className="player-item" key={socketId}>
-        <img src={avatarPath} alt={player.name} />
+      <div className={`player-item ${hasFinished ? "player-finished" : ""}`} key={socketId}>
+        <img
+          src={avatarPath}
+          alt={player.name}
+        />
         <span>{label}</span>
       </div>
     );
   })}
 </div>
+
+
        <div className="finished-list">
-  
     {showLeaderboard && (
   <div className="modal-overlay">
     <div className="modal-content leaderboard-modal">

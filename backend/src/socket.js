@@ -61,7 +61,6 @@ export default function setupSocket(io){
       console.log(`${username} joined room: ${roomId}`);
     });
 
-    // Inside io.on('connection'):
 socket.on('create-team', ({ roomId, teamName }) => {
   const room = roomData.get(roomId);
   if (!room) return;
