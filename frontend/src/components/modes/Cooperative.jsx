@@ -1,5 +1,5 @@
 import React, { useState, useEffect,useRef } from "react";
-import "./Sudoku.css";
+import "./sudoku.css";
 import { FaClock } from "react-icons/fa";
 import socket from "../../socket.js";
 import Logo from "../features/logo.jsx";
