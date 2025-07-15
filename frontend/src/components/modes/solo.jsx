@@ -16,11 +16,10 @@ export default function Solo() {
   const [selectedLevel, setSelectedLevel] = useState('easy');
   const selectedLevelRef = useRef(selectedLevel);
   const intervalRef=useRef(null);
-  const token = localStorage.getItem("token");
   const handleStartGame = async() => {
     let difficulty = selectedLevelRef.current;
     try{
-        const puzzle=await axios.post("http://localhost:3000/sudoku/generate",{difficulty}   )
+        const puzzle=await axios.post("https://sudoku-savvy.onrender.com/sudoku/generate",{difficulty}   )
         setPuzzle(puzzle.data);
         setOriginalPuzzle(puzzle.data);
         startTimer();
@@ -85,13 +84,8 @@ export default function Solo() {
     const validateResult = async (row, col, number) => {
       try {
         const response = await axios.post(
-          "http://localhost:3000/sudoku/verifymove",
-          { row, col, number },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          "https://sudoku-savvy.onrender.com/sudoku/verifymove",
+          { row, col, number }
         );
         const isCorrect = response.data.isCorrect;
         setPuzzle((prev) => {
@@ -125,7 +119,7 @@ export default function Solo() {
 
   try {
     const result = await axios.post(
-      "http://localhost:3000/sudoku/validatesubmission",
+      "https://sudoku-savvy.onrender.com/sudoku/validatesubmission",
       { puzzle },
       {
         headers: {
