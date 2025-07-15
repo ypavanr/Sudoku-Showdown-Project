@@ -155,18 +155,7 @@ socket.on('new-points',(points)=>{
       }));
     });
 
-    socket.on("clear-cell",({row,col}) => {
-      setPuzzle((prev) => {
-      const newPuzzle=prev.map((r) => [...r]);
-      newPuzzle[row][col]=0;
-      return newPuzzle;
-    });
-      setInputStatus((prev) => {
-      const copy={...prev};
-      delete copy[`${row}-${col}`];
-      return copy;
-    });
-  });
+  
   socket.on("game-complete",(message)=>{
     setSubmitMessage(message);
     disableSubmitButton(true);
@@ -194,7 +183,6 @@ socket.on('update-difficulty',(newDifficulty)=>{
       socket.off("player-finished");
       socket.off("puzzle");
       socket.off("validate-result");
-      socket.off("clear-cell");
       socket.off("game-complete");
       socket.off("game-incomplete");
       socket.off("error");
@@ -238,7 +226,16 @@ const handleInputChange = (e, row, col) => {
   }
 
   if (val === "") {
-    socket.emit("clear-cell", { roomId, row, col });
+    setPuzzle((prev) => {
+      const newPuzzle=prev.map((r) => [...r]);
+      newPuzzle[row][col]=0;
+      return newPuzzle;
+    });
+      setInputStatus((prev) => {
+      const copy={...prev};
+      delete copy[`${row}-${col}`];
+      return copy;
+    });
     return;
   }
 
