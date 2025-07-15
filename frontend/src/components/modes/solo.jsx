@@ -1,5 +1,7 @@
 import React, { useState, useEffect,useRef } from "react";
 import isValidCompletedSudoku from "./expertValidation";
+import { supabase } from "../../../supabase";
+import { nanoid } from 'nanoid';
 import "./sudoku.css";
 import { FaClock } from "react-icons/fa";
 import Username from "../features/username";
@@ -18,7 +20,25 @@ export default function Solo() {
   const intervalRef=useRef(null);
   const handleStartGame = async() => {
     let difficulty = selectedLevelRef.current;
+    const roomId = nanoid(6);
+     const username = localStorage.getItem("username") || "guest";
     try{
+      const { error: gameError } = await supabase.from('game_details').insert([
+      {
+        roomid: roomId,
+        mode: "solo",
+        level: difficulty
+      }
+    ]);
+    if (gameError) console.error("Supabase game_details error:", gameError.message);
+
+    const { error: userError } = await supabase.from('username').insert([
+      {
+        username,
+        roomid: roomId
+      }
+    ]);
+    if (userError) console.error("Supabase username error:", userError.message);
         const puzzle=await axios.post("https://sudoku-savvy.onrender.com/sudoku/generate",{difficulty}   )
         setPuzzle(puzzle.data);
         setOriginalPuzzle(puzzle.data);
