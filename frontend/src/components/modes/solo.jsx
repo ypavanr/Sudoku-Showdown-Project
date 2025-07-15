@@ -120,12 +120,7 @@ export default function Solo() {
   try {
     const result = await axios.post(
       "https://sudoku-savvy.onrender.com/sudoku/validatesubmission",
-      { puzzle },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      { puzzle }
     );
 
     if (result.data.solved) {
