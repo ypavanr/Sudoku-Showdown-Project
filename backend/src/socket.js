@@ -325,8 +325,12 @@ socket.on("expert-clear", ({ roomId, row, col }) => {
        } );
     socket.on("time-up", (roomId,points) => {
       const room = roomData.get(roomId);
+      
       if (!room) return;
-      room.players[socket.id].score = points;
+      const player = room.players[socket.id];
+       if (!player.completed) {
+    player.score = points;
+  }
       const leaderboard = Object.entries(room.players)
       .map(([id, data]) => ({ playerId: id,score: data.score,name:data.name }))
       .sort((a, b) => b.score - a.score);
