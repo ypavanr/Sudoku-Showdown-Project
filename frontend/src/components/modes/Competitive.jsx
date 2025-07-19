@@ -142,13 +142,12 @@ socket.on('new-points',(points)=>{
         newPuzzle[row][col]=number;
         return newPuzzle;
       });
-      if(isCorrect==false){
-        points=points-5;
+      if (isCorrect==false) {
+        setPoints(prev => prev - 5);
+      }     
+      else {
+        setPoints(prev => prev + 10);
       }
-      else{
-        points+=10;
-      }
-    setPoints(points);
       setInputStatus((prev) => ({
         ...prev,
         [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
