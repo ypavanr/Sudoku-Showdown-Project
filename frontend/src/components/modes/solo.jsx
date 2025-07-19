@@ -8,6 +8,7 @@ import Username from "../features/username";
 import axios from "axios";
 import Logo from "../features/logo";
 export default function Solo() {
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [puzzle, setPuzzle] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
   const [originalPuzzle, setOriginalPuzzle] = useState([]);
@@ -39,7 +40,7 @@ export default function Solo() {
       }
     ]);
     if (userError) console.error("Supabase username error:", userError.message);
-        const puzzle=await axios.post("https://sudoku-savvy.onrender.com/sudoku/generate",{difficulty}   )
+        const puzzle=await axios.post(`${API_BASE_URL}/sudoku/generate`,{difficulty}   )
         setPuzzle(puzzle.data);
         setOriginalPuzzle(puzzle.data);
         startTimer();
@@ -104,7 +105,7 @@ export default function Solo() {
     const validateResult = async (row, col, number) => {
       try {
         const response = await axios.post(
-          "https://sudoku-savvy.onrender.com/sudoku/verifymove",
+          `${API_BASE_URL}/sudoku/verifymove`,
           { row, col, number }
         );
         const isCorrect = response.data.isCorrect;
@@ -139,7 +140,7 @@ export default function Solo() {
 
   try {
     const result = await axios.post(
-      "https://sudoku-savvy.onrender.com/sudoku/validatesubmission",
+      `${API_BASE_URL}/sudoku/validatesubmission`,
       { puzzle }
     );
 
