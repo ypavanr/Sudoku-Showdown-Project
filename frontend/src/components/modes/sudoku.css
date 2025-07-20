@@ -268,3 +268,8 @@ h1{white-space: nowrap;}
 .player-finished {
   background-color: #4caf50 !important; 
 }
+
+.highlighted-cell {
+  background-color: rgba(255, 255, 0, 0.6) !important;
+  transition: background-color 0.2s ease;
+}

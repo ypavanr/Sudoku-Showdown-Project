@@ -10,6 +10,7 @@ import Logo from "../features/logo";
 export default function Solo() {
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [puzzle, setPuzzle] = useState([]);
+  const [highlightedNumber, setHighlightedNumber] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [originalPuzzle, setOriginalPuzzle] = useState([]);
   const [inputStatus, setInputStatus] = useState({});
@@ -196,18 +197,31 @@ export default function Solo() {
                 const status = inputStatus[key];
                 const isOriginal = originalPuzzle[rIdx]?.[cIdx] !== 0;
                 return (
-                  <input
+<input
   key={key}
   type="text"
   maxLength={1}
-  className={`sudoku-input ${status || ""} 
-    ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
-    ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
-    ${isOriginal ? "prefilled-cell" : ""} 
-    ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""}`}
+  className={`sudoku-input 
+  ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
+  ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
+  ${isOriginal ? "prefilled-cell" : ""} 
+  ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""} 
+  ${highlightedNumber !== null && cell === highlightedNumber ? "highlighted-cell" : ""} 
+  ${status || ""}`}
   value={cell === 0 ? "" : cell}
-  disabled={isOriginal}
-  onChange={(e) => handleInputChange(e, rIdx, cIdx)}
+  readOnly={isOriginal}
+  onChange={(e) => {
+  handleInputChange(e, rIdx, cIdx);
+}}
+onClick={() => {
+  const value = puzzle[rIdx][cIdx];
+  if (value !== 0) {
+    setHighlightedNumber(prev => prev === value ? null : value);
+  } else {
+    setHighlightedNumber(null);
+  }
+}}
+
 />
                 );
               })}

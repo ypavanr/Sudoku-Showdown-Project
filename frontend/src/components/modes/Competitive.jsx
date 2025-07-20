@@ -12,6 +12,7 @@ import Logo from "../features/logo.jsx";
 import isValidCompletedSudoku from "./expertValidation.js";
 export default function Competitive() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [highlightedNumber, setHighlightedNumber] = useState(null);
   const [originalPuzzle, setOriginalPuzzle] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState('easy');
   const selectedLevelRef = useRef(selectedLevel);
@@ -34,162 +35,211 @@ export default function Competitive() {
   const [mySocketId, setMySocketId] = useState("");
   const [hostId, setHostId] = useState("");
   const navigate = useNavigate();
+
   const handleStartGame = () => {
-  let time=durationRef.current;
-  let difficulty = selectedLevelRef.current;
-  socket.emit("start-game", {roomId,difficulty,time});    
+
+      let time=durationRef.current;
+      let difficulty = selectedLevelRef.current;
+      socket.emit("start-game", {roomId,difficulty,time});    
 
   };
+
+
   const formatTime=(totalSeconds)=>{
-    const minutes= String(Math.floor(totalSeconds/60)).padStart(2, '0');
-    const seconds= String(totalSeconds % 60).padStart(2, '0');
-    return `${minutes}:${seconds}`;
+
+        const minutes= String(Math.floor(totalSeconds/60)).padStart(2, '0');
+        const seconds= String(totalSeconds % 60).padStart(2, '0');
+        return `${minutes}:${seconds}`;
+
   };
   const startTimer = (minutes) => {
-  const totalSeconds = parseInt(minutes) * 60;
-  const deadline = Date.now() + totalSeconds * 1000;
-  deadlineRef.current = deadline;
 
-  const tick = () => {
-    const remaining = Math.max(0, Math.floor((deadlineRef.current - Date.now()) / 1000));
-    setTimeLeft(remaining);
+        const totalSeconds = parseInt(minutes) * 60;
+        const deadline = Date.now() + totalSeconds * 1000;
+        deadlineRef.current = deadline;
 
-    if (remaining <= 0) {
-      clearInterval(intervalRef.current);
-     
-      socket.emit("time-up", roomId, points);
-      setSubmitMessage("Time's up! Game over.");
-    }
-  };
-  tick(); 
-  intervalRef.current = setInterval(tick, 1000);
+        const tick = () => {
+          const remaining = Math.max(0, Math.floor((deadlineRef.current - Date.now()) / 1000));
+          setTimeLeft(remaining);
+
+          if (remaining <= 0) {
+            clearInterval(intervalRef.current);
+          
+            socket.emit("time-up", roomId, points);
+            setSubmitMessage("Time's up! Game over.");
+          }
+        };
+        tick(); 
+        intervalRef.current = setInterval(tick, 1000);
   
 };
 
 const durationRef = useRef(duration);
 
   const stopTimer = () => {
-    clearInterval(intervalRef.current);
- 
+
+            clearInterval(intervalRef.current);
+    
   };
 
   useEffect(() => {
-    socket.on('reload',()=>{
-      navigate('/room');
-    })
-    socket.emit('ready');
-        socket.on('socket-id',(sid)=>{
-          setMySocketId(sid);
+    
+        socket.on('reload',()=>{
+
+              navigate('/room');
+        })
+        socket.emit('ready');
+        
+            socket.on('socket-id',(sid)=>{
+
+              setMySocketId(sid);
+
         });
-        const handleBeforeUnload = () => {
-        socket.disconnect();
-      };
-      socket.emit('get-players', roomId);
-    socket.on('return-players', ({ players,host }) => {
-      setPlayers(players);
-      setHostId(host);
-    });
-    
-       socket.on("update-players",({players,host})=>{
-        console.log("Updated players:", players)
-        setPlayers(players);
-        setHostId(host);
-      });
-   
-  window.addEventListener("beforeunload", function () {
-    console.log("Triggering leave message");
-    sendLeaveMessage();
-  });
-    durationRef.current = duration;
-    socket.on("puzzle", ({puzzle,time}) => {
-        setShowLeaderboard(false);
-  setSubmitMessage('');
-  setOriginalPuzzle(puzzle); 
-  setPuzzle(puzzle.map(row => [...row]))
-  setInputStatus({});
-  console.log("Puzzle received:", puzzle);
-  startTimer(time);
-  setStartButton(false);
-});
-   socket.on("show-leaderboard", (leaderboard) => {
-  console.log("Leaderboard:", leaderboard);
-  setLeaderboard(leaderboard); 
-  setShowLeaderboard(true);
-  stopTimer();
-});
-socket.on('new-points',(points)=>{
-    setPoints(points);
-})
-  socket.on("player-finished",({playerId,points,name})=>{
-    console.log("player-finished received:", playerId, points);
-    setFinishedPlayers((prev) => [...prev, { playerId, points, name}]);
-  })
 
-    socket.on("error",(message)=>{
-      alert(message);
-      navigate("/room");
-    })
-    socket.on('is-host',()=>{
-       setIsHost(true);
-    })
-  socket.on('not-host',()=>{
-    setIsHost(false);
-  })
-  socket.emit('check-host',roomId);
-    socket.on("validate-result", ({ row, col, number, isCorrect }) => {
-      setPuzzle((prev) => {
-        const newPuzzle=prev.map((r)=>[...r]);
-        newPuzzle[row][col]=number;
-        return newPuzzle;
-      });
-      if (isCorrect==false) {
-        setPoints(prev => prev - 5);
-      }     
-      else {
-        setPoints(prev => prev + 10);
-      }
-      setInputStatus((prev) => ({
-        ...prev,
-        [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
-      }));
-    });
+            const handleBeforeUnload = () => {
 
-  
-  socket.on("game-complete",(message)=>{
-    setSubmitMessage(message);
-    disableSubmitButton(true);
-    
-  });
-  socket.on("game-incomplete",(message)=>{
-    setSubmitMessage(message);
-  })
-  socket.on('update-duration', (newDuration) => {
-  setDuration(newDuration); 
-});
-socket.on('update-difficulty',(newDifficulty)=>{
-  setSelectedLevel(newDifficulty);
-})
-    return () => {
-      socket.off('reload');
-     socket.off('is-host');
-      socket.off('update-duration');
-      socket.off('not-host');
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      clearInterval(intervalRef.current);
-      socket.off('update-difficulty');
-      socket.off('new-points');
-      socket.off("show-leaderboard");
-      socket.off("player-finished");
-      socket.off("puzzle");
-      socket.off("validate-result");
-      socket.off("game-complete");
-      socket.off("game-incomplete");
-      socket.off("error");
-      socket.off("update-players");
-      socket.off("connect");
-      socket.off('return-players');
-      socket.off('socket-id');
-    };
+              socket.disconnect();
+        };
+
+          socket.emit('get-players', roomId);
+        socket.on('return-players', ({ players,host }) => {
+
+              setPlayers(players);
+              setHostId(host);
+
+        });
+        
+          socket.on("update-players",({players,host})=>{
+
+              console.log("Updated players:", players)
+              setPlayers(players);
+              setHostId(host);
+
+        });
+      
+      window.addEventListener("beforeunload", function () {
+
+              console.log("Triggering leave message");
+              sendLeaveMessage();
+
+        });
+
+        durationRef.current = duration;
+
+        socket.on("puzzle", ({puzzle,time}) => {
+              setShowLeaderboard(false);
+              setSubmitMessage('');
+              setOriginalPuzzle(puzzle); 
+              setPuzzle(puzzle.map(row => [...row]))
+              setInputStatus({});
+              console.log("Puzzle received:", puzzle);
+              startTimer(time);
+              setStartButton(false);
+        });
+
+      socket.on("show-leaderboard", (leaderboard) => {
+
+              console.log("Leaderboard:", leaderboard);
+              setLeaderboard(leaderboard); 
+              setShowLeaderboard(true);
+              stopTimer();
+
+        });
+
+    socket.on('new-points',(points)=>{
+
+              setPoints(points);
+
+        });
+
+      socket.on("player-finished",({playerId,points,name})=>{
+
+              console.log("player-finished received:", playerId, points);
+              setFinishedPlayers((prev) => [...prev, { playerId, points, name}]);
+
+        })
+
+        socket.on("error",(message)=>{
+
+              alert(message);
+              navigate("/room");
+
+        })
+
+        socket.on('is-host',()=>{
+
+              setIsHost(true);
+
+        })
+      socket.on('not-host',()=>{
+
+              setIsHost(false);
+
+      })
+      socket.emit('check-host',roomId);
+      socket.on("validate-result", ({ row, col, number, isCorrect }) => {
+
+              setPuzzle((prev) => {
+                const newPuzzle=prev.map((r)=>[...r]);
+                newPuzzle[row][col]=number;
+                return newPuzzle;
+              });
+              if (isCorrect==false) {
+                setPoints(prev => prev - 5);
+              }     
+              else {
+                setPoints(prev => prev + 10);
+              }
+              setInputStatus((prev) => ({
+                ...prev,
+                [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
+              }));
+
+        });
+
+      
+      socket.on("game-complete",(message)=>{
+
+              setSubmitMessage(message);
+              disableSubmitButton(true);
+        
+      });
+      socket.on("game-incomplete",(message)=>{
+
+              setSubmitMessage(message);
+
+      })
+      socket.on('update-duration', (newDuration) => {
+
+              setDuration(newDuration); 
+
+    });
+    socket.on('update-difficulty',(newDifficulty)=>{
+
+              setSelectedLevel(newDifficulty);
+
+    })
+        return () => {
+                  socket.off('reload');
+                  socket.off('is-host');
+                  socket.off('update-duration');
+                  socket.off('not-host');
+                  window.removeEventListener("beforeunload", handleBeforeUnload);
+                  clearInterval(intervalRef.current);
+                  socket.off('update-difficulty');
+                  socket.off('new-points');
+                  socket.off("show-leaderboard");
+                  socket.off("player-finished");
+                  socket.off("puzzle");
+                  socket.off("validate-result");
+                  socket.off("game-complete");
+                  socket.off("game-incomplete");
+                  socket.off("error");
+                  socket.off("update-players");
+                  socket.off("connect");
+                  socket.off('return-players');
+                  socket.off('socket-id');
+        };
   }, [duration]);
    
 const handleInputChange = (e, row, col) => {
@@ -361,19 +411,33 @@ const handleQuit = () => {
                 const status = selectedLevel === "expert" ? "" : inputStatus[key];
                 const isOriginal = originalPuzzle[rIdx]?.[cIdx] !== 0;
                 return (
-                  <input
+                  <input  
   key={key}
   type="text"
   maxLength={1}
-  className={`sudoku-input ${status || ""} 
-    ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
-    ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
-    ${isOriginal ? "prefilled-cell" : ""} 
-    ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""}`}
+  className={`sudoku-input 
+  ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
+  ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
+  ${isOriginal ? "prefilled-cell" : ""} 
+  ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""} 
+  ${highlightedNumber !== null && cell === highlightedNumber ? "highlighted-cell" : ""} 
+  ${status || ""}`}
   value={cell === 0 ? "" : cell}
-  disabled={isOriginal}
-  onChange={(e) => handleInputChange(e, rIdx, cIdx)}
+  readOnly={isOriginal}
+  onChange={(e) => {
+  handleInputChange(e, rIdx, cIdx);
+}}
+onClick={() => {
+  const value = puzzle[rIdx][cIdx];
+  if (value !== 0) {
+    setHighlightedNumber(prev => prev === value ? null : value);
+  } else {
+    setHighlightedNumber(null);
+  }
+}}
+
 />
+
                 );
               })}
             </div>

@@ -12,6 +12,7 @@ export default function Cooperative() {
   const [originalCells, setOriginalCells] = useState([]);
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
+  const [highlightedNumber, setHighlightedNumber] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [inputStatus, setInputStatus] = useState({});
   const [showStartButton, setStartButton]=useState(true);
@@ -269,18 +270,31 @@ socket.off("update-expert-clear");
                 const status = selectedLevel === "expert" ? "" : inputStatus[key];
                 const isOriginal = originalCells[rIdx]?.[cIdx] === true;
                 return (
-                  <input
+                 <input
   key={key}
   type="text"
   maxLength={1}
-  className={`sudoku-input ${status || ""} 
-    ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
-    ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
-    ${isOriginal ? "prefilled-cell" : ""} 
-    ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""}`}
+  className={`sudoku-input 
+  ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
+  ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
+  ${isOriginal ? "prefilled-cell" : ""} 
+  ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""} 
+  ${highlightedNumber !== null && cell === highlightedNumber ? "highlighted-cell" : ""} 
+  ${status || ""}`}
   value={cell === 0 ? "" : cell}
-  disabled={isOriginal}
-  onChange={(e) => handleInputChange(e, rIdx, cIdx)}
+  readOnly={isOriginal}
+  onChange={(e) => {
+  handleInputChange(e, rIdx, cIdx);
+}}
+onClick={() => {
+  const value = puzzle[rIdx][cIdx];
+  if (value !== 0) {
+    setHighlightedNumber(prev => prev === value ? null : value);
+  } else {
+    setHighlightedNumber(null);
+  }
+}}
+
 />
                 );
               })}
