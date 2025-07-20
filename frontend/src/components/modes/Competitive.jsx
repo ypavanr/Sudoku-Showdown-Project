@@ -252,7 +252,7 @@ export default function Competitive() {
         disableSubmitButton(true);
       }
       else{
-        setSubmitMessage("Game not yet completed.");
+        setSubmitMessage("Puzzle is not valid. Keep trying!");
       }
     }
     console.log("durationRef.current:", durationRef.current);

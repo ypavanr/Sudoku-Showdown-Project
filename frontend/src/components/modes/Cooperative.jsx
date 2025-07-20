@@ -1,4 +1,5 @@
 import React, { useState, useEffect,useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "./sudoku.css";
 import { FaClock } from "react-icons/fa";
 import socket from "../../socket.js";
@@ -17,6 +18,7 @@ export default function Cooperative() {
   const [inputStatus, setInputStatus] = useState({});
   const [showStartButton, setStartButton]=useState(true);
   const [submissionMessage, setSubmitMessage]=useState('');
+  const [showQuitModal, setShowQuitModal] = useState(false);
   const [secondsElapsed, setSecondsElapsed] = useState(0);
   const startTimeRef = useRef(null);
   const intervalRef = useRef(null);
@@ -26,6 +28,7 @@ export default function Cooperative() {
   const [players, setPlayers] = useState({});
   const [mySocketId, setMySocketId] = useState("");
   const [hostId, setHostId] = useState("");
+  const navigate = useNavigate();
   const handleStartGame = () => {
     let difficulty = selectedLevelRef.current;
     socket.emit("start-game", {roomId,difficulty,});
@@ -54,6 +57,9 @@ const startTimer = () => {
 };
 
   useEffect(() => {
+    socket.on('reload',()=>{
+          navigate('/room');
+        })
     socket.emit('ready');
     socket.on('socket-id',(sid)=>{
       setMySocketId(sid);
@@ -83,10 +89,14 @@ socket.on('return-players', ({ players,host }) => {
     });
     socket.on("error",(message)=>{
       alert(message);
+      navigate("/room");
     })
- socket.on('not-host',()=>{
-    setIsHost(false);
-  })
+ socket.on('is-host',()=>{
+      setIsHost(true);
+    })
+    socket.on('not-host',()=>{
+      setIsHost(false);
+    })
   socket.emit('check-host',roomId);
     socket.on("validate-result", ({ row, col, number, isCorrect }) => {
       setPuzzle((prev) => {
@@ -226,6 +236,11 @@ socket.off("update-expert-clear");
   }
 };
 
+const handleQuit = () => {
+    setSubmitMessage("Are you sure you want to quit?");
+    setShowQuitModal(true);
+  };
+
   return (
     <div>
       <Username/>
@@ -301,10 +316,18 @@ onClick={() => {
             </div>
           ))}
       </div><br></br>
-       {!showStartButton&&(<button className="start-game" onClick={handleSubmission}>
-        Submit
-      </button>)} 
+       <div className="game-actions">
+          {!showStartButton && (
+            <button className="start-game" onClick={handleSubmission}>
+              Submit
+            </button>
+          )}
+          <button className="quit-game" onClick={handleQuit}>
+            Quit
+          </button>
+        </div>
       </div>
+      <div className="left-panel">
 {submissionMessage&&(
           <div className="modal-overlay">
           <div className="modal-content leaderboard-modal">
@@ -322,7 +345,7 @@ setSubmitMessage('');
     </div>
        </div>
           )}
-<div className="left-panel">
+
   <div className="top-left-box">
     <div className="score-time">
       <FaClock size={30} style={{ marginRight: '10px' }} />
@@ -371,6 +394,28 @@ setSubmitMessage('');
       );
     })}
   </div>
+  {showQuitModal && (
+              <div className="modal-overlay">
+                <div className="modal-content leaderboard-modal">
+                  <div className="game-message">{submissionMessage}</div>
+                  <br />
+                  <button
+                    onClick={() => {
+                      socket.emit('leave-room');
+                      setShowQuitModal(false);
+                      navigate('/room');
+                    }}
+                    style={{ backgroundColor: "#d9534f", color: "white", marginRight: "10px" }}
+                  >Yes</button>
+                  <button
+                    onClick={() => {
+                      setShowQuitModal(false);
+                      setSubmitMessage('');
+                    }}
+                  >No</button>
+                </div>
+              </div>
+            )}
 </div>
 
     </div>
