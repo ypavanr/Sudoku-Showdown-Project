@@ -46,7 +46,6 @@ export default function Solo() {
         setOriginalPuzzle(puzzle.data);
         startTimer();
         setStartButton(false);
-        console.log(puzzle.data);
     }
     catch (err) {
       alert("error fetching puzzle, "+ err);

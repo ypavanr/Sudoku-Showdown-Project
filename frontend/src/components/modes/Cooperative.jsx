@@ -72,7 +72,6 @@ socket.on('return-players', ({ players,host }) => {
 });
 
    socket.on("update-players",({players})=>{
-    console.log("Updated players:", players)
     setPlayers(players);
   });
     
@@ -84,7 +83,6 @@ socket.on('return-players', ({ players,host }) => {
   );
       startTimer();
       setInputStatus({});
-      console.log("Puzzle received:", puzzle);
       setStartButton(false);
     });
     socket.on("error",(message)=>{

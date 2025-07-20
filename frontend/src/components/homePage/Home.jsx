@@ -73,7 +73,6 @@ const handleSubmit = (e) => {
   if (formData.username.trim() !== "") {
     localStorage.setItem("username", formData.username.trim());
     localStorage.setItem("avatar", formData.iconName+".svg"); 
-    console.log(formData.icon)
     navigate("/room");
   } else {
     alert("Please enter a username");

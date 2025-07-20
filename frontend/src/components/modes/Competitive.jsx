@@ -89,7 +89,6 @@ export default function Competitive() {
       setHostId(host);
     });
     socket.on("update-players",({players,host})=>{
-      console.log("Updated players:", players)
       setPlayers(players);
       setHostId(host);
     });
@@ -104,12 +103,10 @@ export default function Competitive() {
       setOriginalPuzzle(puzzle); 
       setPuzzle(puzzle.map(row => [...row]))
       setInputStatus({});
-      console.log("Puzzle received:", puzzle);
       startTimer(time);
       setStartButton(false);
     });
     socket.on("show-leaderboard", (leaderboard) => {
-      console.log("Leaderboard:", leaderboard);
       setLeaderboard(leaderboard); 
       setShowLeaderboard(true);
       stopTimer();
@@ -118,7 +115,6 @@ export default function Competitive() {
       setPoints(points);
     });
     socket.on("player-finished",({playerId,points,name})=>{
-      console.log("player-finished received:", playerId, points);
       setFinishedPlayers((prev) => [...prev, { playerId, points, name}]);
     })
     socket.on("error",(message)=>{

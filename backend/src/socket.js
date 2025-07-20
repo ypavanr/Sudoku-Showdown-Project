@@ -6,7 +6,7 @@ export default function setupSocket(io){
   const socketToRoom = new Map();
 
   io.on('connection',(socket)=>{
-     socket.emit('reload')
+    socket.emit('reload')
     console.log('User connected:', socket.id);
     socket.on( 'ready',() =>{
        socket.emit('socket-id',socket.id);
@@ -26,7 +26,6 @@ export default function setupSocket(io){
       socketToRoom.set(socket.id,roomId);
       socket.join(roomId);
       console.log(`Room created:${roomId} by ${username}`);
-      console.log("Received mode:", mode);
       socket.emit('room-created',{roomId,mode}); 
       const { error } = await supabase.from('game_details').insert([
     {
@@ -76,7 +75,6 @@ export default function setupSocket(io){
       socket.emit('room-joined', roomId); 
       socket.emit('mode', room.mode);
       socket.to(roomId).emit('display-messages', {text:`${username} has joined the room.`,sid: "system",senderusername:username,type: "join"});
-      console.log(`${username} joined room: ${roomId}`);
       await supabase.from('username').upsert([
   {
     username,
@@ -142,7 +140,6 @@ function broadcastTeams(roomId) {
         socket.emit('error',"sender not found in room");
         return;
       }
-      console.log('Message:',input);
       io.to(roomId).emit('display-messages',
         {text:input,sid,senderusername: playerInfo.name,type: "chat"}
       );
@@ -178,7 +175,6 @@ function broadcastTeams(roomId) {
        io.to(roomId).emit("update-players",{players: room.players,
         host: room.hostid
        });
-      console.log(`${username} left room: ${roomId}`);
     });
 
     socket.on("duration-change", ({ roomId, duration }) => {
@@ -375,8 +371,6 @@ socket.on("expert-clear", ({ roomId, row, col }) => {
        io.to(roomId).emit("update-players",{players: room.players,
         host: room.hostid
        });
-      console.log(`${username} left room: ${roomId}`);
-      
     });
     
   });
