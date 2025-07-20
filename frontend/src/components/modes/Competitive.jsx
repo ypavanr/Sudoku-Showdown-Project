@@ -10,6 +10,7 @@ import CopyButton from "../features/CopyButton";
 import ChatBox from "../features/ChatBox.jsx";
 import Logo from "../features/logo.jsx";
 import isValidCompletedSudoku from "./expertValidation.js";
+
 export default function Competitive() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [highlightedNumber, setHighlightedNumber] = useState(null);
@@ -37,231 +38,194 @@ export default function Competitive() {
   const navigate = useNavigate();
 
   const handleStartGame = () => {
-
-      let time=durationRef.current;
-      let difficulty = selectedLevelRef.current;
-      socket.emit("start-game", {roomId,difficulty,time});    
-
+    let time=durationRef.current;
+    let difficulty = selectedLevelRef.current;
+    socket.emit("start-game", {roomId,difficulty,time});    
   };
-
 
   const formatTime=(totalSeconds)=>{
-
-        const minutes= String(Math.floor(totalSeconds/60)).padStart(2, '0');
-        const seconds= String(totalSeconds % 60).padStart(2, '0');
-        return `${minutes}:${seconds}`;
-
+    const minutes= String(Math.floor(totalSeconds/60)).padStart(2, '0');
+    const seconds= String(totalSeconds % 60).padStart(2, '0');
+    return `${minutes}:${seconds}`;
   };
+
   const startTimer = (minutes) => {
+    const totalSeconds = parseInt(minutes) * 60;
+    const deadline = Date.now() + totalSeconds * 1000;
+    deadlineRef.current = deadline;
+    const tick = () => {
+      const remaining = Math.max(0, Math.floor((deadlineRef.current - Date.now()) / 1000));
+      setTimeLeft(remaining);
+        if (remaining <= 0) {
+          clearInterval(intervalRef.current);
+          socket.emit("time-up", roomId, points);
+          setSubmitMessage("Time's up! Game over.");
+         }
+    };
+    tick(); 
+    intervalRef.current = setInterval(tick, 1000);
+  };
 
-        const totalSeconds = parseInt(minutes) * 60;
-        const deadline = Date.now() + totalSeconds * 1000;
-        deadlineRef.current = deadline;
-
-        const tick = () => {
-          const remaining = Math.max(0, Math.floor((deadlineRef.current - Date.now()) / 1000));
-          setTimeLeft(remaining);
-
-          if (remaining <= 0) {
-            clearInterval(intervalRef.current);
-          
-            socket.emit("time-up", roomId, points);
-            setSubmitMessage("Time's up! Game over.");
-          }
-        };
-        tick(); 
-        intervalRef.current = setInterval(tick, 1000);
-  
-};
-
-const durationRef = useRef(duration);
+  const durationRef = useRef(duration);
 
   const stopTimer = () => {
-
-            clearInterval(intervalRef.current);
-    
+    clearInterval(intervalRef.current)
   };
 
   useEffect(() => {
-    
-        socket.on('reload',()=>{
-
-              navigate('/room');
-        })
-        socket.emit('ready');
-        
-            socket.on('socket-id',(sid)=>{
-
-              setMySocketId(sid);
-
-        });
-
-            const handleBeforeUnload = () => {
-
-              socket.disconnect();
-        };
-
-          socket.emit('get-players', roomId);
-        socket.on('return-players', ({ players,host }) => {
-
-              setPlayers(players);
-              setHostId(host);
-
-        });
-        
-          socket.on("update-players",({players,host})=>{
-
-              console.log("Updated players:", players)
-              setPlayers(players);
-              setHostId(host);
-
-        });
-      
-      window.addEventListener("beforeunload", function () {
-
-              console.log("Triggering leave message");
-              sendLeaveMessage();
-
-        });
-
-        durationRef.current = duration;
-
-        socket.on("puzzle", ({puzzle,time}) => {
-              setShowLeaderboard(false);
-              setSubmitMessage('');
-              setOriginalPuzzle(puzzle); 
-              setPuzzle(puzzle.map(row => [...row]))
-              setInputStatus({});
-              console.log("Puzzle received:", puzzle);
-              startTimer(time);
-              setStartButton(false);
-        });
-
-      socket.on("show-leaderboard", (leaderboard) => {
-
-              console.log("Leaderboard:", leaderboard);
-              setLeaderboard(leaderboard); 
-              setShowLeaderboard(true);
-              stopTimer();
-
-        });
-
-    socket.on('new-points',(points)=>{
-
-              setPoints(points);
-
-        });
-
-      socket.on("player-finished",({playerId,points,name})=>{
-
-              console.log("player-finished received:", playerId, points);
-              setFinishedPlayers((prev) => [...prev, { playerId, points, name}]);
-
-        })
-
-        socket.on("error",(message)=>{
-
-              alert(message);
-              navigate("/room");
-
-        })
-
-        socket.on('is-host',()=>{
-
-              setIsHost(true);
-
-        })
-      socket.on('not-host',()=>{
-
-              setIsHost(false);
-
-      })
-      socket.emit('check-host',roomId);
-      socket.on("validate-result", ({ row, col, number, isCorrect }) => {
-
-              setPuzzle((prev) => {
-                const newPuzzle=prev.map((r)=>[...r]);
-                newPuzzle[row][col]=number;
-                return newPuzzle;
-              });
-              if (isCorrect==false) {
-                setPoints(prev => prev - 5);
-              }     
-              else {
-                setPoints(prev => prev + 10);
-              }
-              setInputStatus((prev) => ({
-                ...prev,
-                [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
-              }));
-
-        });
-
-      
-      socket.on("game-complete",(message)=>{
-
-              setSubmitMessage(message);
-              disableSubmitButton(true);
-        
-      });
-      socket.on("game-incomplete",(message)=>{
-
-              setSubmitMessage(message);
-
-      })
-      socket.on('update-duration', (newDuration) => {
-
-              setDuration(newDuration); 
-
-    });
-    socket.on('update-difficulty',(newDifficulty)=>{
-
-              setSelectedLevel(newDifficulty);
-
+    socket.on('reload',()=>{
+      navigate('/room');
     })
-        return () => {
-                  socket.off('reload');
-                  socket.off('is-host');
-                  socket.off('update-duration');
-                  socket.off('not-host');
-                  window.removeEventListener("beforeunload", handleBeforeUnload);
-                  clearInterval(intervalRef.current);
-                  socket.off('update-difficulty');
-                  socket.off('new-points');
-                  socket.off("show-leaderboard");
-                  socket.off("player-finished");
-                  socket.off("puzzle");
-                  socket.off("validate-result");
-                  socket.off("game-complete");
-                  socket.off("game-incomplete");
-                  socket.off("error");
-                  socket.off("update-players");
-                  socket.off("connect");
-                  socket.off('return-players');
-                  socket.off('socket-id');
-        };
-  }, [duration]);
-   
-const handleInputChange = (e, row, col) => {
-  const val = e.target.value;
-
-  if (selectedLevel === "expert") {
-    if (val === "") {
+    socket.emit('ready');  
+    socket.on('socket-id',(sid)=>{
+      setMySocketId(sid);
+    });
+    const handleBeforeUnload = () => {
+      socket.disconnect();
+    };
+    socket.emit('get-players', roomId);
+    socket.on('return-players', ({ players,host }) => {
+      setPlayers(players);
+      setHostId(host);
+    });
+    socket.on("update-players",({players,host})=>{
+      console.log("Updated players:", players)
+      setPlayers(players);
+      setHostId(host);
+    });
+    window.addEventListener("beforeunload", function () {
+      console.log("Triggering leave message");
+      sendLeaveMessage();
+    });
+    durationRef.current = duration;
+    socket.on("puzzle", ({puzzle,time}) => {
+      setShowLeaderboard(false);
+      setSubmitMessage('');
+      setOriginalPuzzle(puzzle); 
+      setPuzzle(puzzle.map(row => [...row]))
+      setInputStatus({});
+      console.log("Puzzle received:", puzzle);
+      startTimer(time);
+      setStartButton(false);
+    });
+    socket.on("show-leaderboard", (leaderboard) => {
+      console.log("Leaderboard:", leaderboard);
+      setLeaderboard(leaderboard); 
+      setShowLeaderboard(true);
+      stopTimer();
+    });
+    socket.on('new-points',(points)=>{
+      setPoints(points);
+    });
+    socket.on("player-finished",({playerId,points,name})=>{
+      console.log("player-finished received:", playerId, points);
+      setFinishedPlayers((prev) => [...prev, { playerId, points, name}]);
+    })
+    socket.on("error",(message)=>{
+      alert(message);
+      navigate("/room");
+    })
+    socket.on('is-host',()=>{
+      setIsHost(true);
+    })
+    socket.on('not-host',()=>{
+      setIsHost(false);
+    })
+    socket.emit('check-host',roomId);
+    socket.on("validate-result", ({ row, col, number, isCorrect }) => {
       setPuzzle((prev) => {
-        const newPuzzle = prev.map((r) => [...r]);
-        newPuzzle[row][col] = 0;
+        const newPuzzle=prev.map((r)=>[...r]);
+        newPuzzle[row][col]=number;
         return newPuzzle;
       });
-
+      if (isCorrect==false) {
+        setPoints(prev => prev - 5);
+      }     
+      else {
+        setPoints(prev => prev + 10);
+      }
+      setInputStatus((prev) => ({
+        ...prev,
+        [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
+      }));
+    });
+    socket.on("game-complete",(message)=>{
+      setSubmitMessage(message);
+      disableSubmitButton(true);  
+    });
+    socket.on("game-incomplete",(message)=>{
+      setSubmitMessage(message);
+    })
+    socket.on('update-duration', (newDuration) => {
+      setDuration(newDuration); 
+    });
+    socket.on('update-difficulty',(newDifficulty)=>{
+      setSelectedLevel(newDifficulty);
+    })
+    
+    return () => 
+    {
+      socket.off('reload');
+      socket.off('is-host');
+      socket.off('update-duration');
+      socket.off('not-host');
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      clearInterval(intervalRef.current);
+      socket.off('update-difficulty');
+      socket.off('new-points');
+      socket.off("show-leaderboard");
+      socket.off("player-finished");
+      socket.off("puzzle");
+      socket.off("validate-result");
+      socket.off("game-complete");
+      socket.off("game-incomplete");
+      socket.off("error");
+      socket.off("update-players");
+      socket.off("connect");
+      socket.off('return-players');
+      socket.off('socket-id');
+    };
+  }, [duration]);
+   
+  const handleInputChange = (e, row, col) => {
+    const val = e.target.value;
+    if (selectedLevel === "expert") {
+      if (val === "") {
+        setPuzzle((prev) => {
+          const newPuzzle = prev.map((r) => [...r]);
+          newPuzzle[row][col] = 0;
+          return newPuzzle;
+        });
+        setInputStatus((prev) => {
+          const copy = { ...prev };
+          delete copy[`${row}-${col}`];
+          return copy;
+        });
+        return;
+      }
+      const num = parseInt(val);
+      if (num >= 1 && num <= 9) {
+        setPuzzle((prev) => {
+          const newPuzzle = prev.map((r) => [...r]);
+          newPuzzle[row][col] = num;
+          return newPuzzle;
+        });
+      }
+      return;
+    }
+    if (val === "") {
+      setPuzzle((prev) => {
+        const newPuzzle=prev.map((r) => [...r]);
+        newPuzzle[row][col]=0;
+        return newPuzzle;
+      });
       setInputStatus((prev) => {
-        const copy = { ...prev };
+        const copy={...prev};
         delete copy[`${row}-${col}`];
         return copy;
       });
-
       return;
     }
-
     const num = parseInt(val);
     if (num >= 1 && num <= 9) {
       setPuzzle((prev) => {
@@ -269,94 +233,49 @@ const handleInputChange = (e, row, col) => {
         newPuzzle[row][col] = num;
         return newPuzzle;
       });
-    }
-
-    return;
-  }
-
-  if (val === "") {
-    setPuzzle((prev) => {
-      const newPuzzle=prev.map((r) => [...r]);
-      newPuzzle[row][col]=0;
-      return newPuzzle;
-    });
-      setInputStatus((prev) => {
-      const copy={...prev};
-      delete copy[`${row}-${col}`];
-      return copy;
-    });
-    return;
-  }
-
-  const num = parseInt(val);
-  if (num >= 1 && num <= 9) {
-    setPuzzle((prev) => {
-      const newPuzzle = prev.map((r) => [...r]);
-      newPuzzle[row][col] = num;
-      return newPuzzle;
-    });
-
-    socket.emit("validate-move", {
-      roomId,
-      puzzle,
-      row,
-      col,
-      number: num,
-      socketId: socket.id,
-    });
-  }
-};
-
+      socket.emit("validate-move", {roomId,puzzle,row,col,number: num,socketId: socket.id,});
+    } 
+  };
 
   const handleSubmission = () => {
-  const total=durationRef.current*60;
-  const remaining=timeLeft;     
-  const percentageTimeLeft=(remaining/total)*100;
-  if(selectedLevel!=='expert'){
-     socket.emit("validate-submission-competitive", {
-    roomId,
-    puzzle,
-    points,
-    percentageTimeLeft
-  });
-  }
-  else{
-    if(isValidCompletedSudoku(puzzle)){
-      socket.emit('expert-submission-competitive',{roomId,remaining})
-      setPoints(remaining)
-      setSubmitMessage("Game completed. Hoorayy!!!");
-      disableSubmitButton(true);
+    const total=durationRef.current*60;
+    const remaining=timeLeft;     
+    const percentageTimeLeft=(remaining/total)*100;
+    if(selectedLevel!=='expert'){
+      socket.emit("validate-submission-competitive", {roomId,puzzle,points,percentageTimeLeft});
     }
     else{
-      setSubmitMessage("Game not yet completed.");
+      if(isValidCompletedSudoku(puzzle)){
+        socket.emit('expert-submission-competitive',{roomId,remaining})
+        setPoints(remaining)
+        setSubmitMessage("Game completed. Hoorayy!!!");
+        disableSubmitButton(true);
+      }
+      else{
+        setSubmitMessage("Game not yet completed.");
+      }
     }
-  }
-  console.log("durationRef.current:", durationRef.current);
-  console.log("Time left:", remaining, "seconds");
-  console.log("Percentage of time left:", percentageTimeLeft);
-};
+    console.log("durationRef.current:", durationRef.current);
+    console.log("Time left:", remaining, "seconds");
+    console.log("Percentage of time left:", percentageTimeLeft);
+  };
 
-const handleQuit = () => {
-  setSubmitMessage("Are you sure you want to quit?");
-  setShowQuitModal(true);
-};
+  const handleQuit = () => {
+    setSubmitMessage("Are you sure you want to quit?");
+    setShowQuitModal(true);
+  };
 
   return (
     <div>
-       <Username />
-      <div className="top-bar">
- 
-</div>
-<ChatBox />
-
-      
-    <div className="sudoku-container">
-       <Logo/>
-      <h1 className="Game">Sudoku Savvy</h1>
-      <p>Game Mode : Competitive</p>
-      <CopyButton/>
-      {showStartButton&&isHost&&(<form>
-        <label>Enter time to solve Sudoku (in minutes) :&nbsp;&nbsp;&nbsp;
+      <Username />
+      <ChatBox />  
+      <div className="sudoku-container">
+        <Logo/>
+        <h1 className="Game">Sudoku Savvy</h1>
+        <p>Game Mode : Competitive</p>
+        <CopyButton/>
+        {showStartButton&&isHost&&(<form>
+          <label>Enter time to solve Sudoku (in minutes) :&nbsp;&nbsp;&nbsp;
           <select
             value={duration}
             onChange={(e) => {
@@ -373,38 +292,37 @@ const handleQuit = () => {
            return <option key={val} value={val}>{val}</option>;
            })}
           </select>
-      </label>
-      </form>)}
-      {showStartButton&&isHost&&(<form>
-        <label htmlFor="dropdown">
-          Choose the Difficulty Level :&nbsp;&nbsp;
-        </label>
-        <select style={{width:"107px",height:"47px"}}
-  id="dropdown"
-  value={selectedLevel}
-  onChange={(e) => {
-    const newDifficulty = e.target.value;
-    setSelectedLevel(newDifficulty);
-    selectedLevelRef.current = newDifficulty;
-    socket.emit('difficulty-change', { roomId, difficulty: newDifficulty });
-  }}
-  className="mode-select"
->
-  <option value="easy">Easy</option>
-  <option value="medium">Medium</option>
-  <option value="hard">Hard</option>
-  <option value="expert">Expert</option>
-</select>
-      </form>)}
-      {!isHost&&puzzle.length==0&&(<h5>Time duration set by Host : {duration} minutes</h5>)}
-      {!isHost&&puzzle.length==0&&(<h5>Difficulty level set by Host : {selectedLevel} </h5>)}
-     {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
-        Start Game
-      </button>)} 
-      {!showStartButton&&(<h5>Difficulty Level : {selectedLevel}</h5>)}
-      <div className="sudoku-grid">
-        {puzzle.length > 0 &&
-          puzzle.map((row, rIdx) => (
+          </label>
+        </form>)}
+        {showStartButton&&isHost&&(<form>
+          <label htmlFor="dropdown">
+            Choose the Difficulty Level :&nbsp;&nbsp;
+          </label>
+          <select style={{width:"107px",height:"47px"}}
+            id="dropdown"
+            value={selectedLevel}
+            onChange={(e) => {
+              const newDifficulty = e.target.value;
+              setSelectedLevel(newDifficulty);
+              selectedLevelRef.current = newDifficulty;
+              socket.emit('difficulty-change', { roomId, difficulty: newDifficulty });
+            }}
+            className="mode-select"
+          >
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+            <option value="expert">Expert</option>
+          </select>
+        </form>)}
+        {!isHost&&puzzle.length==0&&(<h5>Time duration set by Host : {duration} minutes</h5>)}
+        {!isHost&&puzzle.length==0&&(<h5>Difficulty level set by Host : {selectedLevel} </h5>)}
+        {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
+          Start Game
+        </button>)} 
+        {!showStartButton&&(<h5>Difficulty Level : {selectedLevel}</h5>)}
+        <div className="sudoku-grid">
+          {puzzle.length > 0 && puzzle.map((row, rIdx) => (
             <div className="sudoku-row" key={rIdx} style={{ display: "flex" }}>
               {row.map((cell, cIdx) => {
                 const key = `${rIdx}-${cIdx}`;
@@ -412,165 +330,152 @@ const handleQuit = () => {
                 const isOriginal = originalPuzzle[rIdx]?.[cIdx] !== 0;
                 return (
                   <input  
-  key={key}
-  type="text"
-  maxLength={1}
-  className={`sudoku-input 
-  ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
-  ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
-  ${isOriginal ? "prefilled-cell" : ""} 
-  ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""} 
-  ${highlightedNumber !== null && cell === highlightedNumber ? "highlighted-cell" : ""} 
-  ${status || ""}`}
-  value={cell === 0 ? "" : cell}
-  readOnly={isOriginal}
-  onChange={(e) => {
-  handleInputChange(e, rIdx, cIdx);
-}}
-onClick={() => {
-  const value = puzzle[rIdx][cIdx];
-  if (value !== 0) {
-    setHighlightedNumber(prev => prev === value ? null : value);
-  } else {
-    setHighlightedNumber(null);
-  }
-}}
-
-/>
-
+                    key={key}
+                    type="text"
+                    maxLength={1}
+                    className={`sudoku-input 
+                    ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
+                    ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
+                    ${isOriginal ? "prefilled-cell" : ""} 
+                    ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""} 
+                    ${highlightedNumber !== null && cell === highlightedNumber ? "highlighted-cell" : ""} 
+                    ${status || ""}`}
+                    value={cell === 0 ? "" : cell}
+                    readOnly={isOriginal}
+                    onChange={(e) => {
+                      handleInputChange(e, rIdx, cIdx);
+                    }}
+                    onClick={() => {
+                      const value = puzzle[rIdx][cIdx];
+                      if (value !== 0) {
+                        setHighlightedNumber(prev => prev === value ? null : value);
+                      } 
+                      else {
+                        setHighlightedNumber(null);
+                      }
+                    }}
+                  />
                 );
               })}
             </div>
           ))}
-      </div><br></br>
-       <div className="game-actions">
-      {!showStartButton && (
-        <button className="start-game" onClick={handleSubmission} disabled={submitButton}>
-           Submit
-        </button>
-      )}
-      <button className="quit-game" onClick={handleQuit}>
-        Quit
-      </button>
-</div>
-      <div/>
-      <div className="left-panel">
-        {submissionMessage&&(
-          <div className="modal-overlay">
-    <div className="modal-content leaderboard-modal">
-          <div className="game-message">{submissionMessage}</div>
-          <br></br>
-          <button onClick={() => {setSubmitMessage('');
-          }}>Close</button>
-          </div>
-          </div>)
+        </div><br></br>
+        <div className="game-actions">
+          {!showStartButton && (
+            <button className="start-game" onClick={handleSubmission} disabled={submitButton}>
+              Submit
+            </button>
+          )}
+          <button className="quit-game" onClick={handleQuit}>
+            Quit
+          </button>
+        </div>
+        <div className="left-panel">
+          {submissionMessage&&(
+            <div className="modal-overlay">
+              <div className="modal-content leaderboard-modal">
+                <div className="game-message">{submissionMessage}</div>
+                <br></br>
+                <button onClick={() => {setSubmitMessage('');}}>Close</button>
+              </div>
+            </div>)
           }
-          
-         <div className="score-time">
-  <FaClock size={30} style={{ marginRight: '10px' }} />
-  <span className="time-text">{formatTime(timeLeft)}</span>
-  {selectedLevel != "expert" && <span className="points-text"> |&nbsp; Points: {points}</span>}
-  <div className="rules-hover-container">
-    <span className="rules-label">
-      &nbsp; | &nbsp;Rules <span className="question-icon">?</span>
-    </span>
-    <div className="rules-fixed">
-      <h3>Competition Rules</h3>
-      <ul>
-        <li>For every correct entry, it's +10 Points</li>
-        <li>For every wrong entry, it's -5 Points</li>
-        <li>
-          Bonus: If you complete the puzzle early, your final points are increased
-          by the percentage of time left.<br />
-          For example, if 40% time is left and you scored 60 points:<br />
-          Final Score = 60 × (1 + 0.4) = 84
-        </li>
-      </ul>
-      <h3>Expert Level</h3>
-      <ul>
-        <li>There is no points.
-          If you complete the puzzle early you win!
-        </li>
-        <li>There can be many solutions for this mode 
-          so validation is only done after the game is completed.
-        </li>
-      </ul>
-    </div>
-  </div>
-</div>
-      <div className="player-list">
-  {players && Object.entries(players).map(([socketId, player]) => {
-    const avatarPath = `/icons/${player.icon}`;
-    const label =
-      socketId === hostId && socketId === mySocketId ? `${player.name} (You) (Host)`
-      : socketId === hostId ? `${player.name} (Host)`
-      : socketId === mySocketId ? `${player.name} (You)`
-      : player.name;
-    const hasFinished = finishedPlayers.some(fp => fp.playerId === socketId);
-    return (
-      <div className={`player-item ${hasFinished ? "player-finished" : ""}`} key={socketId}>
-        <img
-          src={avatarPath}
-          alt={player.name}
-        />
-        <span>{label}</span>
+          <div className="score-time">
+            <FaClock size={30} style={{ marginRight: '10px' }} />
+            <span className="time-text">{formatTime(timeLeft)}</span>
+            {selectedLevel != "expert" && <span className="points-text"> |&nbsp; Points: {points}</span>}
+            <div className="rules-hover-container">
+              <span className="rules-label">
+                &nbsp; | &nbsp;Rules <span className="question-icon">?</span>
+              </span>
+              <div className="rules-fixed">
+                <h3>Competition Rules</h3>
+                <ul>
+                  <li>For every correct entry, it's +10 Points</li>
+                  <li>For every wrong entry, it's -5 Points</li>
+                  <li>
+                    Bonus: If you complete the puzzle early, your final points are increased
+                    by the percentage of time left.<br />
+                    For example, if 40% time is left and you scored 60 points:<br />
+                    Final Score = 60 × (1 + 0.4) = 84
+                  </li>
+                </ul>
+                <h3>Expert Level</h3>
+                <ul>
+                  <li>There is no points.
+                    If you complete the puzzle early you win!
+                  </li>
+                 <li>There can be many solutions for this mode 
+                    so validation is only done after the game is completed.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="player-list">
+            {players && Object.entries(players).map(([socketId, player]) => {
+              const avatarPath = `/icons/${player.icon}`;
+              const label =
+                socketId === hostId && socketId === mySocketId ? `${player.name} (You) (Host)`
+                : socketId === hostId ? `${player.name} (Host)`
+                : socketId === mySocketId ? `${player.name} (You)`
+                : player.name;
+              const hasFinished = finishedPlayers.some(fp => fp.playerId === socketId);
+              return (
+                <div className={`player-item ${hasFinished ? "player-finished" : ""}`} key={socketId}>
+                  <img src={avatarPath} alt={player.name}/>
+                  <span>{label}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="finished-list">
+            {showLeaderboard && (
+              <div className="modal-overlay">
+                <div className="modal-content leaderboard-modal">
+                  <h2>🏆 Leaderboard</h2>
+                  {leaderboard.map(({ playerId, score, name }, idx) => {
+                    const displayName = playerId === mySocketId ? `${name} (You)` : name;
+                    return (<li key={idx}> {idx + 1}. {displayName} : {score} points </li>);
+                  })}
+                  <button onClick={() => {  
+                    setShowLeaderboard(false);
+                    setStartButton(true);
+                    setPuzzle([]);
+                    setInputStatus({});
+                    setPoints(0);
+                    setSubmitMessage('');
+                    disableSubmitButton(false);
+                    setFinishedPlayers([]);
+                  }}>Close</button>
+                </div>
+              </div>
+            )}
+          </div>
+          {showQuitModal && (
+            <div className="modal-overlay">
+              <div className="modal-content leaderboard-modal">
+                <div className="game-message">{submissionMessage}</div>
+                <br />
+                <button
+                  onClick={() => {
+                    socket.emit('leave-room');
+                    setShowQuitModal(false);
+                    navigate('/room');
+                  }}
+                  style={{ backgroundColor: "#d9534f", color: "white", marginRight: "10px" }}
+                >Yes</button>
+                <button
+                  onClick={() => {
+                    setShowQuitModal(false);
+                    setSubmitMessage('');
+                  }}
+                >No</button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    );
-  })}
-</div>
-
-
-       <div className="finished-list">
-    {showLeaderboard && (
-  <div className="modal-overlay">
-    <div className="modal-content leaderboard-modal">
-      <h2>🏆 Leaderboard</h2>
-        {leaderboard.map(({ playerId, score, name }, idx) => {
-          const displayName = playerId === mySocketId ? `${name} (You)` : name;
-          return (<li key={idx}> {idx + 1}. {displayName} : {score} points </li>);
-        })}
-      <button onClick={() => {  setShowLeaderboard(false);
-  setStartButton(true);
-  setPuzzle([]);
-  setInputStatus({});
-  setPoints(0);
-  setSubmitMessage('');
-  disableSubmitButton(false);
-  setFinishedPlayers([]);
-      }}>Close</button>
-
-    </div>
-  </div>
-)}
-  </div>
-  {showQuitModal && (
-  <div className="modal-overlay">
-    <div className="modal-content leaderboard-modal">
-      <div className="game-message">{submissionMessage}</div>
-      <br />
-      <button
-        onClick={() => {
-          socket.emit('leave-room');
-          setShowQuitModal(false);
-          navigate('/room');
-        }}
-        style={{ backgroundColor: "#d9534f", color: "white", marginRight: "10px" }}
-      >
-        Yes
-      </button>
-      <button
-        onClick={() => {
-          setShowQuitModal(false);
-          setSubmitMessage('');
-        }}
-      >
-        No
-      </button>
-    </div>
-  </div>
-)}
-  </div>
-  </div>
     </div>
   );
 } 
