@@ -76,27 +76,35 @@ export default function Competitive() {
     socket.on('reload',()=>{
       navigate('/room');
     })
+
     socket.emit('ready');  
+
     socket.on('socket-id',(sid)=>{
       setMySocketId(sid);
     });
+
     const handleBeforeUnload = () => {
       socket.disconnect();
     };
+
     socket.emit('get-players', roomId);
+
     socket.on('return-players', ({ players,host }) => {
       setPlayers(players);
       setHostId(host);
     });
+
     socket.on("update-players",({players,host})=>{
       setPlayers(players);
       setHostId(host);
     });
+
     window.addEventListener("beforeunload", function () {
       console.log("Triggering leave message");
       sendLeaveMessage();
     });
     durationRef.current = duration;
+
     socket.on("puzzle", ({puzzle,time}) => {
       setShowLeaderboard(false);
       setSubmitMessage('');
@@ -106,28 +114,36 @@ export default function Competitive() {
       startTimer(time);
       setStartButton(false);
     });
+
     socket.on("show-leaderboard", (leaderboard) => {
       setLeaderboard(leaderboard); 
       setShowLeaderboard(true);
       stopTimer();
     });
+
     socket.on('new-points',(points)=>{
       setPoints(points);
     });
+
     socket.on("player-finished",({playerId,points,name})=>{
       setFinishedPlayers((prev) => [...prev, { playerId, points, name}]);
     })
+
     socket.on("error",(message)=>{
       alert(message);
       navigate("/room");
     })
+
     socket.on('is-host',()=>{
       setIsHost(true);
     })
+
     socket.on('not-host',()=>{
       setIsHost(false);
     })
+
     socket.emit('check-host',roomId);
+
     socket.on("validate-result", ({ row, col, number, isCorrect }) => {
       setPuzzle((prev) => {
         const newPuzzle=prev.map((r)=>[...r]);
@@ -145,16 +161,20 @@ export default function Competitive() {
         [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
       }));
     });
+
     socket.on("game-complete",(message)=>{
       setSubmitMessage(message);
       disableSubmitButton(true);  
     });
+
     socket.on("game-incomplete",(message)=>{
       setSubmitMessage(message);
     })
+
     socket.on('update-duration', (newDuration) => {
       setDuration(newDuration); 
     });
+
     socket.on('update-difficulty',(newDifficulty)=>{
       setSelectedLevel(newDifficulty);
     })
@@ -165,8 +185,6 @@ export default function Competitive() {
       socket.off('is-host');
       socket.off('update-duration');
       socket.off('not-host');
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      clearInterval(intervalRef.current);
       socket.off('update-difficulty');
       socket.off('new-points');
       socket.off("show-leaderboard");
@@ -180,6 +198,8 @@ export default function Competitive() {
       socket.off("connect");
       socket.off('return-players');
       socket.off('socket-id');
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      clearInterval(intervalRef.current);
     };
   }, [duration]);
    
@@ -265,11 +285,13 @@ export default function Competitive() {
     <div>
       <Username />
       <ChatBox />  
+      
       <div className="sudoku-container">
         <Logo/>
         <h1 className="Game">Sudoku Savvy</h1>
         <p>Game Mode : Competitive</p>
         <CopyButton/>
+
         {showStartButton&&isHost&&(<form>
           <label>Enter time to solve Sudoku (in minutes) :&nbsp;&nbsp;&nbsp;
           <select
@@ -290,6 +312,7 @@ export default function Competitive() {
           </select>
           </label>
         </form>)}
+
         {showStartButton&&isHost&&(<form>
           <label htmlFor="dropdown">
             Choose the Difficulty Level :&nbsp;&nbsp;
@@ -311,12 +334,16 @@ export default function Competitive() {
             <option value="expert">Expert</option>
           </select>
         </form>)}
+
         {!isHost&&puzzle.length==0&&(<h5>Time duration set by Host : {duration} minutes</h5>)}
         {!isHost&&puzzle.length==0&&(<h5>Difficulty level set by Host : {selectedLevel} </h5>)}
+
         {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
           Start Game
         </button>)} 
+
         {!showStartButton&&(<h5>Difficulty Level : {selectedLevel}</h5>)}
+
         <div className="sudoku-grid">
           {puzzle.length > 0 && puzzle.map((row, rIdx) => (
             <div className="sudoku-row" key={rIdx} style={{ display: "flex" }}>
@@ -356,6 +383,7 @@ export default function Competitive() {
             </div>
           ))}
         </div><br></br>
+
         <div className="game-actions">
           {!showStartButton && (
             <button className="start-game" onClick={handleSubmission} disabled={submitButton}>
@@ -366,6 +394,7 @@ export default function Competitive() {
             Quit
           </button>
         </div>
+
         <div className="left-panel">
           {submissionMessage&&(
             <div className="modal-overlay">
@@ -376,6 +405,7 @@ export default function Competitive() {
               </div>
             </div>)
           }
+
           <div className="score-time">
             <FaClock size={30} style={{ marginRight: '10px' }} />
             <span className="time-text">{formatTime(timeLeft)}</span>
@@ -398,16 +428,17 @@ export default function Competitive() {
                 </ul>
                 <h3>Expert Level</h3>
                 <ul>
-                  <li>There is no points.
-                    If you complete the puzzle early you win!
-                  </li>
-                 <li>There can be many solutions for this mode 
+                  <li>There can be many solutions for this mode 
                     so validation is only done after the game is completed.
+                  </li>
+                  <li>Leaderboard is inorder of Correct Completion 
+                    of the Puzzle with points as remaining seconds left.
                   </li>
                 </ul>
               </div>
             </div>
           </div>
+
           <div className="player-list">
             {players && Object.entries(players).map(([socketId, player]) => {
               const avatarPath = `/icons/${player.icon}`;
@@ -425,6 +456,7 @@ export default function Competitive() {
               );
             })}
           </div>
+
           <div className="finished-list">
             {showLeaderboard && (
               <div className="modal-overlay">
@@ -448,6 +480,7 @@ export default function Competitive() {
               </div>
             )}
           </div>
+
           {showQuitModal && (
             <div className="modal-overlay">
               <div className="modal-content leaderboard-modal">
@@ -470,6 +503,7 @@ export default function Competitive() {
               </div>
             </div>
           )}
+
         </div>
       </div>
     </div>
