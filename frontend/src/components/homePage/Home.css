@@ -28,24 +28,143 @@
   margin-top:2px;
 }
 
-.home-buttons {
+.header-buttons {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 1000;
+}
+
+.top-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.survey-section {
+  text-align: center;
+}
+
+.register-whole {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  align-items: center;
+  background-size: cover;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 2px;
 }
 
-.home-buttons button {
-  background-color: #6fafff;
-  color: #ffffff;
-  padding: 12px 30px;
-  font-size: 1rem;
+.register-container {
+  width: 350px;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  color: #fff;
+  padding: 18px;
+  border-radius: 10px;
+  box-sizing: border-box;
+  display: inline-block;
+}
+
+.register-container .form-label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.register-container .form-control {
+  height: 45px;
+  width:75%;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 25px;
+  font-size: 16px;
+  color: #fff;
+  padding: 0 20px;
+  margin-top:2px;
+  margin-bottom: 5px;
+  box-sizing: border-box;
+}
+
+.register-container .form-control::placeholder {
+  color: #fff;
+}
+
+.register-container .form-control:focus {
+  border-color: #fff;
+  outline: none;
+}
+
+.register-container .btn-primary {
+  margin-left:5px;
+  background: #fff;
   border: none;
+  width: 20%;
+  height: 40px;
   border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(111, 176, 255, 0.3);
-  transition: background 0.3s ease;
+  transition: background-color 0.3s ease;
+  padding:10px;
 }
 
-.home-buttons button:hover {
-  background-color: #5b9be0;
+.register-container .btn-primary:hover {
+  background-color:#d8b0ff;
+}
+ 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.icon-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.icon-carousel button {
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding:10px;
+  align-items: center;
+  background-color: #4791ff;
+}
+
+.icon-carousel button:hover {
+  background-color: #6fb0ff;
+  box-shadow: 0 0 25px #6fb0ff;
+  transform: scale(1.05);
+}
+
+.icon-carousel img {
+  border-radius: 8px;
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  background-color: white;
+  padding: 4px;
+  transition: transform 0.3s ease;
+}
+
+.icon-carousel img:hover {
+  transform: scale(1.05);
 }

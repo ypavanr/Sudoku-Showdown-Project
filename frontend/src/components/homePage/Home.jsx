@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
-import './register.css';
 import "../modes/room.css"
 import Background from "../features/Background";
 import Logo from "../features/logo";
@@ -57,29 +56,28 @@ const icons = [
 ];
 
 const HomePage = () => {
-const [formData, setFormData] = useState({ username: '', icon: icons[0].src, iconName: icons[0].name });
-
+  const [formData, setFormData] = useState({ username: '', icon: icons[0].src, iconName: icons[0].name });
   const navigate = useNavigate();
   const [activeIconIndex, setActiveIconIndex] = useState(0);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-    }));
-};
-const handleSubmit = (e) => {
-  e.preventDefault();
-  if (formData.username.trim() !== "") {
-    localStorage.setItem("username", formData.username.trim());
-    localStorage.setItem("avatar", formData.iconName+".svg"); 
-    navigate("/room");
-  } else {
-    alert("Please enter a username");
-  }
-};
+    setFormData((prevData) => ({...prevData,[name]: value,}));
+  };
 
- const handlePrevIcon = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (formData.username.trim() !== "") {
+      localStorage.setItem("username", formData.username.trim());
+      localStorage.setItem("avatar", formData.iconName+".svg"); 
+      navigate("/room");
+    } 
+    else {
+      alert("Please enter a username");
+    }
+  };
+
+  const handlePrevIcon = () => {
     const newIndex = activeIconIndex === 0 ? icons.length - 1 : activeIconIndex - 1;
     setActiveIconIndex(newIndex);
     setFormData((prev) => ({
@@ -101,11 +99,25 @@ const handleSubmit = (e) => {
 
   return (
     <div className="homepage-container">
-      <div className="header-buttons ">
-      <button className="room-btn create" onClick={() => navigate('/aboutus')}>About Us</button>
-      <button className="room-btn join" onClick={() => navigate('/aboutproject')}>About Project</button>
-    </div>
+      <div className="header-buttons">
+        <div className="top-buttons">
+          <button className="room-btn create" style={{padding:"14px 15px"}} onClick={() => navigate('/aboutus')}>About Us</button>
+          <button className="room-btn solo" style={{padding:"14px 15px"}} onClick={() => navigate('/aboutproject')}>About Project</button>
+        </div>
+
+        <div className="survey-section">
+          <a
+            href="https://forms.gle/99px39FzZFUK7yuo9"
+            className="survey-button"
+            style={{padding:"14px 15px"}}
+          >
+            Take Our Survey
+          </a>
+        </div>
+      </div>
+
       <Background />
+
       <div className="homepage-content">
         <Logo/>
         <h1 style={{ marginTop: '0'}}>Sudoku Savvy</h1>
@@ -115,38 +127,39 @@ const handleSubmit = (e) => {
         Cooperative mode - Join forces and solve the Grid as one!<br></br>
         Solo mode - Wanna brush up your skills alone? We got ya!<br></br>
         Expert level - We mess up your brain...Try it to know more ^-^!!</p>
+
         <div className="register-whole">
           <div className="register-container">
-<Form onSubmit={handleSubmit}>
-                <Form.Group controlId="username">
-                  <div className="selection-bar">
-                    <Form.Control
-                        type="text"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        placeholder="Enter your Username"
-                        required
-                    />
-                <Button variant="primary" type="submit" className="play-btn">
+            <Form onSubmit={handleSubmit}>
+              <Form.Group controlId="username">
+                <div className="selection-bar">
+                  <Form.Control
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    placeholder="Enter your Username"
+                    required
+                  />
+                  <Button variant="primary" type="submit" className="play-btn">
                     Play
-                </Button>
+                  </Button>
                 </div>
-                </Form.Group>
-                  <Form.Group controlId="icon">
-    <Form.Label>Select an Avatar</Form.Label>
-    
-<div className="icon-carousel">
-  <button type="button" onClick={handlePrevIcon}>&lt;</button>
-  <img
-    src={icons[activeIconIndex].src}
-    alt={icons[activeIconIndex].name}
-  />
-  <button type="button" onClick={handleNextIcon}>&gt;</button>
-</div>
-  </Form.Group>
-                
+              </Form.Group>
+
+              <Form.Group controlId="icon">
+                <Form.Label>Select an Avatar</Form.Label>
+                <div className="icon-carousel">
+                  <button type="button" onClick={handlePrevIcon}>&lt;</button>
+                  <img
+                    src={icons[activeIconIndex].src}
+                    alt={icons[activeIconIndex].name}
+                  />
+                  <button type="button" onClick={handleNextIcon}>&gt;</button>
+                </div>
+              </Form.Group>    
             </Form>
+
           </div>
         </div>
       </div>
