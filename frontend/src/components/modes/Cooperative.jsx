@@ -81,8 +81,9 @@ export default function Cooperative() {
       setHostId(host);
     });
 
-    socket.on("update-players",({players})=>{
+    socket.on("update-players",({players,host})=>{
       setPlayers(players);
+      setHostId(host);
     });
 
     window.addEventListener("beforeunload", function () {
@@ -93,9 +94,7 @@ export default function Cooperative() {
     socket.on("puzzle", ({puzzle,}) => {
       setSubmitMessage('');
       setPuzzle(puzzle);
-      setOriginalCells(
-        puzzle.map(row => row.map(cell => cell !== 0)) 
-      );
+      setOriginalCells(puzzle.map(row => row.map(cell => cell !== 0)) );
       startTimer();
       setInputStatus({});
       setStartButton(false);
@@ -381,8 +380,6 @@ export default function Cooperative() {
                   <li>Enter numbers 1-9 in empty white cells only.</li>
                   <li>Each number can appear only once in each row, column, and 3×3 box.</li>
                   <li>Correct entries turn green, incorrect ones turn red.</li>
-                  <li>+10 points for correct, -5 for wrong.</li>
-                  <li>Bonus if puzzle is solved early!</li>
                 </ul>
                 <h3>Expert Level</h3>
                 <ul>
