@@ -12,6 +12,8 @@ import ChatBox from "../features/ChatBox.jsx";
 
 export default function Cooperative() {
   const [originalCells, setOriginalCells] = useState([]);
+  const [validationChoice,setValidationChoice]=useState('on');
+  const selectedValidationRef=useRef(validationChoice)
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
   const [highlightedNumber, setHighlightedNumber] = useState(null);
@@ -33,7 +35,8 @@ export default function Cooperative() {
 
   const handleStartGame = () => {
     let difficulty = selectedLevelRef.current;
-    socket.emit("start-game", {roomId,difficulty,}); 
+    let validation=selectedValidationRef.current;
+    socket.emit("start-game", {roomId,difficulty,validation,}); 
   };
 
   const formatTime=(totalSeconds)=>{
@@ -60,8 +63,12 @@ export default function Cooperative() {
   };
 
   useEffect(() => {
+    socket.on('update-validation',(newValidation)=>{
+      setValidationChoice(newValidation);
+    })
+
     socket.on('reload',()=>{
-          navigate('/room');
+      navigate('/room');
     })
 
     socket.emit('ready');
@@ -174,6 +181,7 @@ export default function Cooperative() {
 
     return () => {
       clearInterval(intervalRef.current);
+      socket.off('update-validation');
       socket.off("update-expert-input");
       socket.off("update-expert-clear");
       socket.off('reload');
@@ -198,7 +206,7 @@ export default function Cooperative() {
    
   const handleInputChange = (e, row, col) => {
     const val = e.target.value;
-    if (selectedLevel === "expert") {
+    if (selectedLevel === "expert"||validationChoice === "off") {
       if (val === "") {
         setPuzzle((prev) => {
           const newPuzzle = prev.map((r) => [...r]);
@@ -240,23 +248,27 @@ export default function Cooperative() {
   };
 
   const handleSubmission = () => {
-    if (selectedLevel !== "expert") {
-      socket.emit("validate-submission", { roomId, puzzle });
-    } 
-    else {
-      if (isValidCompletedSudoku(puzzle)) {
-        socket.emit("expert-submission-cooperative",  roomId );
-      } 
-      else {
-        setSubmitMessage("Puzzle is not valid. Keep trying!");
+    if (selectedLevel==="expert"||validationChoice==="off"){
+      const isComplete=puzzle.every(row=>row.every(cell=>cell!==0));
+      if (!isComplete){
+        setSubmitMessage("Game not yet completed");
+        return;
       }
+      if (!isValidCompletedSudoku(puzzle)){
+        setSubmitMessage("Puzzle is not valid. Keep trying!");
+        return;
+      };
+        socket.emit("expert-submission-cooperative",roomId);
+    }
+    else {
+        socket.emit("validate-submission", { roomId, puzzle });
     }
   };
-
-  const handleQuit = () => {
+    const handleQuit = () => {
     setSubmitMessage("Are you sure you want to quit?");
     setShowQuitModal(true);
   };
+
 
   return (
     <div>
@@ -268,6 +280,32 @@ export default function Cooperative() {
         <h1 className="Game">Sudoku Savvy</h1>
         <p>Game Mode : Cooperative</p>
         <CopyButton/>
+         
+         {showStartButton && isHost && (
+          <div className="toggle-wrapper">
+            <label className="toggle-label">
+              Validation :&nbsp;
+              <div className="toggle-container">
+                <span className="toggle-option">Off</span>
+                <div className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={validationChoice==="on"}
+                    onChange={(e)=>{
+                      const newValidationChoice=e.target.checked?"on":"off";
+                      setValidationChoice(newValidationChoice);
+                      selectedValidationRef.current=newValidationChoice;
+                      socket.emit('validation-change',{roomId,validation:newValidationChoice });
+                    }}
+                    disabled={selectedLevel==="expert"}
+                  />
+                  <span className="slider" />
+                </div>
+                <span className="toggle-option">On</span>
+              </div>
+            </label>
+          </div>
+        )}
 
         {showStartButton&&isHost&&(<form>
           <label htmlFor="dropdown">
@@ -279,6 +317,11 @@ export default function Cooperative() {
             onChange={(e) => {
               const newDifficulty = e.target.value;
               setSelectedLevel(newDifficulty);
+              if(newDifficulty=='expert'){
+                setValidationChoice("off");
+                selectedValidationRef.current = "off";
+                socket.emit('validation-change', { roomId, validation: "off" });
+              }
               selectedLevelRef.current = newDifficulty;
               socket.emit('difficulty-change', { roomId, difficulty: newDifficulty });
             }}
@@ -291,20 +334,45 @@ export default function Cooperative() {
           </select>
         </form>)}
 
+   
         {!isHost&&puzzle.length==0&&(<h5>Difficulty Level set by Host : {selectedLevel} </h5>)}
+        {!isHost&&puzzle.length==0 &&(
+          <div className="toggle-wrapper">
+            <h5>Validation set by Host :&nbsp;</h5>
+            <div className="toggle-container">
+              <h5>Off</h5>
+              <div className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={validationChoice === "on"}
+                  readOnly
+                  disabled
+                />
+                <span className="slider" />
+              </div>
+              <h5>On</h5>
+            </div>
+          </div>
+        )}
+
+       
+
 
         {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}>
           Start Game
         </button>)} 
+        
+        
 
         {!showStartButton&&(<h5>Difficulty Level : {selectedLevel}</h5>)}
+        {!showStartButton&&(<h5>Validation : {validationChoice}</h5>)}
 
         <div className="sudoku-grid">
           {puzzle.length > 0 && puzzle.map((row, rIdx) => (
             <div className="sudoku-row" key={rIdx} style={{ display: "flex" }}>
               {row.map((cell, cIdx) => {
                 const key = `${rIdx}-${cIdx}`;
-                const status = selectedLevel === "expert" ? "" : inputStatus[key];
+                const status = (selectedLevel === "expert"||validationChoice==="off") ? "" : inputStatus[key];
                 const isOriginal = originalCells[rIdx]?.[cIdx] === true;
 
                 return (
@@ -316,9 +384,9 @@ export default function Cooperative() {
                     ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
                     ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
                     ${isOriginal ? "prefilled-cell" : ""} 
-                    ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""} 
+                    ${isOriginal && (selectedLevel === "expert" || validationChoice==="off") ? "expert-original" : ""} 
                     ${highlightedNumber !== null && cell === highlightedNumber ? "highlighted-cell" : ""} 
-                    ${status || ""}`}
+                    ${validationChoice==="on"?status || "":""}`}
                     value={cell === 0 ? "" : cell}
                     readOnly={isOriginal}
                     onChange={(e) => {
@@ -365,7 +433,7 @@ export default function Cooperative() {
                   setSubmitMessage('');
                 }
                 setSubmitMessage('');
-              }}>Close</button>top-left-box
+              }}>Close</button>
             </div>
           </div>
         )}
