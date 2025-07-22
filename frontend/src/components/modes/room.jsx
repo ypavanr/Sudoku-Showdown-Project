@@ -48,7 +48,6 @@ const blocksData = [
 ];
 
 const Room = () => {
-
   const navigate = useNavigate();
   const [showInput, setShowInput] = useState(false);
   const [roomId, setRoomId] = useState('');
@@ -57,9 +56,9 @@ const Room = () => {
   const [username,setUsername]=useState(null);
   const [avatar, setAvatar] = useState('');
   const [teamName, setTeamName] = useState("");
+
   const handleCreateRoom = () => {
-    setShowMode(true);
-    
+    setShowMode(true);   
   };
 
   const handleJoinClick=()=>{
@@ -79,91 +78,101 @@ const Room = () => {
     });
     
     setShowInput(false);
-  setRoomId('');
+    setRoomId('');
   };  
   
-const handleSubmitMode = (event) => {
+  const handleSubmitMode = (event) => {
     event.preventDefault();
     const newRoomId = nanoid(6);
     const mode = selectedMode;
     if (!mode) {
-  alert('Please select a mode');
-  return;
-}
-if (mode === 'cc' && !teamName.trim()) {
-    alert("Please enter a team name");
-    return;
-  }
-else{
-  if(mode==='cc')
-    socket.emit('create-room', { roomId: newRoomId, mode,username,avatar,teamName});
-  else
-   socket.emit('create-room', { roomId: newRoomId, mode,avatar,username,});
-}
+      alert('Please select a mode');
+      return;
+    }
+    if (mode === 'cc' && !teamName.trim()) {
+      alert("Please enter a team name");
+      return;
+    }
+    else {
+      if(mode==='cc')
+        socket.emit('create-room', { roomId: newRoomId, mode,username,avatar,teamName});
+      else
+        socket.emit('create-room', { roomId: newRoomId, mode,avatar,username,});
+      }
   };
-useEffect(()=>{
-  const storedUsername=localStorage.getItem('username');
-  const storedAvatar = localStorage.getItem("avatar");
+
+  useEffect(()=>{
+    const storedUsername=localStorage.getItem('username');
+    const storedAvatar = localStorage.getItem("avatar");
     setUsername(storedUsername);
     setAvatar(storedAvatar);
-  const handleRoomCreated=({roomId,mode})=>{
-    console.log('Room created with ID:', roomId);
-    navigate(`/room/${mode}/${roomId}`);
-  };
-   socket.on("error",(message)=>{
+    
+    const handleRoomCreated=({roomId,mode})=>{
+      console.log('Room created with ID:', roomId);
+      navigate(`/room/${mode}/${roomId}`);
+    };
+
+    socket.on("error",(message)=>{
       alert(message);
     })
-  socket.on('room-created',handleRoomCreated);
 
-  return ()=>{
-    socket.off("error");
-    socket.off('room-created',handleRoomCreated);
-  };
-},[navigate]);
-  return(
-    
+    socket.on('room-created',handleRoomCreated);
+
+    return ()=>{
+      socket.off("error");
+      socket.off('room-created',handleRoomCreated);
+    };
+  },[navigate]);
+
+  return(  
     <div>
       <Username/>
-    <div className="room-wrapper">
-      {blocksData.map(({ top, left, numbers, delay }, i) => (
-        <SudokuBlock key={i} top={top} left={left} numbers={numbers} delay={delay} />
-      ))}
-      <div className="room-card">
-        <Logo/>
-        <h1 className="room-title">Sudoku Savvy</h1>
-        <p className="room-subtitle">Challenge yourself or compete with friends!</p>
-        <div className="room-buttons">
-          <button className="room-btn create" onClick={handleCreateRoom}>Create Room</button>
-          <button className="room-btn join" onClick={handleJoinClick}>Join Room</button>  
+      
+      <div className="room-wrapper">
+        
+        {blocksData.map(({ top, left, numbers, delay }, i) => (
+          <SudokuBlock key={i} top={top} left={left} numbers={numbers} delay={delay} />
+        ))}
+      
+        <div className="room-card">
+          <Logo/>
+          <h1 className="room-title">Sudoku Savvy</h1>
+          <p className="room-subtitle">Challenge yourself or compete with friends!</p>
+          
+          <div className="room-buttons">
+            <button className="room-btn create" onClick={handleCreateRoom}>Create Room</button>
+            <button className="room-btn join" onClick={handleJoinClick}>Join Room</button>  
+          </div>
+
+          <div className="solo-wrapper">
+            <button className="room-btn solo" onClick={() => navigate('/room/solo')}>Play Solo</button>
+          </div>
         </div>
-        <div className="solo-wrapper">
-          <button className="room-btn solo" onClick={() => navigate('/room/solo')}>Play Solo</button>
+
+        <div className="form-wraper">
+
+          {showMode&&(<form onSubmit={handleSubmitMode} className="mode-form">
+            <label htmlFor="dropdown">Choose mode:</label>
+            <select id="dropdown" value={selectedMode} onChange={(e)=>setSelectedMode(e.target.value)} className="mode-select">
+              <option value="competitive">Competitive</option>
+              <option value="cooperative">Cooperative</option>
+            </select>
+            <button type="submit" className="mode-submit">Submit</button>
+          </form>)} 
+          
+          {showInput && (<form onSubmit={handleSubmit} className="room-form">
+            <input
+              type="text"
+              placeholder="Enter Room ID"
+              value={roomId}
+              onChange={handleInputChange}
+              className="room-input"
+            />
+            <button type="submit" disabled={!selectedMode} className="room-submit">Submit</button>
+          </form>)}
+
         </div>
       </div>
-      <div className="form-wraper">
-           {showMode&&(<form onSubmit={handleSubmitMode} className="mode-form">
-            <label htmlFor="dropdown">Choose mode:</label>
-             <select id="dropdown" value={selectedMode} onChange={(e)=>setSelectedMode(e.target.value)} className="mode-select">
-             <option value="competitive">Competitive</option>
-             <option value="cooperative">Cooperative</option>
-             </select>
-            <button type="submit" className="mode-submit">Submit</button>
-    </form>)} 
-          {showInput && (
-            <form onSubmit={handleSubmit} className="room-form">
-              <input
-                type="text"
-                placeholder="Enter Room ID"
-                value={roomId}
-                onChange={handleInputChange}
-                className="room-input"
-              />
-              <button type="submit" disabled={!selectedMode} className="room-submit">Submit</button>
-            </form>
-          )}
-    
-    </div>
-    </div>
     </div>
   );
 };

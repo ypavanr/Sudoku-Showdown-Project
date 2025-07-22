@@ -70,10 +70,6 @@ export default function Cooperative() {
       setMySocketId(sid);
     });
 
-    const handleBeforeUnload = () => {
-      socket.disconnect();
-    };
-
     socket.emit('get-players', roomId);
 
     socket.on('return-players', ({ players,host }) => {
@@ -86,10 +82,17 @@ export default function Cooperative() {
       setHostId(host);
     });
 
-    window.addEventListener("beforeunload", function () {
-      console.log("Triggering leave message");
-      sendLeaveMessage();
-    });
+    const handleUnload=()=>{
+      socket.emit("leave-room");
+    };
+    
+    const handlePopState=()=>{
+      socket.emit("leave-room");
+    };
+    
+    window.addEventListener("beforeunload",handleUnload); 
+    
+    window.addEventListener("popstate",handlePopState);
 
     socket.on("puzzle", ({puzzle,}) => {
       setSubmitMessage('');
@@ -188,7 +191,8 @@ export default function Cooperative() {
       socket.off("connect");
       socket.off('return-players');
       socket.off('socket-id');
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleUnload);
+      window.removeEventListener("popstate", handlePopState);
     };
   }, []);
    

@@ -1,5 +1,5 @@
 import React, { useState, useEffect,useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import "./sudoku.css";
 import { FaClock } from "react-icons/fa";
 import socket from "../../socket.js";
@@ -86,10 +86,6 @@ export default function Competitive() {
       setMySocketId(sid);
     });
 
-    const handleBeforeUnload = () => {
-      socket.disconnect();
-    };
-
     socket.emit('get-players', roomId);
 
     socket.on('return-players', ({ players,host }) => {
@@ -102,10 +98,18 @@ export default function Competitive() {
       setHostId(host);
     });
 
-    window.addEventListener("beforeunload", function () {
-      console.log("Triggering leave message");
-      sendLeaveMessage();
-    });
+    const handleUnload=()=>{
+      socket.emit("leave-room");
+    };
+
+    const handlePopState=()=>{
+      socket.emit("leave-room");
+    };
+
+    window.addEventListener("beforeunload",handleUnload); 
+
+    window.addEventListener("popstate",handlePopState);
+
     durationRef.current = duration;
 
     socket.on("puzzle", ({puzzle,time}) => {
@@ -205,8 +209,8 @@ export default function Competitive() {
       socket.off("update-players");
       socket.off("connect");
       socket.off('return-players');
-      socket.off('socket-id');
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleUnload);
+      window.removeEventListener("popstate", handlePopState);
       clearInterval(intervalRef.current);
     };
   }, [duration]);

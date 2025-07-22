@@ -28,4 +28,5 @@ function isValidCompletedSudoku(grid) {
 
   return true;
 }
+
 export default isValidCompletedSudoku

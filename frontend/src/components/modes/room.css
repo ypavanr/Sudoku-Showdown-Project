@@ -45,6 +45,7 @@
 .sudoku-block:nth-child(odd) .sudoku-number {
   color: rgba(139, 133, 255, 0.15);
 }
+
 .sudoku-block:nth-child(even) .sudoku-number {
   color: rgba(111, 176, 255, 0.15);
 }

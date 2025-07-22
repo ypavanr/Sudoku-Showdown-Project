@@ -154,6 +154,12 @@ function broadcastTeams(roomId) {
       delete room.players[socket.id];
       socketToRoom.delete(socket.id);
       socket.leave(roomId);
+      const clients = await io.in(roomId).allSockets();
+        if (clients.size === 0) {
+          console.log(`Room ${roomId} is now empty. Deleting room data.`);
+          roomData.delete(roomId);
+          return;
+        }
       socket.to(roomId).emit("display-messages", 
         {text:`${username} has left the room.`,sid:"system",senderusername:username,type:"leave"}
       );
@@ -352,6 +358,12 @@ socket.on("expert-clear", ({ roomId, row, col }) => {
       delete room.players[socket.id];
       socketToRoom.delete(socket.id);
       socket.leave(roomId);
+      const clients = await io.in(roomId).allSockets();
+        if (clients.size === 0) {
+          console.log(`Room ${roomId} is now empty. Deleting room data.`);
+          roomData.delete(roomId);
+          return;
+        }
       socket.to(roomId).emit("display-messages", 
         {text:`${username} has left the room.`,sid:"system",senderusername:username,type:"leave"}
       );
