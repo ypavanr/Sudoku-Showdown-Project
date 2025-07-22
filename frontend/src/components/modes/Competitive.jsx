@@ -329,6 +329,32 @@ export default function Competitive() {
           </label>
         </form>)}
 
+        {showStartButton && isHost && (
+          <div className="toggle-wrapper">
+            <label className="toggle-label">
+              Validation :&nbsp;
+              <div className="toggle-container">
+                <span className="toggle-option">Off</span>
+                <div className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={validationChoice==="on"}
+                    onChange={(e)=>{
+                      const newValidationChoice=e.target.checked?"on":"off";
+                      setValidationChoice(newValidationChoice);
+                      selectedValidationRef.current=newValidationChoice;
+                      socket.emit('validation-change',{roomId,validation:newValidationChoice });
+                    }}
+                    disabled={selectedLevel==="expert"}
+                  />
+                  <span className="slider" />
+                </div>
+                <span className="toggle-option">On</span>
+              </div>
+            </label>
+          </div>
+        )}
+
         {showStartButton&&isHost&&(<form>
           <label htmlFor="dropdown">
             Choose the Difficulty Level :&nbsp;&nbsp;
@@ -356,32 +382,28 @@ export default function Competitive() {
           </select>
         </form>)}
 
-
-{showStartButton&&isHost&&(<form>
-          <label htmlFor="dropdown">
-            Choose if you want validation :&nbsp;&nbsp;
-          </label>
-          <select style={{width:"107px",height:"47px"}}
-            id="dropdown"
-            value={validationChoice}
-            onChange={(e) => {
-              const newValidationChoice = e.target.value;
-              setValidationChoice(newValidationChoice);
-              selectedValidationRef.current = newValidationChoice;
-              socket.emit('validation-change', { roomId, validation: newValidationChoice});
-            }}
-            className="mode-select"
-            disabled={selectedLevel === "expert"}
-          >
-            <option value="on">On</option>
-            <option value="off">Off</option>
-          </select>
-        </form>)}
-
-
         {!isHost&&puzzle.length==0&&(<h5>Time duration set by Host : {duration} minutes</h5>)}
+
+        {!isHost&&puzzle.length==0 &&(
+          <div className="toggle-wrapper">
+            <h5>Validation set by Host :&nbsp;</h5>
+            <div className="toggle-container">
+              <h5>Off</h5>
+              <div className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={validationChoice === "on"}
+                  readOnly
+                  disabled
+                />
+                <span className="slider" />
+              </div>
+              <h5>On</h5>
+            </div>
+          </div>
+        )}
+
         {!isHost&&puzzle.length==0&&(<h5>Difficulty level set by Host : {selectedLevel} </h5>)}
-        {!isHost&&puzzle.length==0&&(<h5>Validation choice set by Host : {validationChoice} </h5>)}
 
         {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
           Start Game

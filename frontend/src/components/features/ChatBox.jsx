@@ -12,6 +12,7 @@ function ChatBox() {
 
   useEffect(() => {
     if (!socket) return;
+
     socket.emit('ready');
     socket.on('socket-id', (sid) => {
       setMySocketId(sid);
@@ -42,6 +43,7 @@ function ChatBox() {
   return (
     <div className="chatbox">
       <div className="messages-container">
+
         {chatTimeline.map((msg,index) => (
           <div key={index} 
             className={`messages ${msg.type === "chat"?index % 2===0?"color-a":"color-b":"" } 
@@ -56,8 +58,10 @@ function ChatBox() {
             }
           </div>
         ))}
+
         <div ref={messagesEndRef} />
       </div>
+
       <form id="form" onSubmit={handleSubmit}>
         <label>
           <input
@@ -70,6 +74,7 @@ function ChatBox() {
         </label>
         <button type="submit">Send</button>
       </form>
+      
     </div>
   );
 }

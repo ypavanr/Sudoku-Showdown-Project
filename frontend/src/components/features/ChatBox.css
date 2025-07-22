@@ -19,7 +19,9 @@
   overflow-y: auto;
   padding-right: 6px;
   margin-bottom: 10px;
-  color:black;
+  color: black;
+  overflow-x: hidden;
+  word-wrap: break-word;
 }
 
 #form {
@@ -38,10 +40,13 @@
 }
 
 .messages {
-  padding:5px;
+  padding: 5px;
   font-size: 0.95rem;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  max-width: 100%;
+  word-break: break-word;
 }
-
 
 #form input {
   flex: 1;
