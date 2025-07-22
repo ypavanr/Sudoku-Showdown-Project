@@ -186,7 +186,6 @@ export default function Competitive() {
       setValidationChoice(newValidation);
     })
 
-
     return () => 
     {
       socket.off('update-validation');
@@ -228,6 +227,7 @@ export default function Competitive() {
         });
         return;
       }
+
       const num = parseInt(val);
       if (num >= 1 && num <= 9) {
         setPuzzle((prev) => {
@@ -238,6 +238,7 @@ export default function Competitive() {
       }
       return;
     }
+
     if (val === "") {
       setPuzzle((prev) => {
         const newPuzzle=prev.map((r) => [...r]);
@@ -251,6 +252,7 @@ export default function Competitive() {
       });
       return;
     }
+
     const num = parseInt(val);
     if (num >= 1 && num <= 9) {
       setPuzzle((prev) => {
@@ -266,17 +268,25 @@ export default function Competitive() {
     const total=durationRef.current*60;
     const remaining=timeLeft;     
     const percentageTimeLeft=(remaining/total)*100;
-   if (selectedLevel === "expert" || validationChoice === "off") {
-      if (isValidCompletedSudoku(puzzle)) {
-        const remaining = timeLeft;
-        setPoints(remaining);
-        socket.emit("expert-submission-competitive", { roomId, remaining });
-        setSubmitMessage("Game completed. Hoorayy!!!");
-        disableSubmitButton(true);
-      } else {
-        setSubmitMessage("Puzzle is not valid. Keep trying!");
+
+    if (selectedLevel==="expert"||validationChoice==="off"){
+      const isComplete=puzzle.every(row=>row.every(cell=>cell!==0));
+      if (!isComplete){
+        setSubmitMessage("Game not yet completed");
+        return;
       }
-    } else {
+      if (!isValidCompletedSudoku(puzzle)){
+        setSubmitMessage("Puzzle is not valid. Keep trying!");
+      return;
+      }
+
+      const remaining=timeLeft;
+      setPoints(remaining);
+      socket.emit("expert-submission-competitive",{roomId,remaining});
+      setSubmitMessage("Game completed. Hoorayy!!!");
+      disableSubmitButton(true);
+    }
+    else {
       const total = durationRef.current * 60;
       const percentageTimeLeft = (timeLeft / total) * 100;
       socket.emit("validate-submission-competitive", {
@@ -483,24 +493,32 @@ export default function Competitive() {
                 &nbsp; | &nbsp;Rules <span className="question-icon">?</span>
               </span>
               <div className="rules-fixed">
-                <h3>Competition Rules</h3>
+                <h3>Validation Rules</h3>
                 <ul>
-                  <li>For every correct entry, it's +10 Points</li>
-                  <li>For every wrong entry, it's -5 Points</li>
-                  <li>
-                    Bonus: If you complete the puzzle early, your final points are increased
-                    by the percentage of time left.<br />
-                    For example, if 40% time is left and you scored 60 points:<br />
-                    Final Score = 60 × (1 + 0.4) = 84
-                  </li>
+                  <li><strong>ON :</strong></li>
+                    <ul>
+                      <li>For every correct entry, it's +10 Points (green)</li>
+                      <li>For every wrong entry, it's -5 Points (red)</li>
+                      <li>
+                        Bonus: If you complete the puzzle early, your final points are increased
+                        by the percentage of time left.<br />
+                        For example, if 40% time is left and you scored 60 points : Final Score = 60 × (1 + 0.4) = 84
+                      </li>
+                    </ul>
+
+                  <li><strong>OFF :</strong></li>
+                  <ul>
+                    <li>Validation is performed only after the puzzle is submitted.</li>
+                    <li>The leaderboard ranks players based on correct puzzle completion
+                      , with points awarded equal to the number of seconds remaining.
+                    </li>
+                  </ul>
                 </ul>
+
                 <h3>Expert Level</h3>
                 <ul>
-                  <li>There can be many solutions for this mode 
-                    so validation is only done after the game is completed.
-                  </li>
-                  <li>Leaderboard is inorder of Correct Completion 
-                    of the Puzzle with points as remaining seconds left.
+                  <li>Since multiple valid solutions may exist in this mode
+                    , validation is <strong>OFF</strong> by default.
                   </li>
                 </ul>
               </div>

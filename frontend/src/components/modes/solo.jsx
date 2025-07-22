@@ -302,12 +302,25 @@ export default function Solo() {
                   Each number can appear only once in each row,
                   column, and 3x3 box.
                 </li>
-                <li>Correct entries turn green, incorrect ones turn red.</li>
               </ul>
+
+              <h3>Validation Rules</h3>
+              <ul>
+                <li><strong>ON :</strong></li>
+                  <ul>
+                    <li>Correct entries turn green, incorrect ones turn red.</li>
+                  </ul>
+
+                <li><strong>OFF :</strong></li>
+                  <ul>
+                    <li>Validation is performed only after the puzzle is submitted.</li>
+                  </ul>
+              </ul>
+
               <h3>Expert Level</h3>
               <ul>
-                <li>There can be many solutions for this mode 
-                    so validation is only done after the game is completed.
+                <li>Since multiple valid solutions may exist in this mode
+                  , validation is <strong>OFF</strong> by default.
                 </li>
               </ul>
             </div>
