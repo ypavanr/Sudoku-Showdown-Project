@@ -16,7 +16,9 @@ export default function Competitive() {
   const [highlightedNumber, setHighlightedNumber] = useState(null);
   const [originalPuzzle, setOriginalPuzzle] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState('easy');
+  const [validationChoice,setValidationChoice]=useState('on');
   const selectedLevelRef = useRef(selectedLevel);
+  const selectedValidationRef=useRef(validationChoice)
   const [leaderboard, setLeaderboard] = useState([]); 
   const {roomId } = useParams();
   const [puzzle, setPuzzle] = useState([]);
@@ -40,7 +42,8 @@ export default function Competitive() {
   const handleStartGame = () => {
     let time=durationRef.current;
     let difficulty = selectedLevelRef.current;
-    socket.emit("start-game", {roomId,difficulty,time});    
+    let validation=selectedValidationRef.current;
+    socket.emit("start-game", {roomId,difficulty,validation,time});    
   };
 
   const formatTime=(totalSeconds)=>{
@@ -179,8 +182,14 @@ export default function Competitive() {
       setSelectedLevel(newDifficulty);
     })
     
+    socket.on('update-validation',(newValidation)=>{
+      setValidationChoice(newValidation);
+    })
+
+
     return () => 
     {
+      socket.off('update-validation');
       socket.off('reload');
       socket.off('is-host');
       socket.off('update-duration');
@@ -205,7 +214,7 @@ export default function Competitive() {
    
   const handleInputChange = (e, row, col) => {
     const val = e.target.value;
-    if (selectedLevel === "expert") {
+    if (selectedLevel === "expert"|| validationChoice==="off") {
       if (val === "") {
         setPuzzle((prev) => {
           const newPuzzle = prev.map((r) => [...r]);
@@ -257,20 +266,27 @@ export default function Competitive() {
     const total=durationRef.current*60;
     const remaining=timeLeft;     
     const percentageTimeLeft=(remaining/total)*100;
-    if(selectedLevel!=='expert'){
-      socket.emit("validate-submission-competitive", {roomId,puzzle,points,percentageTimeLeft});
-    }
-    else{
-      if(isValidCompletedSudoku(puzzle)){
-        socket.emit('expert-submission-competitive',{roomId,remaining})
-        setPoints(remaining)
+   if (selectedLevel === "expert" || validationChoice === "off") {
+      if (isValidCompletedSudoku(puzzle)) {
+        const remaining = timeLeft;
+        setPoints(remaining);
+        socket.emit("expert-submission-competitive", { roomId, remaining });
         setSubmitMessage("Game completed. Hoorayy!!!");
         disableSubmitButton(true);
-      }
-      else{
+      } else {
         setSubmitMessage("Puzzle is not valid. Keep trying!");
       }
+    } else {
+      const total = durationRef.current * 60;
+      const percentageTimeLeft = (timeLeft / total) * 100;
+      socket.emit("validate-submission-competitive", {
+        roomId,
+        puzzle,
+        points,
+        percentageTimeLeft,
+      });
     }
+
     console.log("durationRef.current:", durationRef.current);
     console.log("Time left:", remaining, "seconds");
     console.log("Percentage of time left:", percentageTimeLeft);
@@ -323,6 +339,11 @@ export default function Competitive() {
             onChange={(e) => {
               const newDifficulty = e.target.value;
               setSelectedLevel(newDifficulty);
+              if(newDifficulty=='expert'){
+                setValidationChoice("off");
+                selectedValidationRef.current = "off";
+                socket.emit('validation-change', { roomId, validation: "off" });
+              }
               selectedLevelRef.current = newDifficulty;
               socket.emit('difficulty-change', { roomId, difficulty: newDifficulty });
             }}
@@ -335,21 +356,46 @@ export default function Competitive() {
           </select>
         </form>)}
 
+
+{showStartButton&&isHost&&(<form>
+          <label htmlFor="dropdown">
+            Choose if you want validation :&nbsp;&nbsp;
+          </label>
+          <select style={{width:"107px",height:"47px"}}
+            id="dropdown"
+            value={validationChoice}
+            onChange={(e) => {
+              const newValidationChoice = e.target.value;
+              setValidationChoice(newValidationChoice);
+              selectedValidationRef.current = newValidationChoice;
+              socket.emit('validation-change', { roomId, validation: newValidationChoice});
+            }}
+            className="mode-select"
+            disabled={selectedLevel === "expert"}
+          >
+            <option value="on">On</option>
+            <option value="off">Off</option>
+          </select>
+        </form>)}
+
+
         {!isHost&&puzzle.length==0&&(<h5>Time duration set by Host : {duration} minutes</h5>)}
         {!isHost&&puzzle.length==0&&(<h5>Difficulty level set by Host : {selectedLevel} </h5>)}
+        {!isHost&&puzzle.length==0&&(<h5>Validation choice set by Host : {validationChoice} </h5>)}
 
         {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}  >
           Start Game
         </button>)} 
 
         {!showStartButton&&(<h5>Difficulty Level : {selectedLevel}</h5>)}
+        {!showStartButton&&(<h5>Validation : {validationChoice}</h5>)}
 
         <div className="sudoku-grid">
           {puzzle.length > 0 && puzzle.map((row, rIdx) => (
             <div className="sudoku-row" key={rIdx} style={{ display: "flex" }}>
               {row.map((cell, cIdx) => {
                 const key = `${rIdx}-${cIdx}`;
-                const status = selectedLevel === "expert" ? "" : inputStatus[key];
+                const status = (selectedLevel === "expert"||validationChoice==='off') ? "" : inputStatus[key];
                 const isOriginal = originalPuzzle[rIdx]?.[cIdx] !== 0;
                 return (
                   <input  
@@ -360,9 +406,9 @@ export default function Competitive() {
                     ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
                     ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
                     ${isOriginal ? "prefilled-cell" : ""} 
-                    ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""} 
+                    ${isOriginal && (selectedLevel === "expert"||validationChoice==='off') ? "expert-original" : ""} 
                     ${highlightedNumber !== null && cell === highlightedNumber ? "highlighted-cell" : ""} 
-                    ${status || ""}`}
+                    ${validationChoice==="on"?status || "":""}`}
                     value={cell === 0 ? "" : cell}
                     readOnly={isOriginal}
                     onChange={(e) => {
@@ -409,7 +455,7 @@ export default function Competitive() {
           <div className="score-time">
             <FaClock size={30} style={{ marginRight: '10px' }} />
             <span className="time-text">{formatTime(timeLeft)}</span>
-            {selectedLevel != "expert" && <span className="points-text"> |&nbsp; Points: {points}</span>}
+            {(selectedLevel != "expert" && validationChoice=="on")&& <span className="points-text"> |&nbsp; Points: {points}</span>}
             <div className="rules-hover-container">
               <span className="rules-label">
                 &nbsp; | &nbsp;Rules <span className="question-icon">?</span>

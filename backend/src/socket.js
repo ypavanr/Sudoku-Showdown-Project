@@ -184,8 +184,11 @@ function broadcastTeams(roomId) {
     socket.on("difficulty-change",({roomId,difficulty})=>{
     socket.to(roomId).emit("update-difficulty", difficulty);
     })
+    socket.on("validation-change",({roomId,validation})=>{
+    socket.to(roomId).emit("update-validation", validation);
+    })
 
-    socket.on('start-game',async ({roomId,difficulty,time}) => {
+    socket.on('start-game',async ({roomId,difficulty,validation,time}) => {
       const room=roomData.get(roomId);
       if(!room){
         socket.emit('error',"room not found");
@@ -196,6 +199,7 @@ function broadcastTeams(roomId) {
         return;
       }
        socket.to(roomId).emit("update-difficulty", difficulty);
+       socket.to(roomId).emit("update-validation", validation);
       const unsolvedPuzzle = generateSudokuPuzzle(difficulty);
       const solvedPuzzle = JSON.parse(JSON.stringify(unsolvedPuzzle)); 
       solve(solvedPuzzle); 
