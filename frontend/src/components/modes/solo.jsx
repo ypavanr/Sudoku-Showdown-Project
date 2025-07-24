@@ -11,6 +11,8 @@ import Logo from "../features/logo";
 
 export default function Solo() {
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  const [validationChoice,setValidationChoice]=useState('on');
+  const selectedValidationRef=useRef(validationChoice)
   const [puzzle, setPuzzle] = useState([]);
   const [highlightedNumber, setHighlightedNumber] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -96,7 +98,7 @@ export default function Solo() {
 
     const num = parseInt(val);
     if (num >= 1 && num <= 9) {
-      if (selectedLevelRef.current === "expert") {
+      if (selectedLevelRef.current === "expert"||validationChoice === "off") {
         setPuzzle((prev) => {
           const newPuzzle = prev.map((r) => [...r]);
           newPuzzle[row][col] = num;
@@ -129,7 +131,7 @@ export default function Solo() {
   };
 
   const handleSubmission = async () => {
-    if (selectedLevelRef.current === "expert") {
+    if (selectedLevelRef.current === "expert"||selectedValidationRef.current==="off") {
       if (isValidCompletedSudoku(puzzle)) {
         setSubmitMessage("Game completed. Hooray!!!");
         stopTimer();
@@ -167,6 +169,32 @@ export default function Solo() {
         <Logo/>
         <h1 className="Game">Sudoku Savvy</h1>
         <p>Game Mode : Solo</p>
+ 
+       {showStartButton && (
+          <div className="toggle-wrapper">
+            <label className="toggle-label">
+              Validation :&nbsp;
+              <div className="toggle-container">
+                <span className="toggle-option">Off</span>
+                <div className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={validationChoice==="on"}
+                    onChange={(e)=>{
+                      const newValidationChoice=e.target.checked?"on":"off";
+                      setValidationChoice(newValidationChoice);
+                      selectedValidationRef.current=newValidationChoice;
+                    }}
+                    disabled={selectedLevel==="expert"}
+                  />
+                  <span className="slider" />
+                </div>
+                <span className="toggle-option">On</span>
+              </div>
+            </label>
+          </div>
+        )}
+
 
         {showStartButton&&(<form>
           <label htmlFor="dropdown">
@@ -178,6 +206,10 @@ export default function Solo() {
             onChange={(e) => {
               const newDifficulty = e.target.value;
               setSelectedLevel(newDifficulty);
+                if(newDifficulty=='expert'){
+                setValidationChoice("off");
+                selectedValidationRef.current = "off";
+              }
               selectedLevelRef.current = newDifficulty;
             }}
              className="mode-select"
@@ -194,12 +226,14 @@ export default function Solo() {
         </button>)} 
 
         {!showStartButton&&(<h5>Difficulty Level : {selectedLevel}</h5>)}
+        {!showStartButton&&(<h5>Validation : {validationChoice}</h5>)}
+
           <div className="sudoku-grid">
             {puzzle.length > 0 && puzzle.map((row, rIdx) => (
               <div className="sudoku-row" key={rIdx} style={{ display: "flex" }}>
                 {row.map((cell, cIdx) => {
                   const key = `${rIdx}-${cIdx}`;
-                  const status = inputStatus[key];
+                  const status = (selectedLevel === "expert"||validationChoice==="off") ? "" : inputStatus[key];
                   const isOriginal = originalPuzzle[rIdx]?.[cIdx] !== 0;
                   return (
                     <input
@@ -210,9 +244,9 @@ export default function Solo() {
                         ${(cIdx + 1) % 3 === 0 && cIdx !== 8 ? "border-right" : ""} 
                         ${(rIdx + 1) % 3 === 0 && rIdx !== 8 ? "border-bottom" : ""} 
                         ${isOriginal ? "prefilled-cell" : ""} 
-                        ${isOriginal && selectedLevel === "expert" ? "expert-original" : ""} 
+                        ${isOriginal && (selectedLevel === "expert" || validationChoice==="off")  ? "expert-original" : ""} 
                         ${highlightedNumber !== null && cell === highlightedNumber ? "highlighted-cell" : ""} 
-                        ${status || ""}`}
+                        ${validationChoice==="on"?status || "":""}`}
                       value={cell === 0 ? "" : cell}
                       readOnly={isOriginal}
                       onChange={(e) => {
