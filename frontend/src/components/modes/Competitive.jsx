@@ -37,6 +37,7 @@ export default function Competitive() {
   const [players, setPlayers] = useState({});
   const [mySocketId, setMySocketId] = useState("");
   const [hostId, setHostId] = useState("");
+  const [lockedCells,setLockedCells]=useState(new Set());
   const pointsRef = useRef(0);
 
   const navigate = useNavigate();
@@ -124,6 +125,7 @@ export default function Competitive() {
       setStartButton(false);
       setPoints(0); 
       setFinishedPlayers([]);
+      setLockedCells(new Set());
     });
 
     socket.on("show-leaderboard", (leaderboard) => {
@@ -179,6 +181,9 @@ export default function Competitive() {
         ...prev,
         [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
       }));
+      if(isCorrect) {
+        setLockedCells((prev)=>new Set(prev).add(`${row}-${col}`));
+      }
     });
 
     socket.on("game-complete",(message)=>{
@@ -458,7 +463,7 @@ export default function Competitive() {
                     ${highlightedNumber !== null && cell === highlightedNumber ? "highlighted-cell" : ""} 
                     ${validationChoice==="on"?status || "":""}`}
                     value={cell === 0 ? "" : cell}
-                    readOnly={isOriginal}
+                    readOnly={isOriginal||lockedCells.has(`${rIdx}-${cIdx}`)}
                     onChange={(e) => {
                       handleInputChange(e, rIdx, cIdx);
                     }}
@@ -577,6 +582,7 @@ export default function Competitive() {
                     setSubmitMessage('');
                     disableSubmitButton(false);
                     setFinishedPlayers([]);
+                    setLockedCells(new Set());
                   }}>Close</button>
                 </div>
               </div>

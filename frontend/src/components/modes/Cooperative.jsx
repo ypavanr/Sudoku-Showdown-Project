@@ -31,6 +31,7 @@ export default function Cooperative() {
   const [players, setPlayers] = useState({});
   const [mySocketId, setMySocketId] = useState("");
   const [hostId, setHostId] = useState("");
+  const [lockedCells,setLockedCells]=useState(new Set());
   const navigate = useNavigate();
 
   const handleStartGame = () => {
@@ -108,6 +109,7 @@ export default function Cooperative() {
       startTimer();
       setInputStatus({});
       setStartButton(false);
+      setLockedCells(new Set());
     });
 
     socket.on("error",(message)=>{
@@ -135,6 +137,9 @@ export default function Cooperative() {
         ...prev,
         [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
       }));
+      if(isCorrect) {
+        setLockedCells((prev)=>new Set(prev).add(`${row}-${col}`));
+      }
     });
 
     socket.on("clear-cell",({row,col}) => {
@@ -388,7 +393,7 @@ export default function Cooperative() {
                     ${highlightedNumber !== null && cell === highlightedNumber ? "highlighted-cell" : ""} 
                     ${validationChoice==="on"?status || "":""}`}
                     value={cell === 0 ? "" : cell}
-                    readOnly={isOriginal}
+                    readOnly={isOriginal||lockedCells.has(`${rIdx}-${cIdx}`)}
                     onChange={(e) => {
                       handleInputChange(e, rIdx, cIdx); 
                     }}
@@ -431,6 +436,7 @@ export default function Cooperative() {
                   setPuzzle([]);
                   setInputStatus({});
                   setSubmitMessage('');
+                  setLockedCells(new Set());
                 }
                 setSubmitMessage('');
               }}>Close</button>
