@@ -37,6 +37,8 @@ export default function Competitive() {
   const [players, setPlayers] = useState({});
   const [mySocketId, setMySocketId] = useState("");
   const [hostId, setHostId] = useState("");
+  const pointsRef = useRef(0);
+
   const navigate = useNavigate();
 
   const handleStartGame = () => {
@@ -61,7 +63,7 @@ export default function Competitive() {
       setTimeLeft(remaining);
         if (remaining <= 0) {
           clearInterval(intervalRef.current);
-          socket.emit("time-up", roomId, points);
+          socket.emit("time-up", roomId, pointsRef.current);
           setSubmitMessage("Time's up! Game over.");
          }
     };
@@ -158,10 +160,18 @@ export default function Competitive() {
         return newPuzzle;
       });
       if (isCorrect==false) {
-        setPoints(prev => prev - 5);
+         setPoints(prev => {
+        const newPoints = prev - 5;
+        pointsRef.current = newPoints;
+        return newPoints;
+    });
       }     
       else {
-        setPoints(prev => prev + 10);
+        setPoints(prev => {
+        const newPoints = prev + 10;
+        pointsRef.current = newPoints;
+        return newPoints;
+    });
       }
       setInputStatus((prev) => ({
         ...prev,

@@ -214,6 +214,11 @@ export default function setupSocket(io){
         socket.emit('not-host');
         return;
       }
+       Object.values(room.players).forEach(player => {
+          player.score = 0;
+          player.completed = false;
+        });
+
       socket.to(roomId).emit("update-difficulty", difficulty);
       socket.to(roomId).emit("update-validation", validation);
       const unsolvedPuzzle = generateSudokuPuzzle(difficulty);
@@ -275,14 +280,18 @@ export default function setupSocket(io){
       const room = roomData.get(roomId);
       const solved = room.solvedPuzzle;
       let name;
+      console.log(`[FINISHED] ${name} | basePoints=${points}`);
+
       if (!room.players[socket.id]) return;
+      let factor=0
       if (isSamePuzzle(solved, puzzle)) {
       if(points>0) {
-        let factor=(percentageTimeLeft/100)+1;
+         factor=(percentageTimeLeft/100)+1;
         points=Math.round(factor*points);
       }
       room.players[socket.id].completed = true;
       room.players[socket.id].score = points;
+      console.log(`bonus=${factor} | total=${points}`);
       name = room.players[socket.id].name;
       socket.emit('new-points',points);
       socket.emit('game-complete', "Puzzle solved! Hooray!!!");
