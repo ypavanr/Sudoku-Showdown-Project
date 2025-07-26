@@ -122,6 +122,8 @@ export default function Competitive() {
       setInputStatus({});
       startTimer(time);
       setStartButton(false);
+      setPoints(0); 
+      setFinishedPlayers([]);
     });
 
     socket.on("show-leaderboard", (leaderboard) => {
@@ -160,18 +162,18 @@ export default function Competitive() {
         return newPuzzle;
       });
       if (isCorrect==false) {
-         setPoints(prev => {
-        const newPoints = prev - 5;
-        pointsRef.current = newPoints;
-        return newPoints;
-    });
+        setPoints(prev => {
+          const newPoints = prev - 5;
+          pointsRef.current = newPoints;
+          return newPoints;
+        });
       }     
       else {
         setPoints(prev => {
-        const newPoints = prev + 10;
-        pointsRef.current = newPoints;
-        return newPoints;
-    });
+          const newPoints = prev + 10;
+          pointsRef.current = newPoints;
+          return newPoints;
+        });
       }
       setInputStatus((prev) => ({
         ...prev,

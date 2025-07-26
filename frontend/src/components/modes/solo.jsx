@@ -170,7 +170,7 @@ export default function Solo() {
         <h1 className="Game">Sudoku Savvy</h1>
         <p>Game Mode : Solo</p>
  
-       {showStartButton && (
+        {showStartButton && (
           <div className="toggle-wrapper">
             <label className="toggle-label">
               Validation :&nbsp;
@@ -206,13 +206,13 @@ export default function Solo() {
             onChange={(e) => {
               const newDifficulty = e.target.value;
               setSelectedLevel(newDifficulty);
-                if(newDifficulty=='expert'){
+              if(newDifficulty=='expert'){
                 setValidationChoice("off");
                 selectedValidationRef.current = "off";
               }
               selectedLevelRef.current = newDifficulty;
             }}
-             className="mode-select"
+            className="mode-select"
           >
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>

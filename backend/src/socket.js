@@ -214,10 +214,11 @@ export default function setupSocket(io){
         socket.emit('not-host');
         return;
       }
-       Object.values(room.players).forEach(player => {
-          player.score = 0;
-          player.completed = false;
-        });
+
+      Object.values(room.players).forEach(player => {
+        player.score = 0;
+        player.completed = false;
+      });
 
       socket.to(roomId).emit("update-difficulty", difficulty);
       socket.to(roomId).emit("update-validation", validation);
@@ -286,7 +287,7 @@ export default function setupSocket(io){
       let factor=0
       if (isSamePuzzle(solved, puzzle)) {
       if(points>0) {
-         factor=(percentageTimeLeft/100)+1;
+        factor=(percentageTimeLeft/100)+1;
         points=Math.round(factor*points);
       }
       room.players[socket.id].completed = true;
