@@ -23,6 +23,7 @@ export default function Solo() {
   const [secondsElapsed, setSecondsElapsed]=useState(0);
   const [selectedLevel, setSelectedLevel] = useState('easy');
   const [showQuitModal, setShowQuitModal] = useState(false);
+  const [lockedCells,setLockedCells]=useState(new Set());
   const selectedLevelRef = useRef(selectedLevel);
   const intervalRef=useRef(null);
   const navigate = useNavigate();
@@ -46,6 +47,7 @@ export default function Solo() {
       setOriginalPuzzle(puzzle.data);
       startTimer();
       setStartButton(false);
+      setLockedCells(new Set());
     }
 
     catch (err) 
@@ -120,6 +122,9 @@ export default function Solo() {
               ...prev,
               [`${row}-${col}`]: isCorrect ? "correct" : "wrong",
             }));
+            if(isCorrect) {
+              setLockedCells((prev)=>new Set(prev).add(`${row}-${col}`));
+            }
           } 
           catch (err) {
             alert("error validating move, " + err);
@@ -195,7 +200,6 @@ export default function Solo() {
           </div>
         )}
 
-
         {showStartButton&&(<form>
           <label htmlFor="dropdown">
             Choose the Difficulty Level : &nbsp;&nbsp;
@@ -248,7 +252,7 @@ export default function Solo() {
                         ${highlightedNumber !== null && cell === highlightedNumber ? "highlighted-cell" : ""} 
                         ${validationChoice==="on"?status || "":""}`}
                       value={cell === 0 ? "" : cell}
-                      readOnly={isOriginal}
+                      readOnly={isOriginal||lockedCells.has(`${rIdx}-${cIdx}`)}
                       onChange={(e) => {
                         handleInputChange(e, rIdx, cIdx);
                       }}
@@ -293,6 +297,7 @@ export default function Solo() {
                   setSubmitMessage('');
                   setSecondsElapsed(0);
                   setIsRunning(false);
+                  setLockedCells(new Set());
                 }
                 setSubmitMessage('');
               }}>Close</button>

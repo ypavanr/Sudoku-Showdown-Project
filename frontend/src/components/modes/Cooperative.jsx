@@ -339,7 +339,6 @@ export default function Cooperative() {
           </select>
         </form>)}
 
-   
         {!isHost&&puzzle.length==0&&(<h5>Difficulty Level set by Host : {selectedLevel} </h5>)}
         {!isHost&&puzzle.length==0 &&(
           <div className="toggle-wrapper">
@@ -360,14 +359,9 @@ export default function Cooperative() {
           </div>
         )}
 
-       
-
-
         {showStartButton&&isHost&&(<button className="start-game" onClick={handleStartGame}>
           Start Game
         </button>)} 
-        
-        
 
         {!showStartButton&&(<h5>Difficulty Level : {selectedLevel}</h5>)}
         {!showStartButton&&(<h5>Validation : {validationChoice}</h5>)}
