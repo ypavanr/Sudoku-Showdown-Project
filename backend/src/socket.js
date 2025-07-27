@@ -20,12 +20,8 @@ export default function setupSocket(io){
 
       if(socketToRoom.get(socket.id)){
         const prevRoom=socketToRoom.get(socket.id);
-        socket.leave(prevRoom);
-        const clients = await io.in(prevRoom).allSockets();
-        if (clients.size === 0) {
-          console.log(`Room ${prevRoom} is now empty. Deleting room data.`);
-          roomData.delete(prevRoom);
-        }
+      await leaveRoom(socket,prevRoom)
+
       }
 
       socketToRoom.set(socket.id,roomId);
@@ -51,15 +47,9 @@ export default function setupSocket(io){
 
       if(socketToRoom.get(socket.id))
       {
-        const prevRoom=socketToRoom.get(socket.id);
-        socket.leave(prevRoom);
-        const clients = await io.in(prevRoom).allSockets();
-        if (clients.size === 0) 
-        {
-         console.log(`Room ${prevRoom} is now empty. Deleting room data.`);
-         roomData.delete(prevRoom);
-        }
-      }
+      const Room=socketToRoom.get(socket.id);
+      await leaveRoom(socket,Room)
+         }
 
       socketToRoom.set(socket.id,roomId);      
       socket.join(roomId);
@@ -139,6 +129,64 @@ export default function setupSocket(io){
         {text:input,sid,senderusername: playerInfo.name,type: "chat"}
       );
     });
+      
+
+    async function leaveRoom(socket, roomId) {
+  if (!roomId) return;
+  const room = roomData.get(roomId);
+  if (!room || !room.players[socket.id]) return;
+
+  const username = room.players[socket.id].name || "Unknown";
+  delete room.players[socket.id];
+  socketToRoom.delete(socket.id);
+  socket.leave(roomId);
+
+  const clients = await io.in(roomId).allSockets();
+  if (clients.size === 0) {
+    console.log(`Room ${roomId} is now empty. Deleting room data.`);
+    roomData.delete(roomId);
+    return;
+  }
+
+  socket.to(roomId).emit("display-messages", {
+    text: `${username} has left the room.`,
+    sid: "system",
+    senderusername: username,
+    type: "leave"
+  });
+
+  if (room.hostid === socket.id) {
+    const remainingPlayerIds = Object.keys(room.players);
+    if (remainingPlayerIds.length > 0) {
+      const newHostId = remainingPlayerIds[0];
+      room.hostid = newHostId;
+      const targetSocket = io.sockets.sockets.get(newHostId);
+      if (targetSocket) targetSocket.emit('is-host');
+
+      const newHostName = room.players[newHostId].name;
+      io.to(roomId).emit("display-messages", {
+        text: `${newHostName} is now the host.`,
+        sid: newHostId,
+        senderusername: newHostName,
+        type: "host"
+      });
+    } else {
+      roomData.delete(roomId);
+      return;
+    }
+  }
+
+  if (roomData.has(roomId)) {
+    io.to(roomId).emit("update-players", {
+      players: room.players,
+      host: room.hostid
+    });
+   broadcastleaderboard(roomId);
+  }
+}
+
+    
+
 
     function broadcastleaderboard(roomId,) {
       const room = roomData.get(roomId);
@@ -156,40 +204,8 @@ export default function setupSocket(io){
 
     socket.on("leave-room", async () => {
       const roomId = socketToRoom.get(socket.id);
-      if (!roomId) return;
-      const room = roomData.get(roomId);
-      if (!room) return;
-      const username = room.players[socket.id]?.name||"Unknown";
-      delete room.players[socket.id];
-      socketToRoom.delete(socket.id);
-      socket.leave(roomId);
-      const clients = await io.in(roomId).allSockets();
-      if (clients.size === 0) {
-        console.log(`Room ${roomId} is now empty. Deleting room data.`);
-        roomData.delete(roomId);
-        return;
-      }
-      socket.to(roomId).emit("display-messages", 
-        {text:`${username} has left the room.`,sid:"system",senderusername:username,type:"leave"}
-      );
+    await leaveRoom(socket,roomId)
      
-      if (room.hostid === socket.id) {
-        const remainingPlayerIds = Object.keys(room.players);
-        if (remainingPlayerIds.length > 0) {
-          const newHostId = remainingPlayerIds[0];
-          room.hostid = newHostId;
-          const targetSocket = io.sockets.sockets.get(newHostId);
-          targetSocket.emit('is-host');
-          const newHostName = room.players[newHostId].name;
-          io.to(roomId).emit("display-messages",
-            {text:`${newHostName} is now the host.`,sid:newHostId,senderusername:newHostName,type: "host"}
-          );
-        }  
-        else {roomData.delete(roomId);}
-      }
-
-      io.to(roomId).emit("update-players",{players: room.players,host: room.hostid});
-      broadcastleaderboard(roomId);
     });
 
     socket.on("duration-change", ({ roomId, duration }) => {
@@ -349,41 +365,7 @@ export default function setupSocket(io){
 
     socket.on('disconnect', async () => {
       const roomId = socketToRoom.get(socket.id);
-      if (!roomId) return;
-      const room = roomData.get(roomId);
-      if (!room) return;
-      const username = room.players[socket.id]?.name||"Unknown";
-      delete room.players[socket.id];
-      socketToRoom.delete(socket.id);
-      socket.leave(roomId);
-      const clients = await io.in(roomId).allSockets();
-      if (clients.size === 0) {
-        console.log(`Room ${roomId} is now empty. Deleting room data.`);
-        roomData.delete(roomId);
-        return;
-      }
-      socket.to(roomId).emit("display-messages", 
-        {text:`${username} has left the room.`,sid:"system",senderusername:username,type:"leave"}
-      );
-     
-      if (room.hostid === socket.id) {
-        const remainingPlayerIds = Object.keys(room.players);
-        if (remainingPlayerIds.length > 0) {
-          const newHostId = remainingPlayerIds[0];
-          room.hostid = newHostId;
-          const targetSocket = io.sockets.sockets.get(newHostId);
-          targetSocket.emit('is-host');
-          const newHostName = room.players[newHostId].name;
-          io.to(roomId).emit("display-messages",
-            {text:`${newHostName} is now the host.`,sid:newHostId,senderusername:newHostName,type: "host"}
-          );
-        }  
-        else {roomData.delete(roomId);
-           console.log(`Room ${roomId} is now empty. Deleting room data.`);
-        }
-      }
-      io.to(roomId).emit("update-players",{players: room.players,host: room.hostid});
-      broadcastleaderboard(roomId);
+      await leaveRoom(socket,roomId)    
     });
   });
 }
