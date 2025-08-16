@@ -142,7 +142,15 @@ export default function Solo() {
         stopTimer();
       } 
       else {
-        setSubmitMessage("Invalid solution. Check rows, columns, or boxes.");
+        const isComplete=puzzle.every(row=>row.every(cell=>cell!==0));
+        if (!isComplete){
+          setSubmitMessage("Game not yet completed...Check out for empty boxes :)");
+          return;
+        }
+        if (!isValidCompletedSudoku(puzzle)){
+          setSubmitMessage("Puzzle is not valid. Keep trying!");
+          return;
+        }
       }
       return;
     }

@@ -293,7 +293,7 @@ export default function Competitive() {
     if (selectedLevel==="expert"||validationChoice==="off"){
       const isComplete=puzzle.every(row=>row.every(cell=>cell!==0));
       if (!isComplete){
-        setSubmitMessage("Game not yet completed");
+        setSubmitMessage("Game not yet completed...Check out for empty boxes :)");
         return;
       }
       if (!isValidCompletedSudoku(puzzle)){
