@@ -22,6 +22,35 @@ const io = new Server(server, {
   },
 });
 
+const { roomData, socketToRoom } = setupSocket(io);
+
+function logState(io, roomData, socketToRoom) {
+  console.log("========== CURRENT STATE ==========");
+
+  console.log("ROOM DATA:");
+  for (const [roomId, data] of roomData.entries()) {
+    console.log(`Room ${roomId}:`, JSON.stringify(data, null, 2));
+  }
+
+  console.log("SOCKET TO ROOM:");
+  for (const [sid, rid] of socketToRoom.entries()) {
+    console.log(`${sid} -> ${rid}`);
+  }
+
+  console.log("SOCKET.IO ROOMS:");
+  for (const [room, sockets] of io.sockets.adapter.rooms) {
+    if (io.sockets.sockets.has(room)) continue; 
+    console.log(`Room ${room} has ${sockets.size} sockets`);
+  }
+
+  console.log("===================================");
+}
+
+app.get("/debug-state", (req, res) => {
+  logState(io, roomData, socketToRoom);
+  res.send("✅ State logged to backend console");
+});
+
 app.post("/test", (req, res) => {
   return res.status(200).json({ message: "Test route working" });
 });
