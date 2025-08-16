@@ -1,23 +1,54 @@
 .chatbox {
   position: absolute;
-  top: 120px; 
+  top: 120px;
   right: 30px;
   background-color: white;
-  padding: 10px;
   border-radius: 10px;
   font-size: 0.95rem;
   z-index: 99;
-  width: 400px; 
-  height : 500px;
+  width: 400px;
+  overflow: hidden;
+}
+
+.chatbox.collapsed {
+  width: 95px;  
+  height: 60px;
+  padding: 0;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background: white;         
+  padding: 5px 8px;
+}
+
+.chat-header button {
+  color: white;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 10px;
+  background-color: black;   
+  border-radius: 10px;
+}
+
+.chat-header button:hover {
+  background-color: #333;    
+  box-shadow: 0 0 20px #666; 
+}
+
+.chat-content {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  height: 450px;
 }
 
 .messages-container {
   flex: 1;
   overflow-y: auto;
-  padding-right: 6px;
+  padding: 6px;  
   margin-bottom: 10px;
   color: black;
   overflow-x: hidden;
@@ -27,6 +58,7 @@
 #form {
   display: flex;
   gap: 10px;
+  padding: 6px; 
 }
 
 .color-a{

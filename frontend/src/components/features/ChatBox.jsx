@@ -8,6 +8,7 @@ function ChatBox() {
   const [input, setInput] = useState('');
   const [chatTimeline, setChatTimeline] = useState([]);
   const [mySocketId, setMySocketId] = useState("");
+  const [collapsed, setCollapsed] = useState(false);
   const { roomId } = useParams();
 
   useEffect(() => {
@@ -41,40 +42,43 @@ function ChatBox() {
   }, [chatTimeline]);
 
   return (
-    <div className="chatbox">
-      <div className="messages-container">
-
-        {chatTimeline.map((msg,index) => (
-          <div key={index} 
-            className={`messages ${msg.type === "chat"?index % 2===0?"color-a":"color-b":"" } 
-            ${msg.type === "join"||msg.type === "leave"||msg.type === "host"?"system-message":""}`}
-          >
-            {msg.type === "chat"?(
-              <p>
-                <strong>{msg.sid === mySocketId ? "You" : msg.senderusername}:</strong> {msg.text}
-              </p>)
-              :msg.type === "host" && msg.sid === mySocketId ? <p>You are the host</p>
-              :(<p>{msg.text}</p>)
-            }
-          </div>
-        ))}
-
-        <div ref={messagesEndRef} />
+    <div className={`chatbox ${collapsed ? "collapsed" : ""}`}>
+      <div className="chat-header">
+        <button onClick={()=> setCollapsed(!collapsed)}>Chat{collapsed ? "+" : "-"}</button>
       </div>
 
-      <form id="form" onSubmit={handleSubmit}>
-        <label>
-          <input
-            type="text"
-            id="input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-          />
-        </label>
-        <button type="submit">Send</button>
-      </form>
-      
+      {!collapsed && (<div className="chat-content">
+        <div className="messages-container">
+          {chatTimeline.map((msg,index) => (
+            <div key={index} 
+              className={`messages ${msg.type === "chat"?index % 2===0?"color-a":"color-b":"" } 
+              ${msg.type === "join"||msg.type === "leave"||msg.type === "host"?"system-message":""}`}
+            >
+              {msg.type === "chat"?(
+                <p>
+                  <strong>{msg.sid === mySocketId ? "You" : msg.senderusername}:</strong> {msg.text}
+                </p>)
+                :msg.type === "host" && msg.sid === mySocketId ? <p>You are the host</p>
+                :(<p>{msg.text}</p>)
+              }
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+
+        <form id="form" onSubmit={handleSubmit}>
+          <label>
+            <input
+              type="text"
+              id="input"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
+            />
+          </label>
+          <button type="submit">Send</button>
+        </form>  
+      </div>)}
     </div>
   );
 }
