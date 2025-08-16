@@ -41,7 +41,7 @@ export default function setupSocket(io){
       const room = roomData.get(roomId);
 
       if(!room){
-        socket.emit('error',"room not found");
+        socket.emit('error',"Room not found :(...Did you get the correct Room ID??...Check!");
         return;
       }
 
@@ -117,12 +117,12 @@ export default function setupSocket(io){
     socket.on('new-message',(roomId,input,sid)=>{
       const room=roomData.get(roomId);
       if(!room){
-        socket.emit('error',"room not found");
+        socket.emit('error',"Room not found :(...Did you get the correct Room ID??...Check!");
         return;
       }
       const playerInfo = room.players[sid];
       if (!playerInfo) {
-        socket.emit('error',"sender not found in room");
+        socket.emit('error',"Sender not found in room");
         return;
       }
       io.to(roomId).emit('display-messages',
@@ -223,7 +223,7 @@ export default function setupSocket(io){
     socket.on('start-game',async ({roomId,difficulty,validation,time}) => {
       const room=roomData.get(roomId);
       if(!room){
-        socket.emit('error',"room not found");
+        socket.emit('error',"Room not found :(...Did you get the correct Room ID??...Check!");
         return;
       }
       if (room.hostid!==socket.id) {

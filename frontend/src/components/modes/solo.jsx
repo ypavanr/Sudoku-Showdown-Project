@@ -52,7 +52,7 @@ export default function Solo() {
 
     catch (err) 
     {
-      alert("error fetching puzzle, "+ err);
+      setSubmitMessage("Error fetching Puzzle, "+ err);
     }
   };
 
@@ -127,7 +127,7 @@ export default function Solo() {
             }
           } 
           catch (err) {
-            alert("error validating move, " + err);
+            setSubmitMessage("Error validating move, " + err);
           }
         };
         validateResult(row, col, num);
@@ -158,7 +158,7 @@ export default function Solo() {
       }
     } 
     catch (err) {
-      alert("error validating submission, " + err);
+      setSubmitMessage("Error validating submission, " +  err);
     }
   };
   

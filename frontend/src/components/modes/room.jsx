@@ -56,6 +56,7 @@ const Room = () => {
   const [username,setUsername]=useState(null);
   const [avatar, setAvatar] = useState('');
   const [teamName, setTeamName] = useState("");
+  const [submissionMessage, setSubmitMessage]=useState('');
 
   const handleCreateRoom = () => {
     setShowMode(true);   
@@ -86,11 +87,11 @@ const Room = () => {
     const newRoomId = nanoid(6);
     const mode = selectedMode;
     if (!mode) {
-      alert('Please select a mode');
+      setSubmitMessage('Please select a mode');
       return;
     }
     if (mode === 'cc' && !teamName.trim()) {
-      alert("Please enter a team name");
+      setSubmitMessage("Please enter a team name");
       return;
     }
     else {
@@ -113,7 +114,7 @@ const Room = () => {
     };
 
     socket.on("error",(message)=>{
-      alert(message);
+      setSubmitMessage(message);
     })
 
     socket.on('room-created',handleRoomCreated);
@@ -173,6 +174,15 @@ const Room = () => {
 
         </div>
       </div>
+
+      {submissionMessage&&(<div className="modal-overlay">
+        <div className="modal-content leaderboard-modal">
+          <div className="game-message">{submissionMessage}</div>
+          <br></br>
+          <button onClick={() => {setSubmitMessage('');}}>Close</button>
+        </div>
+      </div>)}
+
     </div>
   );
 };

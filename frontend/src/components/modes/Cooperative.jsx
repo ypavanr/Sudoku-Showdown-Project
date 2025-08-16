@@ -113,7 +113,7 @@ export default function Cooperative() {
     });
 
     socket.on("error",(message)=>{
-      alert(message);
+      setSubmitMessage(message);
       navigate("/room");
     })
 
@@ -269,11 +269,11 @@ export default function Cooperative() {
         socket.emit("validate-submission", { roomId, puzzle });
     }
   };
-    const handleQuit = () => {
+
+  const handleQuit = () => {
     setSubmitMessage("Are you sure you want to quit?");
     setShowQuitModal(true);
   };
-
 
   return (
     <div>

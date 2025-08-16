@@ -143,7 +143,7 @@ export default function Competitive() {
     })
 
     socket.on("error",(message)=>{
-      alert(message);
+      setSubmitMessage(message);
       navigate("/room");
     })
 
