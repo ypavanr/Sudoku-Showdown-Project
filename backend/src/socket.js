@@ -185,6 +185,9 @@ export default function setupSocket(io){
   }
 }
 
+    
+
+
     function broadcastleaderboard(roomId,) {
       const room = roomData.get(roomId);
       const allDone = Object.values(room.players).every(p => p.completed);
@@ -365,6 +368,4 @@ export default function setupSocket(io){
       await leaveRoom(socket,roomId)    
     });
   });
-
-  return { roomData, socketToRoom };
 }
