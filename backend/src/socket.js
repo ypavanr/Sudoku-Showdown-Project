@@ -366,5 +366,4 @@ export default function setupSocket(io){
     });
   });
 
-  return { roomData, socketToRoom };
 }
