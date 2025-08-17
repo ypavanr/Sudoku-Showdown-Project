@@ -22,8 +22,6 @@ const io = new Server(server, {
   },
 });
 
-setupSocket(io);
-
 app.use("/sudoku",sudokuRouter)
 const PORT = process.env.PORT || 3000;
 server.listen(PORT,()=>{
