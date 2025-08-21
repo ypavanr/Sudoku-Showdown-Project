@@ -32,6 +32,11 @@ export default function Cooperative() {
   const [mySocketId, setMySocketId] = useState("");
   const [hostId, setHostId] = useState("");
   const [lockedCells,setLockedCells]=useState(new Set());
+  const puzzleRef = useRef([]);
+  const inputStatusRef = useRef({});
+  const lockedCellsRef = useRef(new Set());
+  const secondsElapsedRef = useRef(0);
+  const originalCellsRef = useRef([]);
   const navigate = useNavigate();
 
   const handleStartGame = () => {
@@ -63,7 +68,55 @@ export default function Cooperative() {
     setIsRunning(false);
   };
 
+  useEffect(() => {puzzleRef.current = puzzle;},[puzzle]);
+  useEffect(() => {inputStatusRef.current = inputStatus;},[inputStatus]);
+  useEffect(() => {lockedCellsRef.current = lockedCells;},[lockedCells]);
+  useEffect(() => {secondsElapsedRef.current = secondsElapsed;},[secondsElapsed]);
+  useEffect(() => {originalCellsRef.current = originalCells;},[originalCells]);
+  useEffect(() => {selectedValidationRef.current = validationChoice;},[validationChoice]);
+
   useEffect(() => {
+    socket.emit("ready-2");
+    
+    socket.on("receive-current-state", (state) => {
+    console.log("✅ New player received current state", state);
+    setPuzzle(state.puzzle);
+    setOriginalCells(state.originalCells || []);
+    setInputStatus(state.inputStatus || {});
+    setValidationChoice(state.validationChoice || 'on');
+    setSelectedLevel(state.selectedLevel || 'easy');
+    setLockedCells(new Set(state.lockedCells || []));
+    setStartButton(false);
+    console.log(showStartButton);
+    if (!intervalRef.current) {
+      const elapsed = state.secondsElapsed || 0;
+      startTimeRef.current = Date.now() - elapsed * 1000;
+      intervalRef.current = setInterval(() => {
+        const now = Date.now();
+        const diffInSeconds = Math.floor((now - startTimeRef.current) / 1000);
+        setSecondsElapsed(diffInSeconds);
+      }, 1000);
+      setIsRunning(true);
+    }
+  });
+
+    socket.on("request-current-state", ({ newPlayerId }) => {
+  console.log("➡️ Host sending current state to", newPlayerId);
+
+  socket.emit("send-current-state", {
+    to: newPlayerId,
+    state: {
+      puzzle: puzzleRef.current,
+      inputStatus: inputStatusRef.current,
+      validationChoice: selectedValidationRef.current,
+      selectedLevel: selectedLevelRef.current,
+      lockedCells: Array.from(lockedCellsRef.current),
+      secondsElapsed: secondsElapsedRef.current,
+      originalCells: originalCellsRef.current
+    }
+  });
+});
+
     socket.on('update-validation',(newValidation)=>{
       setValidationChoice(newValidation);
     })
@@ -204,6 +257,8 @@ export default function Cooperative() {
       socket.off("connect");
       socket.off('return-players');
       socket.off('socket-id');
+      socket.off("receive-current-state");
+      socket.off("request-current-state");
       window.removeEventListener("beforeunload", handleUnload);
       window.removeEventListener("popstate", handlePopState);
     };

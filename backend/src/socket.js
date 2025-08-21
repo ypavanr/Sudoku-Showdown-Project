@@ -5,6 +5,7 @@ import { supabase } from "./config/supabase.js";
 export default function setupSocket(io){
   const roomData=new Map();
   const socketToRoom = new Map();
+  const stateData=new Map();
 
   io.on('connection',(socket)=>{
 
@@ -17,13 +18,12 @@ export default function setupSocket(io){
     
     socket.on('create-room',async ({roomId,mode,username,avatar,teamName})=>{
       roomData.set(roomId,{unsolvedPuzzle:null,solvedPuzzle:null,hostid:socket.id,host:username, mode: mode,players: {[socket.id]:{name:username,icon: avatar, score: 0, completed: false, team: teamName}}});
-
+      stateData.set(roomId,{ongoing:false});
       if(socketToRoom.get(socket.id)){
-        const prevRoom=socketToRoom.get(socket.id);
-      await leaveRoom(socket,prevRoom)
-
+        const prevroomId = socketToRoom.get(socket.id);
+      if (!prevroomId) return;
+      await leaveRoom(socket,prevroomId)
       }
-
       socketToRoom.set(socket.id,roomId);
       socket.join(roomId);
       console.log(`Room created:${roomId} by ${username}`);
@@ -39,6 +39,7 @@ export default function setupSocket(io){
 
     socket.on('join-room',async (roomId,username,avatar) => {
       const room = roomData.get(roomId);
+      const state= stateData.get(roomId);
 
       if(!room){
         socket.emit('error',"Room not found :(...Did you get the correct Room ID??...Check!");
@@ -53,6 +54,15 @@ export default function setupSocket(io){
 
       socketToRoom.set(socket.id,roomId);      
       socket.join(roomId);
+
+      if(state.ongoing && stateData.has(roomId) && roomId == socketToRoom.get(socket.id))
+      {
+      const hostSocket = io.sockets.sockets.get(room.hostid);
+      if (hostSocket) {
+        console.log(`[JOIN-MID] Asking host ${room.hostid} to send state to ${socket.id}`);
+        hostSocket.emit('request-current-state', { newPlayerId: socket.id });
+    }
+      }
 
       if(room.mode==='competitive'||room.mode==='cc'||room.mode==='cooperative'){
         room.players[socket.id] = { name:username, icon:avatar,score: 0, completed: false };
@@ -70,6 +80,22 @@ export default function setupSocket(io){
           if (error) console.error('Supabase insert error (username):', error.message);
         });
     });
+
+    socket.on('send-current-state', ({ to, state }) => {
+  const targetSocket = io.sockets.sockets.get(to);
+  if (targetSocket) {
+    console.log(`[SEND] Host sent state, waiting for ${to} to be ready`);
+    targetSocket.pendingState = state;
+  }
+});
+
+socket.on('ready-2', () => {
+  if (socket.pendingState) {
+    console.log(`[READY-2] Delivering pending state to ${socket.id}`);
+    socket.emit('receive-current-state', socket.pendingState);
+    delete socket.pendingState; 
+  }
+});
 
     socket.on('create-team', ({ roomId, teamName }) => {
       const room = roomData.get(roomId);
@@ -145,6 +171,7 @@ export default function setupSocket(io){
   if (clients.size === 0) {
     console.log(`Room ${roomId} is now empty. Deleting room data.`);
     roomData.delete(roomId);
+    stateData.delete(roomId);
     return;
   }
 
@@ -185,9 +212,6 @@ export default function setupSocket(io){
   }
 }
 
-    
-
-
     function broadcastleaderboard(roomId,) {
       const room = roomData.get(roomId);
       const allDone = Object.values(room.players).every(p => p.completed);
@@ -199,6 +223,7 @@ export default function setupSocket(io){
         Object.values(room.players).forEach(player=>{
           player.completed = false;
         });
+        stateData.set(roomId,{ongoing: false});
       } 
     }
 
@@ -244,6 +269,7 @@ export default function setupSocket(io){
       room.solvedPuzzle = solvedPuzzle;
       room.unsolvedPuzzle = unsolvedPuzzle;
       io.in(roomId).emit('puzzle', {puzzle:unsolvedPuzzle,time});
+      stateData.set(roomId,{ongoing: true});
       console.log(`Game started in room ${roomId}.difficulty level: ${difficulty} solved puzzle:`);
       Util.print2DArray(solvedPuzzle);
       await supabase
@@ -282,10 +308,12 @@ export default function setupSocket(io){
 
     socket.on('validate-submission',({roomId,puzzle})=>{
       const room=roomData.get(roomId);
+      
       if (!room || !room.solvedPuzzle) return;
       const solved=room.solvedPuzzle;
       if(isSamePuzzle(solved,puzzle)){
         io.in(roomId).emit('game-complete',"Puzzle solved! Hooray!!!");
+        stateData.set(roomId,{ongoing: false});
         return;
       }
       else{
