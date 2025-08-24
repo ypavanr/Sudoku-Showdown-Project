@@ -71,7 +71,7 @@ function AboutProject() {
               <li><b>New Game Trigger</b> – Hosts can launch a new game round directly from the room settings.</li>
               <li><b>Leaderboard (Competitive Mode)</b> – Tracks and displays player rankings based on speed and accuracy.</li>
               <li><b>Point System</b> – Awards points in competitive mode based on how quickly and accurately players complete the puzzle (not available in Expert Mode or when validation is disabled; in these cases, the fastest solver earns the highest points).</li>
-              <li><b>Mid-Game Join (Competitive & Cooperative)</b> – Players who join after a match has started automatically sync with the ongoing game—receiving the puzzle, remaining time, and current progress to continue alongside others seamlessly.</li>
+              <li><b>Mid-Game Join (Cooperative)</b> – Players who join after a match has started automatically sync with the ongoing game—receiving the puzzle, remaining time, and current progress to continue alongside others seamlessly.</li>
               <li><b>Collapsible Chat</b> – The in-game chat can be minimized or maximized using (+/–) buttons, letting you hide or show conversations whenever you want.</li>
             </ul>
           </div>
