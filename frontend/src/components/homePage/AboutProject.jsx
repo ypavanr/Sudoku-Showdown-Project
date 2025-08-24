@@ -65,12 +65,14 @@ function AboutProject() {
               <li><b>One Room per Player</b> – Each user can only join one room at a time to keep gameplay consistent.</li>
               <li><b>Host Privileges</b> – The host chooses the level, mode, and time before starting the game.</li>
               <li><b>Host Transfer</b> – If the host leaves, another player automatically becomes the new host.</li>
-              <li><b>Validation System</b> – Automatically checks inputs for correctness in all levels except Expert.</li>
+              <li><b>Custom Validation Toggle</b> – The host can decide whether to enable or disable the automatic validation system before starting a game.</li>
               <li><b>Real-Time Chat</b> – Communicate with other players while you play—strategize, trash talk, or just vibe.</li>
               <li><b>Quit Button</b> – Lets you leave the room or game at any time with a single click.</li>
               <li><b>New Game Trigger</b> – Hosts can launch a new game round directly from the room settings.</li>
               <li><b>Leaderboard (Competitive Mode)</b> – Tracks and displays player rankings based on speed and accuracy.</li>
-              <li><b>Point System</b> – Awards points in competitive mode based on how quickly and accurately players complete the puzzle (not available in Expert mode).</li>
+              <li><b>Point System</b> – Awards points in competitive mode based on how quickly and accurately players complete the puzzle (not available in Expert Mode or when validation is disabled; in these cases, the fastest solver earns the highest points).</li>
+              <li><b>Mid-Game Join (Competitive & Cooperative)</b> – Players who join after a match has started automatically sync with the ongoing game—receiving the puzzle, remaining time, and current progress to continue alongside others seamlessly.</li>
+              <li><b>Collapsible Chat</b> – The in-game chat can be minimized or maximized using (+/–) buttons, letting you hide or show conversations whenever you want.</li>
             </ul>
           </div>
         </div>
