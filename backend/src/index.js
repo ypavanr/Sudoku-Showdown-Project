@@ -6,6 +6,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import setupSocket from "./socket.js";
 import { sudokuRouter } from "./routes/sudokuRoutes.js";
+
 const app=express()
 env.config()
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -14,6 +15,7 @@ app.use(cors({
   origin: ['http://localhost:5173','https://sudoku-savvy.vercel.app'],
   credentials: true
 }));
+
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -22,9 +24,13 @@ const io = new Server(server, {
   },
 });
 
-app.post("/test", (req, res) => {
-  return res.status(200).json({ message: "Test route working" });
+app.get("/ping", (req, res) => {
+  res.json({
+    status: "ok",
+    time: new Date().toISOString()
+  });
 });
+
 setupSocket(io);
 
 app.use("/sudoku",sudokuRouter)
