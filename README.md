@@ -83,7 +83,7 @@ Over time, we kept refining the project with **user-friendly features** and poli
 
 ```bash
 git clone https://github.com/ypavanr/Sudoku-Showdown-Project
-cd sudoku-savvy
+cd Sudoku-Showdown-Project
 ```
 
 ---
@@ -117,7 +117,8 @@ SUPABASE_ANON_KEY=your_supabase_anon_key
 ```bash
 cd backend
 npm install
-node src/index.js
+cd src
+node index.js
 ```
 
 This will start the backend server (default: `http://localhost:3000`).
