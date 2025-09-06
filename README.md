@@ -1,4 +1,4 @@
-# Sudoku Savvy 🎮🧩
+# Sudoku Savvy 🎮🧩(https://sudoku-savvy.vercel.app/)
 
 A real-time multiplayer Sudoku platform where you can **compete, collaborate, or play solo**.
 
@@ -71,51 +71,69 @@ Over time, we kept refining the project with **user-friendly features** and poli
 * **Sudoku Algorithms:** Built custom puzzle generators with unique solutions for Easy–Hard, and multi-solution flexibility for Expert. Learned validation, solution verification, and dynamic input handling.
 * **Game Flow Management:** Implemented setup, restarts, host transitions, and disconnection handling. Learned how real-time multiplayer games function behind the scenes.
 
- ##  ⚙️ Setup & Usage
-🔧 Prerequisites
 
-Node.js
- (v18+)
+## ⚙️ Setup & Usage
 
-npm (comes with Node.js)
+### 🔧 Prerequisites
 
-📂 Clone the Repository
-git clone https://github.com/<your-username>/sudoku-savvy.git
+* [Node.js](https://nodejs.org/) (v18+)
+* npm (comes with Node.js)
+
+### 📂 Clone the Repository
+
+```bash
+git clone https://github.com/ypavanr/Sudoku-Showdown-Project
 cd sudoku-savvy
+```
 
-🌍 Environment Variables
-📌 Frontend (frontend/.env)
-Create a file named .env inside the frontend folder and add:
+---
 
+### 🌍 Environment Variables
+
+#### 📌 Frontend (`frontend/.env`)
+
+Create a file named `.env` inside the **`frontend/`** folder:
+
+```bash
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-📌 Backend (backend/src/.env)
-Create a file named .env inside the backend/src folder and add:
+#### 📌 Backend (`backend/src/.env`)
 
+Create a file named `.env` inside the **`backend/src/`** folder:
+
+```bash
 SUPABASE_PROJECT_URL=your_supabase_project_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-▶️ Backend Setup
+👉 Replace the placeholders with values from your [Supabase project dashboard](https://supabase.com/).
+
+---
+
+### ▶️ Backend Setup
+
+```bash
 cd backend
 npm install
-cd src
-node index.js
+node src/index.js
+```
 
+This will start the backend server (default: `http://localhost:3000`).
 
-This will start the backend server on your configured port (default: http://localhost:3000).
+---
 
-💻 Frontend Setup
+### 💻 Frontend Setup
+
+```bash
 cd frontend
 npm install
 npm run dev
+```
 
-
-This will start the frontend dev server (default: http://localhost:5173).
+This will start the frontend dev server (default: `http://localhost:5173`).
 
 Now open the frontend in your browser and it will connect to the backend automatically. 🎉
 
-
-
-
-
+---
