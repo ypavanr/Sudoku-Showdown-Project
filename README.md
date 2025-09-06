@@ -2,7 +2,7 @@
 
 A real-time multiplayer Sudoku platform where you can **compete, collaborate, or play solo**.
 
-##📌 Motivation
+## 📌 Motivation
 
 What began as a friendly competition between us quickly turned into a full-fledged project. We used to challenge each other to solve Sudoku puzzles faster, but couldn’t find any apps that let us compete on the same puzzle in real-time. Most platforms focused only on solo play, and none offered the **multiplayer experience** we wanted.
 
@@ -70,4 +70,52 @@ Over time, we kept refining the project with **user-friendly features** and poli
 * **Frontend & UX:** Designed responsive layouts, smooth transitions, and intuitive controls—focusing on usability for different modes.
 * **Sudoku Algorithms:** Built custom puzzle generators with unique solutions for Easy–Hard, and multi-solution flexibility for Expert. Learned validation, solution verification, and dynamic input handling.
 * **Game Flow Management:** Implemented setup, restarts, host transitions, and disconnection handling. Learned how real-time multiplayer games function behind the scenes.
+
+ ##  ⚙️ Setup & Usage
+🔧 Prerequisites
+
+Node.js
+ (v18+)
+
+npm (comes with Node.js)
+
+📂 Clone the Repository
+git clone https://github.com/<your-username>/sudoku-savvy.git
+cd sudoku-savvy
+
+🌍 Environment Variables
+📌 Frontend (frontend/.env)
+Create a file named .env inside the frontend folder and add:
+
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+📌 Backend (backend/src/.env)
+Create a file named .env inside the backend/src folder and add:
+
+SUPABASE_PROJECT_URL=your_supabase_project_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+
+▶️ Backend Setup
+cd backend
+npm install
+cd src
+node index.js
+
+
+This will start the backend server on your configured port (default: http://localhost:3000).
+
+💻 Frontend Setup
+cd frontend
+npm install
+npm run dev
+
+
+This will start the frontend dev server (default: http://localhost:5173).
+
+Now open the frontend in your browser and it will connect to the backend automatically. 🎉
+
+
+
+
 
